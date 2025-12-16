@@ -5,50 +5,56 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertTriangle, Server, Database, Activity, Terminal, Search, CheckCircle2, Clock, Play } from "lucide-react";
+import { AlertTriangle, Server, Database, Activity, Terminal, Search, CheckCircle2, Clock, Play, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocation } from "wouter";
+import { useLocation, useRoute } from "wouter";
+import { INCIDENTS } from "@/data/incidents";
 
-interface LogEntry {
+export interface LogEntry {
   timestamp: string;
   level: "INFO" | "WARN" | "ERROR";
   service: string;
   message: string;
 }
 
-const IncidentScenario = () => {
+const IncidentScenario = ({ id }: { id: string }) => {
+  const incident = INCIDENTS.find(i => i.id === id) || INCIDENTS[0];
   const [activeTab, setActiveTab] = useState("logs");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isResolved, setIsResolved] = useState(false);
   const [selectedRCA, setSelectedRCA] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
-  // Simulate streaming logs
+  // Initialize logs
   useEffect(() => {
-    const initialLogs: LogEntry[] = [
-      { timestamp: "10:14:22", level: "INFO", service: "api-gateway", message: "Incoming request: POST /api/v1/kyc/verify" },
-      { timestamp: "10:14:22", level: "INFO", service: "auth-service", message: "Token validation successful for user_id: 8821" },
-      { timestamp: "10:14:23", level: "INFO", service: "kyc-processor", message: "Processing Aadhaar OCR task..." },
-    ];
-    setLogs(initialLogs);
+    setLogs(incident.logs);
+    setIsResolved(false);
+    setSelectedRCA(null);
+  }, [incident]);
 
+  // Simulate streaming logs (append duplicates of existing logs for effect)
+  useEffect(() => {
     const interval = setInterval(() => {
       if (isResolved) return;
       
-      const newLog: LogEntry = Math.random() > 0.7 
-        ? { timestamp: new Date().toLocaleTimeString(), level: "ERROR", service: "db-primary", message: "Connection pool exhausted (active: 100, idle: 0, waiting: 42)" }
-        : { timestamp: new Date().toLocaleTimeString(), level: "WARN", service: "api-gateway", message: "Upstream timeout: kyc-processor (5000ms)" };
+      const randomLog = incident.logs[Math.floor(Math.random() * incident.logs.length)];
+      const newLog = { 
+        ...randomLog, 
+        timestamp: new Date().toLocaleTimeString() 
+      };
       
       setLogs(prev => [...prev, newLog].slice(-20)); // Keep last 20 logs
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [isResolved]);
+  }, [isResolved, incident]);
 
   const handleSubmitRCA = () => {
-    if (selectedRCA === "db-pool") {
+    if (selectedRCA === incident.correctOptionId) {
       setIsResolved(true);
     } else {
-      // Incorrect answer logic could go here
+      // Could add feedback for wrong answer
+      alert("Incorrect Root Cause Analysis. Review the telemetry and try again.");
     }
   };
 
@@ -65,25 +71,29 @@ const IncidentScenario = () => {
             </CardHeader>
             <CardContent className="p-3 pt-2">
                <div className="flex items-end h-24 gap-1">
-                 {[40, 42, 45, 38, 41, 44, 42, 39, 41, 43, 40, 42].map((h, i) => (
+                 {incident.metrics.cpu.map((h, i) => (
                    <div key={i} className="flex-1 bg-primary/20 hover:bg-primary/40 transition-colors rounded-t-sm" style={{ height: `${h}%` }} />
                  ))}
                </div>
-               <div className="text-right text-xs font-mono text-primary mt-1">42% (Healthy)</div>
+               <div className="text-right text-xs font-mono text-primary mt-1">Last: {incident.metrics.cpu[incident.metrics.cpu.length - 1]}%</div>
             </CardContent>
           </Card>
           
           <Card className="bg-black/40 border-destructive/20">
              <CardHeader className="p-3 pb-0">
-              <CardTitle className="text-xs font-mono text-muted-foreground">DB Connections</CardTitle>
+              <CardTitle className="text-xs font-mono text-muted-foreground">
+                {incident.id === "2" ? "Memory Usage" : "DB Connections"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-3 pt-2">
                <div className="flex items-end h-24 gap-1">
-                 {[60, 65, 72, 80, 88, 95, 99, 100, 100, 100, 100, 100].map((h, i) => (
+                 {(incident.id === "2" ? incident.metrics.memory : incident.metrics.dbConnections).map((h, i) => (
                    <div key={i} className={cn("flex-1 transition-colors rounded-t-sm", h > 90 ? "bg-destructive animate-pulse" : "bg-primary/20")} style={{ height: `${h}%` }} />
                  ))}
                </div>
-               <div className="text-right text-xs font-mono text-destructive mt-1">100% (SATURATED)</div>
+               <div className="text-right text-xs font-mono text-destructive mt-1">
+                 Last: {(incident.id === "2" ? incident.metrics.memory : incident.metrics.dbConnections).slice(-1)[0]}%
+               </div>
             </CardContent>
           </Card>
         </div>
@@ -175,12 +185,14 @@ const IncidentScenario = () => {
         <Card className="bg-card/40 border-destructive/20">
           <CardHeader>
             <div className="flex justify-between items-start">
-               <Badge variant="destructive" className="animate-pulse">CRITICAL</Badge>
-               <span className="font-mono text-destructive text-sm">INC-2024-001</span>
+               <Badge variant={incident.severity === "CRITICAL" ? "destructive" : "outline"} className={incident.severity === "CRITICAL" ? "animate-pulse" : ""}>
+                 {incident.severity}
+               </Badge>
+               <span className="font-mono text-destructive text-sm">INC-2024-00{incident.id}</span>
             </div>
-            <CardTitle className="text-lg mt-2">KYC Latency Spike</CardTitle>
+            <CardTitle className="text-lg mt-2">{incident.title}</CardTitle>
             <CardDescription>
-              Customers reporting timeouts. Determine the root cause to restore service.
+              {incident.description}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -201,55 +213,32 @@ const IncidentScenario = () => {
                  <div>
                    <h3 className="text-xl font-bold text-green-500">Incident Resolved!</h3>
                    <p className="text-muted-foreground text-sm mt-2">
-                     Correctly identified <strong>Database Connection Pool Exhaustion</strong>.
+                     {incident.explanation}
                    </p>
                    <p className="font-mono text-primary mt-4">+500 XP Awarded</p>
                  </div>
-                 <Button className="w-full" variant="outline" onClick={() => window.location.href = '/incidents'}>
+                 <Button className="w-full" variant="outline" onClick={() => setLocation('/incidents')}>
                    Return to Incident List
                  </Button>
                </div>
              ) : (
                <>
                  <div className="space-y-3">
-                   <button 
-                     onClick={() => setSelectedRCA("cpu")}
-                     className={cn(
-                       "w-full text-left p-3 rounded border transition-all text-sm",
-                       selectedRCA === "cpu" 
-                         ? "bg-primary/20 border-primary text-primary" 
-                         : "bg-white/5 border-white/10 hover:bg-white/10"
-                     )}
-                   >
-                     <span className="font-bold block mb-1">CPU Saturation</span>
-                     <span className="text-xs opacity-70">Application logic is too heavy for current compute resources.</span>
-                   </button>
-                   
-                   <button 
-                     onClick={() => setSelectedRCA("db-pool")}
-                     className={cn(
-                       "w-full text-left p-3 rounded border transition-all text-sm",
-                       selectedRCA === "db-pool" 
-                         ? "bg-primary/20 border-primary text-primary" 
-                         : "bg-white/5 border-white/10 hover:bg-white/10"
-                     )}
-                   >
-                     <span className="font-bold block mb-1">DB Connection Pool</span>
-                     <span className="text-xs opacity-70">Application cannot acquire database connections fast enough.</span>
-                   </button>
-
-                   <button 
-                     onClick={() => setSelectedRCA("external")}
-                     className={cn(
-                       "w-full text-left p-3 rounded border transition-all text-sm",
-                       selectedRCA === "external" 
-                         ? "bg-primary/20 border-primary text-primary" 
-                         : "bg-white/5 border-white/10 hover:bg-white/10"
-                     )}
-                   >
-                     <span className="font-bold block mb-1">External API Timeout</span>
-                     <span className="text-xs opacity-70">Aadhaar/PAN vendor API is unresponsive.</span>
-                   </button>
+                   {incident.options.map((option) => (
+                     <button 
+                       key={option.id}
+                       onClick={() => setSelectedRCA(option.id)}
+                       className={cn(
+                         "w-full text-left p-3 rounded border transition-all text-sm",
+                         selectedRCA === option.id 
+                           ? "bg-primary/20 border-primary text-primary" 
+                           : "bg-white/5 border-white/10 hover:bg-white/10"
+                       )}
+                     >
+                       <span className="font-bold block mb-1">{option.label}</span>
+                       <span className="text-xs opacity-70">{option.description}</span>
+                     </button>
+                   ))}
                  </div>
 
                  <div className="mt-auto">
@@ -271,15 +260,17 @@ const IncidentScenario = () => {
 };
 
 export default function IncidentDetail() {
+  const [, params] = useRoute("/incidents/:id");
   const [, setLocation] = useLocation();
+  const id = params?.id || "1";
   
   return (
     <Shell>
       <div className="flex items-center gap-2 mb-6 text-muted-foreground hover:text-foreground cursor-pointer" onClick={() => setLocation('/incidents')}>
-        <Server className="h-4 w-4" />
+        <ArrowLeft className="h-4 w-4" />
         <span className="text-sm">Back to Incidents</span>
       </div>
-      <IncidentScenario />
+      <IncidentScenario id={id} />
     </Shell>
   );
 }
