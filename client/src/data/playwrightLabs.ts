@@ -21,43 +21,44 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "Use user-facing locators like `getByRole` instead of CSS selectors.",
     difficulty: "Beginner",
     icon: Search,
-    initialCode: `test('Parabank Login', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com/parabank/index.htm');
+    initialCode: `test('Authentication Zone', async ({ page }) => {
+  await page.goto('/playground/auth');
   
-  // TODO: Replace CSS selectors with robust Playwright locators
-  // Ideally use getByRole, getByLabel, or getByPlaceholder
+  // TODO: Replace CSS selectors with robust Playwright locators.
+  // Ideally use getByRole, getByLabel, or getByPlaceholder.
+  // Or use the stable data-testid attributes we added.
   
   // Fragile: CSS class
-  await page.locator('.input.field-1').fill('john');
+  await page.locator('form > div:nth-child(2) > input').fill('admin');
   
-  // Fragile: CSS structure
-  await page.locator('form > div:nth-child(2) > input').fill('demo');
+  // Fragile: Placeholder text (better, but still fragile)
+  await page.getByPlaceholder('••••••••').fill('password123');
   
-  // Fragile: Button class
-  await page.locator('.button.login').click();
+  // Fragile: Button text
+  await page.getByText('Sign In').click();
   
   // Assertion
-  await expect(page.locator('.smallText')).toContainText('Welcome');
+  await expect(page.locator('.text-green-500')).toContainText('Welcome back');
 });`,
     missionBrief: {
-      context: "Playwright encourages testing like a user. Use 'getBy...' locators that reflect accessibility roles and labels.",
+      context: "Playwright encourages testing like a user. Use `getByTestId` or other robust locators.",
       objectives: [
-        { id: 1, text: "Use `page.locator('input[name=\"username\"]')` or similar" },
-        { id: 2, text: "Use `page.locator('input[name=\"password\"]')`" },
-        { id: 3, text: "Use `page.locator('input[type=\"submit\"]')`" }
+        { id: 1, text: "Use `page.getByTestId('input-username')`" },
+        { id: 2, text: "Use `page.getByTestId('input-password')`" },
+        { id: 3, text: "Use `page.getByTestId('btn-login')`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasUsername = code.includes("input[name='username']") || code.includes('input[name="username"]');
-      const hasPassword = code.includes("input[name='password']") || code.includes('input[name="password"]');
-      const hasSubmit = code.includes("input[type='submit']") || code.includes('input[type="submit"]');
+      const hasUsername = code.includes("input-username");
+      const hasPassword = code.includes("input-password");
+      const hasSubmit = code.includes("btn-login");
 
       logs.push("✓ Test started");
       
       if (!hasUsername) {
         logs.push("✗ ERROR: Fragile locator for username.");
-         logs.push("  ↳ Recommendation: page.locator('input[name=\"username\"]')");
+         logs.push("  ↳ Recommendation: page.getByTestId('input-username')");
         return { passed: false, logs };
       }
 
@@ -81,11 +82,11 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "Understand Playwright's auto-waiting mechanism to avoid manual waits.",
     difficulty: "Beginner",
     icon: Clock,
-    initialCode: `test('Find Transactions', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com/parabank/findtrans.htm');
+    initialCode: `test('API Zone', async ({ page }) => {
+  await page.goto('/playground/api');
   
-  await page.locator('#criteria\\.amount').fill('1000');
-  await page.locator('button[ng-click="findTransactions()"]').click();
+  // Trigger the delayed API call
+  await page.getByTestId('btn-get-users').click();
   
   // TODO: Playwright automatically waits for elements to be actionable.
   // Remove the manual wait.
@@ -93,8 +94,9 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
   
   // TODO: Assert visibility directly. 
   // Playwright assertions retry automatically.
-  const table = page.locator('#transactionTable');
-  if (await table.isVisible()) {
+  // The user row has data-testid="user-row-1"
+  const row = page.getByTestId('user-row-1');
+  if (await row.isVisible()) {
       console.log('Visible');
   }
 });`,
@@ -102,7 +104,7 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
       context: "Playwright auto-waits for elements to be attached, visible, and stable. Explicit waits are rarely needed.",
       objectives: [
         { id: 1, text: "Remove `page.waitForTimeout(5000)`" },
-        { id: 2, text: "Use `await expect(table).toBeVisible()`" }
+        { id: 2, text: "Use `await expect(row).toBeVisible()`" }
       ]
     },
     validation: (code: string) => {
@@ -134,35 +136,36 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "In Playwright, just use standard JavaScript/TypeScript variables.",
     difficulty: "Beginner",
     icon: Variable,
-    initialCode: `test('Account Overview', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com/parabank/overview.htm');
+    initialCode: `test('Data Grid Budget', async ({ page }) => {
+  await page.goto('/playground/data');
   
   // Cypress needs aliases. Playwright uses const/let.
   
-  // TODO: Get the text from '.balance'
+  // TODO: Get the text from the budget cell of the first row
   // Use locator.innerText()
+  // Selector: [data-testid="row-1"] td:nth-child(5)
   
-  // TODO: Store it in a variable named 'balanceText'
+  // TODO: Store it in a variable named 'budgetText'
   
   // TODO: Log it to console
 });`,
     missionBrief: {
       context: "No need for special aliases or `.then()`. Playwright runs inside standard Node.js, so you can use standard variables.",
       objectives: [
-        { id: 1, text: "Use `const balanceText = await ...innerText()`" },
+        { id: 1, text: "Use `const budgetText = await ...innerText()`" },
         { id: 2, text: "Console log the variable" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasVar = /const\s+balanceText\s*=\s*await/.test(code);
-      const hasLog = /console\.log\(.*balanceText.*\)/.test(code);
+      const hasVar = /const\s+budgetText\s*=\s*await/.test(code);
+      const hasLog = /console\.log\(.*budgetText.*\)/.test(code);
 
       logs.push("✓ Test started");
       
       if (!hasVar) {
         logs.push("✗ ERROR: Variable definition missing.");
-        logs.push("  ↳ use: const balanceText = await page.locator(...).innerText()");
+        logs.push("  ↳ use: const budgetText = await page.locator(...).innerText()");
         return { passed: false, logs };
       }
 
@@ -181,25 +184,29 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "Use `locator.selectOption()` for select elements.",
     difficulty: "Beginner",
     icon: List,
-    initialCode: `test('Open New Account', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com/parabank/openaccount.htm');
+    initialCode: `test('Data Filter', async ({ page }) => {
+  await page.goto('/playground/data');
   
-  // TODO: Select '1' (SAVINGS) from the dropdown #type
+  // TODO: Select 'Active' from the status filter dropdown
+  // Note: The playground uses a custom select (Shadcn UI) which requires clicks.
+  // But for this lesson, let's assume a standard <select> exists for 'Native Select' practice.
+  // Or we can simulate selecting from the API zone's role selector which IS a select in some modes.
+  
+  // Let's pretend there is a standard select with id="#status-select"
   
   // Incorrect:
-  await page.locator('#type').click();
-  await page.locator('option').filter({ hasText: 'SAVINGS' }).click();
+  await page.locator('#status-select').click();
+  await page.locator('option').filter({ hasText: 'Active' }).click();
 });`,
     missionBrief: {
       context: "For standard `<select>` elements, use the specialized `selectOption` method.",
       objectives: [
-        { id: 1, text: "Identify the select element `#type`" },
-        { id: 2, text: "Use `.selectOption('1')` or label" }
+        { id: 1, text: "Use `.selectOption('Active')`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasSelect = /\.selectOption\(['"](1|SAVINGS)['"]\)/.test(code);
+      const hasSelect = /\.selectOption\(['"](Active|Pending|Failed)['"]\)/.test(code);
       const hasClick = /\.click\(\)/.test(code);
 
       logs.push("✓ Test started");
@@ -210,7 +217,7 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
 
       if (!hasSelect) {
         logs.push("✗ ERROR: selectOption missing.");
-        logs.push("  ↳ Expected: await page.locator('#type').selectOption('1')");
+        logs.push("  ↳ Expected: await page.locator('#status-select').selectOption('Active')");
         return { passed: false, logs };
       }
 
@@ -225,30 +232,30 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     difficulty: "Beginner",
     icon: Code2,
     initialCode: `// Playwright has a powerful code generator.
-// You can run: npx playwright codegen parbank.parasoft.com
+// You can run: npx playwright codegen localhost:5000/playground
 
 test('Generated Test', async ({ page }) => {
   // TODO: Paste "generated" code here to simulate the experience
-  // 1. Go to parabank
-  // 2. Click "About Us"
-  // 3. Assert header is visible
+  // 1. Go to /playground
+  // 2. Click "Authentication Zone"
+  // 3. Assert header "Authentication Zone" is visible
 });`,
     missionBrief: {
-      context: "While we can't run codegen in the browser, write the code that codegen WOULD generate for visiting 'About Us'.",
+      context: "While we can't run codegen in the browser, write the code that codegen WOULD generate for visiting the Auth Zone.",
       objectives: [
-        { id: 1, text: "Navigate to Parabank" },
-        { id: 2, text: "Click 'About Us' link" },
+        { id: 1, text: "Navigate to `/playground`" },
+        { id: 2, text: "Click 'Authentication Zone' link" },
         { id: 3, text: "Assert heading is visible" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasClick = /click\(['"]About Us['"]\)/.test(code) || /getByRole\(['"]link['"],\s*{\s*name:\s*['"]About Us['"]\s*}\)\.click/.test(code);
+      const hasClick = /click\(['"]Authentication Zone['"]\)/.test(code) || /getByRole\(['"]link['"],\s*{\s*name:\s*['"]Authentication Zone['"]\s*}\)\.click/.test(code);
       
       logs.push("✓ Test started");
 
       if (!hasClick) {
-        logs.push("✗ ERROR: Click on 'About Us' missing.");
+        logs.push("✗ ERROR: Click on 'Authentication Zone' missing.");
         return { passed: false, logs };
       }
 
@@ -263,13 +270,18 @@ test('Generated Test', async ({ page }) => {
     difficulty: "Intermediate",
     icon: Layers,
     initialCode: `test('Open New Window', async ({ page, context }) => {
-  await page.goto('https://the-internet.herokuapp.com/windows');
+  // We can simulate a new window opening by using a target="_blank" link
+  // Let's assume the "Export CSV" button in Data Zone opens a new tab (it doesn't really, but let's pretend for the lab)
+  
+  await page.goto('/playground/data');
   
   // TODO: Clicking this link opens a new tab
   // We need to wait for the 'page' event on the context
   
   const pagePromise = context.waitForEvent('page');
-  await page.getByText('Click Here').click();
+  
+  // Let's pretend this button opens a new tab
+  await page.getByTestId('btn-export').click(); 
   
   // TODO: Await the new page
   // const newPage = ...
@@ -310,24 +322,24 @@ test('Generated Test', async ({ page }) => {
     description: "Intercept and modify network traffic with `page.route()`.",
     difficulty: "Intermediate",
     icon: Database,
-    initialCode: `test('Mock Accounts', async ({ page }) => {
-  // TODO: Intercept GET requests to **/accounts
+    initialCode: `test('Mock Users', async ({ page }) => {
+  // TODO: Intercept GET requests to /api/users (the simulated API uses this path concept)
   // Fulfill them with an empty array body: []
   
   // await page.route(...)
   
-  await page.goto('https://parabank.parasoft.com/parabank/overview.htm');
+  await page.goto('/playground/api');
 });`,
     missionBrief: {
       context: "Mock backend responses to test edge cases (like empty states) without changing the database.",
       objectives: [
-        { id: 1, text: "Use `page.route('**/accounts', ...)`" },
+        { id: 1, text: "Use `page.route('**/api/users', ...)`" },
         { id: 2, text: "Fulfill with `body: JSON.stringify([])`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasRoute = /page\.route\(['"]\*\*\/accounts['"]/.test(code);
+      const hasRoute = /page\.route\(['"]\*\*\/api\/users['"]/.test(code);
       const hasFulfill = /route\.fulfill/.test(code);
       const hasBody = /body:\s*JSON\.stringify\(\[\]\)/.test(code) || /json:\s*\[\]/.test(code);
 
@@ -356,11 +368,11 @@ test('Generated Test', async ({ page }) => {
     icon: Globe,
     initialCode: `test('API Verification', async ({ request }) => {
   // TODO: Perform a POST request to create a new user (mocked endpoint)
-  // URL: https://parabank.parasoft.com/api/create
+  // URL: /api/users
   
   // const response = await request.post(...)
   
-  // TODO: Assert status is 200
+  // TODO: Assert status is 200/201
   // await expect(response).toBeOK();
 });`,
     missionBrief: {
@@ -537,7 +549,7 @@ async function globalSetup(config: FullConfig) {
     difficulty: "Advanced",
     icon: Eye,
     initialCode: `test('Visual Test', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com/parabank/index.htm');
+  await page.goto('/playground/interactions');
   
   // TODO: Assert that the page matches the snapshot
   // Use expect(page).toHaveScreenshot()
@@ -575,7 +587,7 @@ async function globalSetup(config: FullConfig) {
   
   // await page.setViewportSize(...)
   
-  await page.goto('https://parabank.parasoft.com/parabank/index.htm');
+  await page.goto('/playground/data'); // Check if data grid is responsive
 });`,
     missionBrief: {
       context: "Ideally set in `playwright.config.ts`, but you can also set viewport dynamically.",

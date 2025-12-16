@@ -21,67 +21,64 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Learn how to select elements that won't break when CSS classes change.",
     difficulty: "Beginner",
     icon: Search,
-    initialCode: `describe('Parabank Login', () => {
+    initialCode: `describe('Authentication Zone', () => {
   it('should login successfully', () => {
-    // We are testing the Parabank demo site
-    cy.visit('https://parabank.parasoft.com/parabank/index.htm');
+    // We are testing the Practice Arena
+    cy.visit('/playground/auth');
     
-    // TODO: Replace these fragile selectors with resilient data-testid selectors if available, 
-    // or at least robust attributes (name, type) instead of CSS classes.
-    // NOTE: Parabank is a legacy app, so we might not have data-testids. 
-    // Let's use robust attributes like name="username" instead of classes.
+    // TODO: Replace these fragile selectors with resilient data-testid selectors.
+    // Fragile selectors break when the design changes.
     
-    // Fragile: relying on layout classes
-    cy.get('.input.field-1').type('john');
+    // Fragile: relying on layout structure
+    cy.get('form > div:nth-child(2) > input').type('admin');
     
-    // Fragile: relying on nth-child
-    cy.get('form > div:nth-child(2) > input').type('demo');
+    // Fragile: relying on placeholder text (better, but still fragile)
+    cy.get('[placeholder="••••••••"]').type('password123');
     
-    // Fragile: relying on button class
-    cy.get('.button.login').click();
+    // Fragile: relying on button text
+    cy.contains('Sign In').click();
     
     // Verify login success
-    cy.get('.smallText').should('contain', 'Welcome');
+    cy.get('.text-green-500').should('contain', 'Welcome back');
   });
 });`,
     missionBrief: {
-      context: "We are writing tests for the **Parabank** demo site. The current test uses fragile CSS selectors that break whenever the layout changes. Refactor it to use stable attributes.",
+      context: "We are writing tests for the **Auth Zone**. The current test uses fragile selectors. Refactor it to use `data-testid` attributes.",
       objectives: [
-        { id: 1, text: "Select username using `input[name='username']`" },
-        { id: 2, text: "Select password using `input[name='password']`" },
-        { id: 3, text: "Select login button using `input[type='submit']`" }
+        { id: 1, text: "Select username using `[data-testid='input-username']`" },
+        { id: 2, text: "Select password using `[data-testid='input-password']`" },
+        { id: 3, text: "Select login button using `[data-testid='btn-login']`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      // Parabank specific selectors
-      const hasUsername = code.includes("input[name='username']") || code.includes('input[name="username"]');
-      const hasPassword = code.includes("input[name='password']") || code.includes('input[name="password"]');
-      const hasSubmit = code.includes("input[type='submit']") || code.includes('input[type="submit"]');
+      const hasUsername = code.includes("input-username");
+      const hasPassword = code.includes("input-password");
+      const hasSubmit = code.includes("btn-login");
 
       logs.push("✓ Test suite initialized");
-      logs.push("✓ Visiting https://parabank.parasoft.com/parabank/index.htm");
+      logs.push("✓ Visiting /playground/auth");
       
       if (!hasUsername) {
         logs.push("✗ ERROR: Fragile selector found for username.");
-        logs.push("  ↳ Expected: cy.get(\"input[name='username']\")");
+        logs.push("  ↳ Expected: cy.get(\"[data-testid='input-username']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Username selector is resilient (by name attribute)");
+      logs.push("✓ Username selector is resilient (data-testid)");
 
       if (!hasPassword) {
         logs.push("✗ ERROR: Fragile selector found for password.");
-        logs.push("  ↳ Expected: cy.get(\"input[name='password']\")");
+        logs.push("  ↳ Expected: cy.get(\"[data-testid='input-password']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Password selector is resilient (by name attribute)");
+      logs.push("✓ Password selector is resilient (data-testid)");
 
       if (!hasSubmit) {
         logs.push("✗ ERROR: Fragile selector found for login button.");
-        logs.push("  ↳ Expected: cy.get(\"input[type='submit']\")");
+        logs.push("  ↳ Expected: cy.get(\"[data-testid='btn-login']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Login button selector is resilient (by type attribute)");
+      logs.push("✓ Login button selector is resilient (data-testid)");
 
       return { passed: true, logs };
     }
@@ -92,44 +89,42 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Eliminate flaky tests by replacing fixed waits with assertions.",
     difficulty: "Intermediate",
     icon: Clock,
-    initialCode: `describe('Find Transactions', () => {
+    initialCode: `describe('User API', () => {
   it('should show results after API loads', () => {
-    cy.visit('https://parabank.parasoft.com/parabank/findtrans.htm');
+    cy.visit('/playground/api');
     
-    // Fill out the search form
-    cy.get("input[id='criteria.amount']").type('1000');
-    cy.get("button[ng-click='findTransactions()']").click();
+    // Click the 'GET /api/users' button to fetch data
+    cy.get('[data-testid="btn-get-users"]').click();
     
     // TODO: This fixed wait is flaky (too short) or slow (too long). Remove it.
     cy.wait(5000); 
     
-    // TODO: Add an assertion that implicitly waits for the results table
-    // The results table has ID #transactionTable
-    const results = cy.get('#transactionTable');
-    results.should('exist');
+    // TODO: Add an assertion that implicitly waits for the results
+    // The user row has data-testid="user-row-1"
+    const result = cy.get('[data-testid="user-row-1"]');
+    result.should('exist');
   });
 });`,
     missionBrief: {
-      context: "Parabank's 'Find Transactions' feature is slow. The current test uses `cy.wait(5000)` which slows down our CI. Replace it with a smart assertion.",
+      context: "The API Zone has a simulated delay. The current test uses `cy.wait(5000)` which slows down CI. Replace it with a smart assertion.",
       objectives: [
         { id: 1, text: "Remove `cy.wait(5000)`" },
-        { id: 2, text: "Wait for `#transactionTable` to be visible" }
+        { id: 2, text: "Wait for `[data-testid='user-row-1']` to be visible" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
       
-      // Remove comments to allow commenting out code
       const cleanCode = code
-        .replace(/\/\/.*$/gm, '') // Remove single line comments
-        .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove multi-line comments
+        .replace(/\/\/.*$/gm, '') 
+        .replace(/\/\*[\s\S]*?\*\//g, ''); 
         
       const hasFixedWait = /cy\.wait\(\s*\d+\s*\)/.test(cleanCode);
-      const hasResultsWait = code.includes('#transactionTable') || code.includes("id='transactionTable'");
+      const hasResultsWait = code.includes('user-row-1');
       const hasVisibleAssertion = code.includes('be.visible') || code.includes('exist');
 
       logs.push("✓ Test suite initialized");
-      logs.push("✓ Visiting https://parabank.parasoft.com/parabank/findtrans.htm");
+      logs.push("✓ Visiting /playground/api");
 
       if (hasFixedWait) {
         logs.push("✗ ERROR: Fixed wait detected! cy.wait(5000) is an anti-pattern.");
@@ -139,8 +134,8 @@ export const CYPRESS_LABS: CypressLab[] = [
       logs.push("✓ No fixed waits detected");
 
       if (!hasResultsWait) {
-        logs.push("✗ ERROR: You are targeting the wrong element ID.");
-        logs.push("  ↳ Use the stable selector: #transactionTable");
+        logs.push("✗ ERROR: You are targeting the wrong element.");
+        logs.push("  ↳ Use the stable selector: [data-testid='user-row-1']");
         return { passed: false, logs };
       }
       
@@ -159,48 +154,48 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Learn to handle asynchronous values using Cypress aliases.",
     difficulty: "Beginner",
     icon: Variable,
-    initialCode: `describe('Account Overview', () => {
-  it('should verify account balance', () => {
-    cy.visit('https://parabank.parasoft.com/parabank/overview.htm');
+    initialCode: `describe('Data Grid', () => {
+  it('should verify project budget', () => {
+    cy.visit('/playground/data');
     
-    // TODO: Capture the balance text and reuse it
-    // 1. Get the element with class 'balance'
-    // 2. Alias it as 'accountBalance'
+    // TODO: Capture the budget text from the first row and reuse it
+    // 1. Get the element with data-testid="row-1" -> 5th cell
+    // 2. Alias it as 'projectBudget'
     // 3. Reuse it later
     
-    cy.get('td.balance').first().invoke('text').then((text) => {
+    cy.get('[data-testid="row-1"] td:nth-child(5)').invoke('text').then((text) => {
       // Don't use let/const for sharing state in Cypress!
       // Use aliases instead.
-      cy.wrap(text).as('balanceText');
+      cy.wrap(text).as('budget');
     });
 
     // TODO: Access the alias here using @
-    // cy.get('@balanceText').should(...)
+    // cy.get('@budget').should(...)
   });
 });`,
     missionBrief: {
       context: "Async values in Cypress can't be stored in standard variables. Use Aliases (`.as()`) to store and retrieve values.",
       objectives: [
-        { id: 1, text: "Create an alias named `balanceText`" },
-        { id: 2, text: "Access the alias using `cy.get('@balanceText')`" }
+        { id: 1, text: "Create an alias named `budget`" },
+        { id: 2, text: "Access the alias using `cy.get('@budget')`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasAliasDef = /\.as\(['"]balanceText['"]\)/.test(code);
-      const hasAliasUsage = /cy\.get\(['"]@balanceText['"]\)/.test(code);
+      const hasAliasDef = /\.as\(['"]budget['"]\)/.test(code);
+      const hasAliasUsage = /cy\.get\(['"]@budget['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
       
       if (!hasAliasDef) {
         logs.push("✗ ERROR: Alias definition missing.");
-        logs.push("  ↳ Use .as('balanceText')");
+        logs.push("  ↳ Use .as('budget')");
         return { passed: false, logs };
       }
       
       if (!hasAliasUsage) {
         logs.push("✗ ERROR: Alias not accessed correctly.");
-        logs.push("  ↳ Use cy.get('@balanceText')");
+        logs.push("  ↳ Use cy.get('@budget')");
         return { passed: false, logs };
       }
 
@@ -214,41 +209,36 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Master the `.select()` command for standard HTML select elements.",
     difficulty: "Beginner",
     icon: List,
-    initialCode: `describe('Open New Account', () => {
-  it('should select account type', () => {
-    cy.visit('https://parabank.parasoft.com/parabank/openaccount.htm');
+    initialCode: `describe('User API Form', () => {
+  it('should select user role', () => {
+    cy.visit('/playground/api');
     
-    // TODO: Select 'SAVINGS' from the account type dropdown
-    // The select element has id="type"
-    // Do NOT use .click() on options!
+    // Note: The UI library uses a custom select, but let's assume standard select for this lab
+    // or use the Data Grid filter which is a standard select in some implementations.
+    // For this lab, let's pretend we are testing a standard HTML select.
     
-    cy.get('#type').click(); // Incorrect way for <select>
-    cy.get('option').contains('SAVINGS').click(); // Incorrect
+    // We'll target the imaginary standard select:
+    // <select id="role-select"><option value="Admin">Admin</option>...</select>
     
+    // cy.get('#role-select').select('Admin');
   });
 });`,
     missionBrief: {
       context: "Standard `<select>` elements require the special `.select()` command, not clicks.",
       objectives: [
-        { id: 1, text: "Use `cy.get('#type')`" },
-        { id: 2, text: "Chain `.select('1')` (SAVINGS)" } // Parabank uses values 0 and 1
+        { id: 1, text: "Use `cy.get('#role-select')`" },
+        { id: 2, text: "Chain `.select('Admin')`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasSelect = /\.select\(['"](1|SAVINGS)['"]\)/.test(code);
-      const hasClick = /\.click\(\)/.test(code);
+      // Simplified validation for concept
+      const hasSelect = /\.select\(['"]Admin['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
       
-      if (hasClick) {
-         logs.push("⚠ WARN: You are using .click() on a select or option.");
-         logs.push("  ↳ This often fails on standard HTML selects. Use .select()");
-      }
-
       if (!hasSelect) {
-        logs.push("✗ ERROR: .select() command missing.");
-        logs.push("  ↳ Expected: .select('1') or .select('SAVINGS')");
+        logs.push("✗ ERROR: .select('Admin') command missing.");
         return { passed: false, logs };
       }
 
@@ -262,43 +252,34 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Use `.check()` and `.uncheck()` for form controls.",
     difficulty: "Beginner",
     icon: CheckSquare,
-    initialCode: `describe('Bill Pay Settings', () => {
-  it('should toggle preferences', () => {
-    // Imaginary settings page for learning
-    cy.visit('/settings');
+    initialCode: `describe('Interactions Zone', () => {
+  it('should toggle airplane mode', () => {
+    cy.visit('/playground/interactions');
     
-    // TODO: Check the 'email-notifications' checkbox
-    // Element: <input type="checkbox" value="email" />
-    cy.get('[value="email"]').click(); // Flaky
+    // TODO: Check the 'airplane-mode' checkbox
+    // Element: <button role="switch"> (Shadcn switch acts like checkbox in tests sometimes, but let's assume standard input for learning)
     
-    // TODO: Uncheck the 'sms-notifications' checkbox
-    // Element: <input type="checkbox" value="sms" />
+    // Ideally:
+    // cy.get('[data-testid="switch-airplane"]').click(); 
+    // But for this lesson, let's learn .check() on a standard input
     
-    // TODO: Select 'weekly' radio button
-    // Element: <input type="radio" value="weekly" />
+    // cy.get('input[type="checkbox"]').check();
   });
 });`,
     missionBrief: {
       context: "While `.click()` works on checkboxes, `.check()` and `.uncheck()` are more semantic and enforce state.",
       objectives: [
-        { id: 1, text: "Use `.check()` for email" },
-        { id: 2, text: "Use `.uncheck()` for sms" }
+        { id: 1, text: "Use `.click()` (Shadcn Switch) or `.check()`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasCheck = /\.check\(\)/.test(code);
-      const hasUncheck = /\.uncheck\(\)/.test(code);
+      const hasCheck = /\.check\(\)/.test(code) || /\.click\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
       
       if (!hasCheck) {
-        logs.push("✗ ERROR: .check() command missing.");
-        return { passed: false, logs };
-      }
-      
-      if (!hasUncheck) {
-        logs.push("✗ ERROR: .uncheck() command missing.");
+        logs.push("✗ ERROR: Interaction missing.");
         return { passed: false, logs };
       }
 
@@ -312,19 +293,19 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Verify multiple properties of a single element efficiently.",
     difficulty: "Beginner",
     icon: Link,
-    initialCode: `describe('Welcome Message', () => {
+    initialCode: `describe('Auth Zone Title', () => {
   it('should have correct styling', () => {
-    cy.visit('https://parabank.parasoft.com/parabank/index.htm');
+    cy.visit('/playground/auth');
     
-    // TODO: Assert that the title:
+    // TODO: Assert that the title "Authentication Zone":
     // 1. Is visible
-    // 2. Contains text 'Experience the difference'
-    // 3. Has class 'caption'
+    // 2. Contains text 'Authentication'
+    // 3. Has class 'font-bold'
     
     // Inefficient way:
-    cy.get('.caption').should('be.visible');
-    cy.get('.caption').should('contain', 'Experience');
-    cy.get('.caption').should('have.class', 'caption');
+    cy.get('h1').should('be.visible');
+    cy.get('h1').should('contain', 'Authentication');
+    cy.get('h1').should('have.class', 'font-bold');
     
     // TODO: Rewrite this as a single chain
   });
@@ -332,7 +313,7 @@ export const CYPRESS_LABS: CypressLab[] = [
     missionBrief: {
       context: "Querying the DOM multiple times for the same element is inefficient. Chain your assertions.",
       objectives: [
-        { id: 1, text: "Use a single `cy.get()`" },
+        { id: 1, text: "Use a single `cy.get('h1')`" },
         { id: 2, text: "Chain `.should().and().and()`" }
       ]
     },
@@ -364,29 +345,36 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Intercept API calls and force specific responses.",
     difficulty: "Intermediate",
     icon: Database,
-    initialCode: `describe('Account Activity', () => {
-  it('should show empty state when API returns no data', () => {
-    // TODO: Intercept the GET request to services/bank/customers/*/accounts
-    // and force it to return an empty list []
+    initialCode: `describe('API Zone', () => {
+  it('should handle API errors gracefully', () => {
+    // TODO: Intercept the simulated GET request
+    // The practice arena uses a simulated delay, but we can still intercept real XHR if it were real.
+    // For this lab, let's assume we are testing a real backend.
     
-    // cy.intercept(...)
+    // cy.intercept('GET', '/api/users', {
+    //   statusCode: 500,
+    //   body: { error: "Server Explosion" }
+    // }).as('getUsers');
     
-    cy.visit('https://parabank.parasoft.com/parabank/overview.htm');
+    cy.visit('/playground/api');
+    
+    // Trigger the request
+    cy.get('[data-testid="btn-get-users"]').click();
     
     // Verify appropriate message appears
   });
 });`,
     missionBrief: {
-      context: "We need to test how the UI handles an empty account list, but we can't delete real data. Mock the API response.",
+      context: "We need to test how the UI handles a 500 error. Mock the API response.",
       objectives: [
-        { id: 1, text: "Intercept `GET **/accounts`" },
-        { id: 2, text: "Return `body: []` (empty array)" }
+        { id: 1, text: "Intercept `GET /api/users`" },
+        { id: 2, text: "Return `statusCode: 500`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
       const hasIntercept = /cy\.intercept/.test(code);
-      const hasEmptyBody = /body\s*:\s*\[\]/.test(code);
+      const has500 = /500/.test(code);
 
       logs.push("✓ Test suite initialized");
       
@@ -395,8 +383,8 @@ export const CYPRESS_LABS: CypressLab[] = [
         return { passed: false, logs };
       }
       
-      if (!hasEmptyBody) {
-        logs.push("✗ ERROR: Mock response body is not an empty array.");
+      if (!has500) {
+        logs.push("✗ ERROR: Mock status code 500 missing.");
         return { passed: false, logs };
       }
 
