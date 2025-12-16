@@ -103,17 +103,26 @@ export default function KnowledgeBase() {
               <Card className="bg-card/40 border-white/10">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-primary">
-                    <TrendingUp className="h-5 w-5" /> Throughput vs. Bandwidth
+                    <TrendingUp className="h-5 w-5" /> RPS vs. Throughput
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    <strong>Throughput:</strong> Successful requests processed per second.<br/>
-                    <strong>Bandwidth:</strong> Data transferred per second (KB/s, MB/s).
+                    Many engineers confuse these terms, but the distinction is critical:
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    <em>Tip:</em> If throughput drops but RPS stays high, your server is rejecting requests (queuing/timeout).
-                  </p>
+                  <ul className="list-disc pl-5 space-y-2 text-sm">
+                    <li>
+                      <strong>RPS (Arrival Rate):</strong> How many requests <em>arrive</em> at your server per second. You control this in your load test script.
+                    </li>
+                    <li>
+                      <strong>Throughput (Service Rate):</strong> How many requests your server <em>successfully processes</em> per second. You observe this in your monitoring.
+                    </li>
+                  </ul>
+                  <div className="mt-4 bg-yellow-500/10 p-3 rounded text-sm border border-yellow-500/20 text-yellow-200">
+                    <strong>The Golden Rule:</strong> In a healthy system, <code>RPS ≈ Throughput</code>. 
+                    <br/>
+                    If <code>RPS &gt; Throughput</code>, your system is saturated, and queues are filling up.
+                  </div>
                 </CardContent>
               </Card>
             </div>
