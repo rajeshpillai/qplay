@@ -56,29 +56,105 @@ export default function ModuleView() {
                </div>
 
                <TabsContent value="theory" className="flex-1 overflow-auto p-6 space-y-6">
-                 <div className="prose prose-invert max-w-none">
-                   <h3>The "9:00 AM" Problem</h3>
-                   <p>
-                     In IDfy's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
-                     A system that handles 500 RPS (Requests Per Second) perfectly might collapse under a 2000 RPS spike, even if that spike only lasts 10 seconds.
-                   </p>
-                   
-                   <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 my-4">
-                     <h4 className="flex items-center gap-2 text-blue-400 m-0 mb-2">
-                       <Info className="h-4 w-4" /> Key Concept: Queue Saturation
-                     </h4>
-                     <p className="m-0 text-sm">
-                       When requests arrive faster than they can be processed, they queue up. If the queue fills up, requests are dropped immediately. 
-                       If the queue is too long, latency spikes as requests sit waiting to be served.
+                 {currentStep === 0 && (
+                   <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
+                     <h3>The "9:00 AM" Problem</h3>
+                     <p>
+                       In IDfy's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
+                       A system that handles 500 RPS (Requests Per Second) perfectly might collapse under a 2000 RPS spike, even if that spike only lasts 10 seconds.
+                     </p>
+                     
+                     <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 my-4">
+                       <h4 className="flex items-center gap-2 text-blue-400 m-0 mb-2">
+                         <Info className="h-4 w-4" /> Key Concept: Queue Saturation
+                       </h4>
+                       <p className="m-0 text-sm">
+                         When requests arrive faster than they can be processed, they queue up. If the queue fills up, requests are dropped immediately. 
+                         If the queue is too long, latency spikes as requests sit waiting to be served.
+                       </p>
+                     </div>
+
+                     <h3>Objective</h3>
+                     <p>
+                       Your task is to use the Load Simulator to find the <strong>Breaking Point</strong> of the OTP Service. 
+                       Increase the RPS until the P95 latency exceeds 500ms or the Error Rate exceeds 1%.
                      </p>
                    </div>
+                 )}
+                 
+                 {currentStep === 1 && (
+                   <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
+                     <h3>Modeling the Spike</h3>
+                     <p>
+                       To accurately test for the "9:00 AM" problem, we can't just run a constant load. We need to model the behavior of a sudden influx of users.
+                     </p>
+                     <p>
+                       In this simulation, we will use a "Step Stress" pattern. This involves increasing the load in steps rather than all at once, allowing us to see exactly when performance degrades.
+                     </p>
+                     
+                     <h3>Configuration Parameters</h3>
+                     <ul className="list-disc pl-5 space-y-2">
+                       <li><strong>Target RPS:</strong> The number of requests per second we want to simulate.</li>
+                       <li><strong>Ramp-up Time:</strong> How quickly we reach the target RPS.</li>
+                       <li><strong>Sustained Duration:</strong> How long we hold the target load.</li>
+                     </ul>
 
-                   <h3>Objective</h3>
-                   <p>
-                     Your task is to use the Load Simulator to find the <strong>Breaking Point</strong> of the OTP Service. 
-                     Increase the RPS until the P95 latency exceeds 500ms or the Error Rate exceeds 1%.
-                   </p>
-                 </div>
+                     <p className="mt-4">
+                       Proceed to the <strong>Simulation Lab</strong> tab to configure your test parameters.
+                     </p>
+                   </div>
+                 )}
+
+                 {currentStep === 2 && (
+                   <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
+                     <h3>Running the Simulation</h3>
+                     <p>
+                       It's time to execute the load test. Watch the real-time telemetry carefully.
+                     </p>
+                     
+                     <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 my-4">
+                       <h4 className="flex items-center gap-2 text-yellow-400 m-0 mb-2">
+                         <AlertTriangle className="h-4 w-4" /> Watch for Saturation
+                       </h4>
+                       <p className="m-0 text-sm">
+                         As RPS increases, latency should increase linearly. If you see latency spike exponentially (the "Hockey Stick" curve), you have hit the saturation point.
+                       </p>
+                     </div>
+
+                     <h3>Action Items</h3>
+                     <ol className="list-decimal pl-5 space-y-2">
+                       <li>Go to the <strong>Simulation Lab</strong> tab.</li>
+                       <li>Set RPS to <strong>200</strong> and verify stability.</li>
+                       <li>Increase RPS to <strong>800</strong> and observe the latency graph.</li>
+                       <li>Push to <strong>1200 RPS</strong> to trigger failure conditions.</li>
+                     </ol>
+                   </div>
+                 )}
+
+                 {currentStep === 3 && (
+                    <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
+                      <h3>Analysis & Remediation</h3>
+                      <p>
+                        Congratulations on completing the simulation. You likely observed that at ~800 RPS, the system started throwing errors and latency degraded significantly.
+                      </p>
+                      
+                      <h3>Root Cause Analysis</h3>
+                      <p>
+                        In this scenario, the bottleneck was the <strong>Database Connection Pool</strong>. The application could not open enough connections to the database to handle the incoming requests, causing them to queue up and eventually time out.
+                      </p>
+
+                      <h3>Recommended Fixes</h3>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>Increase the connection pool size.</li>
+                        <li>Implement a read-replica for read-heavy operations.</li>
+                        <li>Add a caching layer (Redis) for frequently accessed data.</li>
+                      </ul>
+                      
+                      <p className="mt-6 text-green-400 font-bold">
+                        Module Complete! (+500 XP)
+                      </p>
+                    </div>
+                 )}
                </TabsContent>
 
                <TabsContent value="sim" className="flex-1 overflow-auto p-6 bg-black/40">
