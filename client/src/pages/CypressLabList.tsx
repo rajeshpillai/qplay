@@ -24,15 +24,18 @@ export default function CypressLabList() {
         </div>
 
         <div className="grid gap-4">
-          {CYPRESS_LABS.map((lab) => {
+          {CYPRESS_LABS.map((lab, index) => {
             const Icon = lab.icon;
             const isLocked = false; 
             
             return (
               <Card key={lab.id} className="bg-card/40 border-white/10 hover:bg-card/60 transition-colors group">
                 <CardContent className="p-6 flex items-center gap-6">
-                  <div className="h-12 w-12 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
-                    <Icon className="h-6 w-6" />
+                  <div className="flex flex-col items-center gap-2 mr-2">
+                     <span className="text-xs font-mono text-muted-foreground/50">#{String(index + 1).padStart(3, '0')}</span>
+                     <div className="h-12 w-12 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
+                       <Icon className="h-6 w-6" />
+                     </div>
                   </div>
                   
                   <div className="flex-1 min-w-0">

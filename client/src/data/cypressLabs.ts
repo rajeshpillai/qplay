@@ -1407,5 +1407,346 @@ describe('Long Process', () => {
       logs.push("✓ Fixture data loaded");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "session",
+    title: "Session Caching",
+    description: "Cache login sessions to speed up tests.",
+    difficulty: "Advanced",
+    icon: Database,
+    initialCode: `describe('Dashboard', () => {
+  beforeEach(() => {
+    // TODO: Wrap the login logic in cy.session()
+    // This will cache cookies/localStorage automatically
+    
+    // cy.session('user-session', () => {
+    //   cy.visit('/login');
+    //   cy.get('#user').type('admin');
+    //   cy.get('#pass').type('123');
+    //   cy.get('#btn').click();
+    //   cy.url().should('contain', '/dashboard');
+    // });
+    
+    // Original slow login:
+    cy.visit('/login');
+    cy.get('#user').type('admin');
+    cy.get('#pass').type('123');
+    cy.get('#btn').click();
+  });
+
+  it('should show stats', () => {
+    cy.visit('/dashboard');
+  });
+});`,
+    missionBrief: {
+      context: "Logging in before every test is slow. Use `cy.session()` to cache the session state.",
+      objectives: [
+        { id: 1, text: "Wrap login steps in `cy.session()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSession = /cy\.session/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasSession) {
+        logs.push("✗ ERROR: cy.session() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Session caching implemented");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "task",
+    title: "Node Tasks",
+    description: "Execute code in Node.js backend using cy.task().",
+    difficulty: "Advanced",
+    icon: Terminal,
+    initialCode: `describe('Database Cleanup', () => {
+  it('should reset database before test', () => {
+    // We cannot access the DB directly from the browser
+    // We need to ask the Node backend to do it
+    
+    // TODO: Call the 'resetDb' task
+    // cy.task(...)
+    
+    cy.visit('/app');
+  });
+});`,
+    missionBrief: {
+      context: "Browser sandbox prevents direct DB access. Use `cy.task()` to run Node.js code on the server.",
+      objectives: [
+        { id: 1, text: "Call `cy.task('resetDb')`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasTask = /cy\.task\(['"]resetDb['"]\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasTask) {
+        logs.push("✗ ERROR: cy.task() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Node task triggered");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "read-file",
+    title: "Reading Files",
+    description: "Verify downloaded files or config content.",
+    difficulty: "Intermediate",
+    icon: Upload,
+    initialCode: `describe('Config Check', () => {
+  it('should have correct version in config.json', () => {
+    // TODO: Read 'config.json' from the root
+    // cy.readFile(...)
+    
+    // TODO: Assert that the version is '1.0.0'
+    // .should('deep.equal', { version: '1.0.0' })
+  });
+});`,
+    missionBrief: {
+      context: "Verify file contents using `cy.readFile()`.",
+      objectives: [
+        { id: 1, text: "Use `cy.readFile('config.json')`" },
+        { id: 2, text: "Assert content" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRead = /cy\.readFile\(['"]config\.json['"]\)/.test(code);
+      const hasShould = /\.should/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasRead) {
+        logs.push("✗ ERROR: cy.readFile() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasShould) {
+        logs.push("✗ ERROR: Assertion missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ File read verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "location",
+    title: "URL & Location",
+    description: "Assert current URL, path, or query params.",
+    difficulty: "Beginner",
+    icon: Globe,
+    initialCode: `describe('Redirects', () => {
+  it('should redirect to login page', () => {
+    cy.visit('/protected');
+    
+    // User is redirected to: /login?returnTo=/protected
+    
+    // TODO: Assert the URL contains '/login'
+    // cy.url()...
+    
+    // TODO: Assert the pathname is '/login'
+    // cy.location('pathname')...
+  });
+});`,
+    missionBrief: {
+      context: "Verify that redirects happen correctly by checking the URL.",
+      objectives: [
+        { id: 1, text: "Check `cy.url()` contains '/login'" },
+        { id: 2, text: "Check `cy.location('pathname')` is '/login'" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasUrl = /cy\.url\(\)/.test(code);
+      const hasLocation = /cy\.location\(['"]pathname['"]\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasUrl) {
+        logs.push("✗ ERROR: cy.url() check missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasLocation) {
+        logs.push("✗ ERROR: cy.location() check missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ URL verification correct");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "wrap",
+    title: "Wrapping Values",
+    description: "Bring synchronous values into the Cypress chain.",
+    difficulty: "Intermediate",
+    icon: Box,
+    initialCode: `describe('Calculations', () => {
+  it('should calculate total correctly', () => {
+    const items = [10, 20, 30];
+    const total = items.reduce((a, b) => a + b, 0);
+    
+    // 'total' is just a number (60). It's not a Cypress subject.
+    // We cannot do: total.should('eq', 60)
+    
+    // TODO: Wrap 'total' so we can use .should()
+    // cy.wrap(total)...
+  });
+});`,
+    missionBrief: {
+      context: "To use Cypress assertions on plain JS objects/primitives, wrap them with `cy.wrap()`.",
+      objectives: [
+        { id: 1, text: "Use `cy.wrap(total)`" },
+        { id: 2, text: "Assert `.should('eq', 60)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWrap = /cy\.wrap\(total\)/.test(code);
+      const hasShould = /\.should\(['"]eq['"],\s*60\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasWrap) {
+        logs.push("✗ ERROR: cy.wrap() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasShould) {
+        logs.push("✗ ERROR: Assertion missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Synchronous value wrapped");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "viewport-orientation",
+    title: "Viewport Orientation",
+    description: "Test landscape vs portrait modes.",
+    difficulty: "Beginner",
+    icon: Monitor,
+    initialCode: `describe('Tablet Layout', () => {
+  it('should show sidebar in landscape', () => {
+    // TODO: Set viewport to ipad-2 in landscape
+    // cy.viewport('ipad-2', 'landscape');
+    
+    cy.visit('/dashboard');
+    cy.get('.sidebar').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Test how your app responds to device orientation changes.",
+      objectives: [
+        { id: 1, text: "Set viewport to 'ipad-2', 'landscape'" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasViewport = /cy\.viewport\(['"]ipad-2['"],\s*['"]landscape['"]\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasViewport) {
+        logs.push("✗ ERROR: Viewport orientation incorrect.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Landscape mode set");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "scroll-view",
+    title: "Scrolling",
+    description: "Scroll elements into view before interacting.",
+    difficulty: "Beginner",
+    icon: MousePointerClick,
+    initialCode: `describe('Footer Links', () => {
+  it('should check footer visibility', () => {
+    cy.visit('/long-page');
+    
+    // Footer is at the bottom.
+    // Sometimes elements are lazy-loaded on scroll.
+    
+    // TODO: Scroll the footer into view
+    // cy.get('footer').scrollIntoView();
+    
+    cy.get('footer').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Ensure lazy-loaded elements appear by scrolling to them explicitly.",
+      objectives: [
+        { id: 1, text: "Use `.scrollIntoView()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasScroll = /\.scrollIntoView\(\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasScroll) {
+        logs.push("✗ ERROR: .scrollIntoView() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Scroll action performed");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "pause",
+    title: "Debugging with Pause",
+    description: "Halt test execution to inspect the DOM.",
+    difficulty: "Beginner",
+    icon: Clock,
+    initialCode: `describe('Complex Flow', () => {
+  it('should stop for debugging', () => {
+    cy.visit('/wizard/step-1');
+    cy.get('#next').click();
+    
+    // I want to see the state of Step 2 before continuing
+    
+    // TODO: Pause execution here
+    // cy.pause();
+    
+    cy.get('#finish').click();
+  });
+});`,
+    missionBrief: {
+      context: "Stop the test runner to manually inspect the DOM in the Chrome DevTools.",
+      objectives: [
+        { id: 1, text: "Call `cy.pause()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPause = /cy\.pause\(\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasPause) {
+        logs.push("✗ ERROR: cy.pause() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Execution paused");
+      return { passed: true, logs };
+    }
   }
 ];

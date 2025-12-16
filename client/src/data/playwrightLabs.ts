@@ -1031,5 +1031,326 @@ export default defineConfig({
       logs.push("✓ Video recording enabled");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "evaluate",
+    title: "Evaluate JS",
+    description: "Run JavaScript code inside the browser context.",
+    difficulty: "Intermediate",
+    icon: Code2,
+    initialCode: `test('Read LocalStorage', async ({ page }) => {
+  await page.goto('/app');
+  
+  // Playwright runs in Node. To access 'window' or 'document',
+  // we must evaluate code in the browser page.
+  
+  // TODO: Get a value from localStorage
+  // const token = await page.evaluate(() => window.localStorage.getItem('token'));
+  
+  // console.log(token);
+});`,
+    missionBrief: {
+      context: "Access browser APIs (window, document, localStorage) using `page.evaluate()`.",
+      objectives: [
+        { id: 1, text: "Call `page.evaluate()`" },
+        { id: 2, text: "Return localStorage item" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasEvaluate = /page\.evaluate\(/.test(code);
+      const hasLocalStorage = /localStorage\.getItem/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasEvaluate) {
+        logs.push("✗ ERROR: page.evaluate() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasLocalStorage) {
+        logs.push("✗ ERROR: localStorage access missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ JS evaluated in browser context");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "full-screenshot",
+    title: "Full Page Screenshot",
+    description: "Capture the entire scrollable page.",
+    difficulty: "Beginner",
+    icon: Eye,
+    initialCode: `test('Landing Page', async ({ page }) => {
+  await page.goto('https://parabank.parasoft.com');
+  
+  // TODO: Take a full page screenshot
+  // await page.screenshot({ path: 'home.png', fullPage: true });
+});`,
+    missionBrief: {
+      context: "Don't just capture the viewport. Get the whole page.",
+      objectives: [
+        { id: 1, text: "Set `fullPage: true`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFullPage = /fullPage:\s*true/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasFullPage) {
+        logs.push("✗ ERROR: fullPage: true missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Full page captured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "pdf",
+    title: "Print to PDF",
+    description: "Generate a PDF of the page (Headless Chrome only).",
+    difficulty: "Intermediate",
+    icon: Upload,
+    initialCode: `test('Invoice PDF', async ({ page }) => {
+  await page.goto('/invoice/123');
+  
+  // TODO: Save page as PDF
+  // await page.pdf({ path: 'invoice.pdf', format: 'A4' });
+});`,
+    missionBrief: {
+      context: "Generate professional PDFs directly from your web pages.",
+      objectives: [
+        { id: 1, text: "Call `page.pdf(...)`" },
+        { id: 2, text: "Set `format: 'A4'`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPdf = /page\.pdf\(/.test(code);
+      const hasFormat = /format:\s*['"]A4['"]/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasPdf) {
+        logs.push("✗ ERROR: page.pdf() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasFormat) {
+        logs.push("✗ ERROR: Format A4 missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ PDF generated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "locator-count",
+    title: "Counting Elements",
+    description: "Assert the number of matching elements.",
+    difficulty: "Beginner",
+    icon: List,
+    initialCode: `test('Search Results', async ({ page }) => {
+  await page.goto('/search?q=test');
+  
+  // TODO: Assert there are exactly 5 results
+  // await expect(page.locator('.result-item')).toHaveCount(5);
+});`,
+    missionBrief: {
+      context: "Verify list lengths using `toHaveCount()`.",
+      objectives: [
+        { id: 1, text: "Use `expect(...).toHaveCount(5)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasCount = /\.toHaveCount\(5\)/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasCount) {
+        logs.push("✗ ERROR: toHaveCount(5) missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Element count verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "locator-all",
+    title: "Iterating Locators",
+    description: "Loop through all matching elements.",
+    difficulty: "Intermediate",
+    icon: Repeat,
+    initialCode: `test('Checkbox Reset', async ({ page }) => {
+  await page.goto('/settings');
+  
+  // TODO: Uncheck all checkboxes
+  // const boxes = await page.locator('input[type="checkbox"]').all();
+  // for (const box of boxes) {
+  //   await box.uncheck();
+  // }
+});`,
+    missionBrief: {
+      context: "Use `locator.all()` to get an array of locators and loop through them.",
+      objectives: [
+        { id: 1, text: "Call `locator.all()`" },
+        { id: 2, text: "Loop and uncheck" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasAll = /\.all\(\)/.test(code);
+      const hasLoop = /for\s*\(.*of/.test(code);
+      const hasUncheck = /\.uncheck\(\)/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasAll) {
+        logs.push("✗ ERROR: locator.all() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasLoop) {
+        logs.push("✗ ERROR: Loop missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasUncheck) {
+        logs.push("✗ ERROR: uncheck() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Iteration successful");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "bounding-box",
+    title: "Bounding Box",
+    description: "Get element coordinates and size.",
+    difficulty: "Advanced",
+    icon: Box,
+    initialCode: `test('Canvas Size', async ({ page }) => {
+  await page.goto('/paint');
+  
+  // TODO: Get bounding box of the canvas
+  // const box = await page.locator('#canvas').boundingBox();
+  
+  // if (box) {
+  //   console.log(box.width, box.height);
+  // }
+});`,
+    missionBrief: {
+      context: "Get x, y, width, and height of an element using `boundingBox()`.",
+      objectives: [
+        { id: 1, text: "Call `boundingBox()`" },
+        { id: 2, text: "Log dimensions" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasBox = /\.boundingBox\(\)/.test(code);
+      const hasLog = /console\.log/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasBox) {
+        logs.push("✗ ERROR: boundingBox() missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasLog) {
+        logs.push("✗ ERROR: Logging missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Geometry retrieved");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "mouse",
+    title: "Mouse Actions",
+    description: "Simulate complex mouse movements (Drawing).",
+    difficulty: "Advanced",
+    icon: MousePointerClick,
+    initialCode: `test('Draw Line', async ({ page }) => {
+  await page.goto('/paint');
+  
+  // TODO: Draw a line from (100,100) to (200,200)
+  // await page.mouse.move(100, 100);
+  // await page.mouse.down();
+  // await page.mouse.move(200, 200);
+  // await page.mouse.up();
+});`,
+    missionBrief: {
+      context: "Perform low-level mouse operations for canvas or drag-and-drop.",
+      objectives: [
+        { id: 1, text: "Move to start" },
+        { id: 2, text: "Mouse down" },
+        { id: 3, text: "Move to end" },
+        { id: 4, text: "Mouse up" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMove = /page\.mouse\.move/.test(code);
+      const hasDown = /page\.mouse\.down/.test(code);
+      const hasUp = /page\.mouse\.up/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasMove || !hasDown || !hasUp) {
+        logs.push("✗ ERROR: Incomplete mouse sequence.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Drawing simulated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "soft-assertions",
+    title: "Soft Assertions",
+    description: "Don't fail the test immediately on error.",
+    difficulty: "Intermediate",
+    icon: ShieldCheck,
+    initialCode: `test('Multiple Checks', async ({ page }) => {
+  await page.goto('/form');
+  
+  // Standard expect fails immediately.
+  // TODO: Use soft assertions to check multiple fields
+  
+  // await expect.soft(page.locator('#name')).toHaveText('John');
+  // await expect.soft(page.locator('#age')).toHaveText('30');
+});`,
+    missionBrief: {
+      context: "Collect multiple failures in one test run using `expect.soft()`.",
+      objectives: [
+        { id: 1, text: "Use `expect.soft(...)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSoft = /expect\.soft\(/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasSoft) {
+        logs.push("✗ ERROR: expect.soft() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Soft assertions active");
+      return { passed: true, logs };
+    }
   }
 ];
