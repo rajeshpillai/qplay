@@ -29,6 +29,7 @@ const Sidebar = ({ className }: { className?: string }) => {
     { icon: LayoutDashboard, label: "Mission Control", href: "/" },
     { icon: BookOpen, label: "Training Modules", href: "/modules" },
     { icon: TestTube2, label: "Cypress Training", href: "/modules/cypress" },
+    { icon: Terminal, label: "Playwright Mastery", href: "/modules/playwright" },
     { icon: Activity, label: "Load Simulator", href: "/simulator" },
     { icon: ShieldAlert, label: "Incident Response", href: "/incidents" },
     { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },

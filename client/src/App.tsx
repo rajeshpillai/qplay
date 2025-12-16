@@ -16,6 +16,8 @@ import K6Editor from "@/pages/K6Editor";
 import LabList from "@/pages/LabList";
 import CypressEditor from "@/pages/CypressEditor";
 import CypressLabList from "@/pages/CypressLabList";
+import PlaywrightEditor from "@/pages/PlaywrightEditor";
+import PlaywrightLabList from "@/pages/PlaywrightLabList";
 import KnowledgeBase from "@/pages/KnowledgeBase";
 
 function Router() {
@@ -29,6 +31,8 @@ function Router() {
       <Route path="/modules/k6/:labId" component={K6Editor} />
       <Route path="/modules/cypress" component={CypressLabList} />
       <Route path="/modules/cypress/:labId" component={CypressEditor} />
+      <Route path="/modules/playwright" component={PlaywrightLabList} />
+      <Route path="/modules/playwright/:labId" component={PlaywrightEditor} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />
