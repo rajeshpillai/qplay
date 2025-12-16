@@ -58,7 +58,7 @@ export const CYPRESS_LABS: CypressLab[] = [
 
       logs.push("✓ Test suite initialized");
       logs.push("✓ Visiting /playground/auth");
-      
+
       if (!hasUsername) {
         logs.push("✗ ERROR: Fragile selector found for username.");
         logs.push("  ↳ Expected: cy.get(\"[data-testid='input-username']\")");
@@ -114,11 +114,11 @@ export const CYPRESS_LABS: CypressLab[] = [
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      
+
       const cleanCode = code
-        .replace(/\/\/.*$/gm, '') 
-        .replace(/\/\*[\s\S]*?\*\//g, ''); 
-        
+        .replace(/\/\/.*$/gm, '')
+        .replace(/\/\*[\s\S]*?\*\//g, '');
+
       const hasFixedWait = /cy\.wait\(\s*\d+\s*\)/.test(cleanCode);
       const hasResultsWait = code.includes('user-row-1');
       const hasVisibleAssertion = code.includes('be.visible') || code.includes('exist');
@@ -138,10 +138,10 @@ export const CYPRESS_LABS: CypressLab[] = [
         logs.push("  ↳ Use the stable selector: [data-testid='user-row-1']");
         return { passed: false, logs };
       }
-      
+
       if (!hasVisibleAssertion) {
-         logs.push("⚠ WARN: You selected the element but didn't assert visibility.");
-         logs.push("  ↳ Best practice: .should('be.visible')");
+        logs.push("⚠ WARN: You selected the element but didn't assert visibility.");
+        logs.push("  ↳ Best practice: .should('be.visible')");
       }
 
       logs.push("✓ Smart waiting implemented via assertions");
@@ -186,13 +186,13 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasAliasUsage = /cy\.get\(['"]@budget['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasAliasDef) {
         logs.push("✗ ERROR: Alias definition missing.");
         logs.push("  ↳ Use .as('budget')");
         return { passed: false, logs };
       }
-      
+
       if (!hasAliasUsage) {
         logs.push("✗ ERROR: Alias not accessed correctly.");
         logs.push("  ↳ Use cy.get('@budget')");
@@ -236,7 +236,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasSelect = /\.select\(['"]Admin['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasSelect) {
         logs.push("✗ ERROR: .select('Admin') command missing.");
         return { passed: false, logs };
@@ -277,7 +277,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasCheck = /\.check\(\)/.test(code) || /\.click\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasCheck) {
         logs.push("✗ ERROR: Interaction missing.");
         return { passed: false, logs };
@@ -323,10 +323,10 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasAnd = /\.and\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (matchCount > 1) {
-         logs.push("⚠ WARN: Multiple cy.get() calls detected.");
-         logs.push("  ↳ Try chaining with .and()");
+        logs.push("⚠ WARN: Multiple cy.get() calls detected.");
+        logs.push("  ↳ Try chaining with .and()");
       }
 
       if (!hasAnd) {
@@ -377,12 +377,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const has500 = /500/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasIntercept) {
         logs.push("✗ ERROR: cy.intercept() missing.");
         return { passed: false, logs };
       }
-      
+
       if (!has500) {
         logs.push("✗ ERROR: Mock status code 500 missing.");
         return { passed: false, logs };
@@ -428,12 +428,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasWait = /cy\.wait\(['"]@transferCall['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasIntercept || !hasAlias) {
         logs.push("✗ ERROR: Network spy alias missing.");
         return { passed: false, logs };
       }
-      
+
       if (!hasWait) {
         logs.push("✗ ERROR: Not waiting for the network alias.");
         logs.push("  ↳ Add cy.wait('@transferCall') before asserting");
@@ -451,24 +451,24 @@ export const CYPRESS_LABS: CypressLab[] = [
     difficulty: "Intermediate",
     icon: MousePointerClick,
     initialCode: `describe('Navigation Menu', () => {
-  it('should show submenu on hover', () => {
-    cy.visit('/home');
+  it('should show tooltip on hover', () => {
+    cy.visit('/playground/interactions');
     
-    // The menu is hidden until we hover over 'Products'
-    // Element: <li class="menu-item">Products</li>
+    // The tooltip is hidden until we hover over 'Hover Me'
+    // Element: <button data-testid="btn-hover">Hover Me</button>
     
-    // TODO: Trigger a mouseover event on the menu item
-    cy.get('.menu-item').contains('Products');
+    // TODO: Trigger a mouseover (or mouseenter) event on the button
+    cy.get('[data-testid="btn-hover"]').trigger('mouseenter');
     
-    // Then assert submenu is visible
-    cy.get('.submenu').should('be.visible');
+    // Then assert tooltip content is visible
+    cy.get('[data-testid="tooltip-content"]').should('be.visible');
   });
 });`,
     missionBrief: {
-      context: "Cypress doesn't have a native `.hover()` command because hover is a fragile state. Use `.trigger('mouseover')` to simulate it.",
+      context: "Cypress doesn't have a native `.hover()` command because hover is a fragile state. Use `.trigger('mouseenter')` to simulate it.",
       objectives: [
-        { id: 1, text: "Select the menu item" },
-        { id: 2, text: "Chain `.trigger('mouseover')`" }
+        { id: 1, text: "Select `[data-testid='btn-hover']`" },
+        { id: 2, text: "Chain `.trigger('mouseenter')`" }
       ]
     },
     validation: (code: string) => {
@@ -476,7 +476,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasTrigger = /\.trigger\(['"]mouseover['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasTrigger) {
         logs.push("✗ ERROR: Hover event not triggered.");
         logs.push("  ↳ Use .trigger('mouseover')");
@@ -495,10 +495,10 @@ export const CYPRESS_LABS: CypressLab[] = [
     icon: Layers,
     initialCode: `describe('Third Party Widget', () => {
   it('should interact with iframe content', () => {
-    cy.visit('/dashboard');
+    cy.visit('/playground/interactions');
     
     // The payment widget is inside <iframe id="payment-frame">
-    // We can't just do cy.get('#card-number')
+    // We can't just do cy.get('[data-testid="input-card"]')
     
     // TODO: Get the iframe
     // TODO: Get its '0.contentDocument.body'
@@ -508,6 +508,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       .its('0.contentDocument.body')
       // .should('not.be.empty') // Wait for it to load
       // .then(cy.wrap)
+      // .find('[data-testid="input-card"]').type('1234');
   });
 });`,
     missionBrief: {
@@ -523,13 +524,13 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasWrap = /cy\.wrap/.test(code) || /\.then\(cy\.wrap\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasIts) {
         logs.push("✗ ERROR: Failed to access iframe document.");
         logs.push("  ↳ Use .its('0.contentDocument.body')");
         return { passed: false, logs };
       }
-      
+
       if (!hasWrap) {
         logs.push("✗ ERROR: Failed to wrap iframe body.");
         logs.push("  ↳ Use cy.wrap() to enable chaining");
@@ -547,11 +548,11 @@ export const CYPRESS_LABS: CypressLab[] = [
     difficulty: "Intermediate",
     icon: Upload,
     initialCode: `describe('Document Upload', () => {
-  it('should upload a PDF', () => {
-    cy.visit('/kyc');
+  it('should upload a file', () => {
+    cy.visit('/playground/data');
     
     // TODO: Upload a file to the input
-    // Input: <input type="file" id="docs" />
+    // Input: <input type="file" data-testid="input-upload" />
     
     // Cypress has a built-in command for this since v9.3.0
     // No plugins needed!
@@ -561,7 +562,7 @@ export const CYPRESS_LABS: CypressLab[] = [
     missionBrief: {
       context: "Testing file uploads used to require plugins. Now you can use the native `.selectFile()` command.",
       objectives: [
-        { id: 1, text: "Select input `input[type='file']`" },
+        { id: 1, text: "Select input `[data-testid='input-upload']`" },
         { id: 2, text: "Use `.selectFile('path/to/file')`" }
       ]
     },
@@ -570,7 +571,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasSelectFile = /\.selectFile\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasSelectFile) {
         logs.push("✗ ERROR: .selectFile() command missing.");
         return { passed: false, logs };
@@ -587,15 +588,15 @@ export const CYPRESS_LABS: CypressLab[] = [
     difficulty: "Intermediate",
     icon: Repeat,
     initialCode: `describe('Transaction List', () => {
-  it('should verify all amounts are positive', () => {
-    cy.visit('/transactions');
+  it('should verify all projects are valid', () => {
+    cy.visit('/playground/data');
     
-    // We have a list of amounts: <span class="amount">$50.00</span>
+    // We have a list of rows: <tr data-testid="row-1">...</tr>
     
-    // TODO: Iterate over all '.amount' elements
-    // Check that each one contains a '$'
+    // TODO: Iterate over all rows with IDs starting with 'row-'
+    // Check that each one contains 'Project'
     
-    cy.get('.amount').each(($el, index, $list) => {
+    cy.get('[data-testid^="row-"]').each(($el, index, $list) => {
       // $el is a raw jQuery element
       // Wrap it to use Cypress commands
       
@@ -615,12 +616,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasWrap = /cy\.wrap/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasEach) {
         logs.push("✗ ERROR: .each() loop missing.");
         return { passed: false, logs };
       }
-      
+
       if (!hasWrap) {
         logs.push("✗ ERROR: Element not wrapped inside loop.");
         logs.push("  ↳ Use cy.wrap($el) to assert on it");
@@ -638,25 +639,23 @@ export const CYPRESS_LABS: CypressLab[] = [
     difficulty: "Intermediate",
     icon: HardDrive,
     initialCode: `describe('Remember Me', () => {
-  it('should set auth cookie', () => {
-    cy.visit('/login');
-    cy.get('#remember-me').check();
-    cy.get('#login-btn').click();
+  it('should set auth local storage', () => {
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
     
-    // TODO: Verify that a cookie named 'session_id' exists
-    // cy.getCookie(...)
-    
-    // TODO: Verify LocalStorage has 'user_pref'
+    // TODO: Verify LocalStorage has 'session_token'
     // cy.getAllLocalStorage(...) is valid, but we can also check window
-    // strict check:
-    cy.window().its('localStorage').invoke('getItem', 'user_pref').should('exist');
+    
+    // cy.window().its('localStorage')...
   });
 });`,
     missionBrief: {
       context: "Testing persistence often requires checking cookies or local storage directly.",
       objectives: [
-        { id: 1, text: "Use `cy.getCookie('session_id')`" },
-        { id: 2, text: "Assert it `.should('exist')`" }
+        { id: 1, text: "Use `cy.window().its('localStorage')`" },
+        { id: 2, text: "Invoke `.invoke('getItem', 'session_token')`" }
       ]
     },
     validation: (code: string) => {
@@ -665,12 +664,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasShould = /\.should\(['"]exist['"]\)/.test(code) || /\.should\(['"]not\.be\.null['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasGetCookie) {
         logs.push("✗ ERROR: Not checking for session_id cookie.");
         return { passed: false, logs };
       }
-      
+
       if (!hasShould) {
         logs.push("✗ ERROR: Assertion missing.");
         return { passed: false, logs };
@@ -687,17 +686,15 @@ export const CYPRESS_LABS: CypressLab[] = [
     difficulty: "Beginner",
     icon: Monitor,
     initialCode: `describe('Mobile Layout', () => {
-  it('should show hamburger menu on mobile', () => {
+  it('should show tabs on mobile', () => {
     // TODO: Set viewport to iPhone X size (375, 812)
     // cy.viewport(...)
     
-    cy.visit('/home');
+    cy.visit('/playground/auth');
     
-    // Verify desktop menu is hidden
-    cy.get('.desktop-menu').should('not.be.visible');
-    
-    // Verify hamburger icon is visible
-    cy.get('.hamburger-icon').should('be.visible');
+    // Verify tabs are visible
+    // <div role="tablist">
+    cy.get('[role="tablist"]').should('be.visible');
   });
 });`,
     missionBrief: {
@@ -712,7 +709,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasViewport = /cy\.viewport\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasViewport) {
         logs.push("✗ ERROR: Viewport not configured.");
         return { passed: false, logs };
@@ -730,15 +727,16 @@ export const CYPRESS_LABS: CypressLab[] = [
     icon: Box,
     initialCode: `describe('Admin Login', () => {
   it('should login with secret credentials', () => {
-    cy.visit('/admin');
+    cy.visit('/playground/auth');
     
     // TODO: Do NOT hardcode passwords!
     // Access the 'admin_password' from environment variables
     
     const password = "HARDCODED_SECRET"; // BAD!
     
-    cy.get('#password').type(password);
-    cy.get('#submit').click();
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type(password);
+    cy.get('[data-testid="btn-login"]').click();
   });
 });`,
     missionBrief: {
@@ -754,12 +752,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasHardcoded = /"HARDCODED_SECRET"/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (hasHardcoded) {
         logs.push("✗ ERROR: Hardcoded secret detected!");
         return { passed: false, logs };
       }
-      
+
       if (!hasEnv) {
         logs.push("✗ ERROR: Cypress.env() not used.");
         return { passed: false, logs };
@@ -777,14 +775,15 @@ export const CYPRESS_LABS: CypressLab[] = [
     icon: History,
     initialCode: `describe('Browser Navigation', () => {
   it('should preserve state on reload', () => {
-    cy.visit('/form');
-    cy.get('#name').type('Alice');
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('Alice');
     
     // TODO: Reload the page
     
     
-    // TODO: Verify name is still there (persistence test)
-    cy.get('#name').should('have.value', 'Alice');
+    // TODO: Verify name is gone (or still there if we expected persistence, but standard input clears)
+    // For this test, let's just check if the page reloaded successfully
+    cy.get('[data-testid="input-username"]').should('be.visible');
     
     // TODO: Go back to previous page
     
@@ -803,12 +802,12 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasBack = /cy\.go\(['"]back['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasReload) {
         logs.push("✗ ERROR: Page reload missing.");
         return { passed: false, logs };
       }
-      
+
       if (!hasBack) {
         logs.push("✗ ERROR: Back navigation missing.");
         return { passed: false, logs };
@@ -826,16 +825,16 @@ export const CYPRESS_LABS: CypressLab[] = [
     icon: Layers,
     initialCode: `describe('Web Component', () => {
   it('should click button inside shadow root', () => {
-    cy.visit('/components');
+    cy.visit('/playground/interactions');
     
     // Element structure:
-    // <custom-card>
+    // <div id="shadow-host">
     //   #shadow-root
-    //     <button class="action-btn">Click Me</button>
-    // </custom-card>
+    //     <button class="btn">Click Me</button>
+    // </div>
     
     // Standard get fails because of shadow boundary
-    cy.get('custom-card').find('.action-btn').click(); // Fails
+    cy.get('#shadow-host').find('.btn').click(); // Fails
     
     // TODO: Use .shadow() command
   });
@@ -843,9 +842,9 @@ export const CYPRESS_LABS: CypressLab[] = [
     missionBrief: {
       context: "Standard selectors can't see inside Shadow DOM. Use `.shadow()` to traverse the boundary.",
       objectives: [
-        { id: 1, text: "Get the host element `custom-card`" },
+        { id: 1, text: "Get the host element `#shadow-host`" },
         { id: 2, text: "Chain `.shadow()`" },
-        { id: 3, text: "Find `.action-btn`" }
+        { id: 3, text: "Find `.btn`" }
       ]
     },
     validation: (code: string) => {
@@ -853,7 +852,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasShadow = /\.shadow\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasShadow) {
         logs.push("✗ ERROR: Shadow DOM traversal missing.");
         logs.push("  ↳ Use .shadow() after getting the host element");
@@ -870,19 +869,19 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Scope your selectors using `.within()`.",
     difficulty: "Intermediate",
     icon: Search,
-    initialCode: `describe('Multiple Forms', () => {
-  it('should submit the second form', () => {
-    cy.visit('/register');
+    initialCode: `describe('Validating Tabs', () => {
+  it('should scope selection to active tab', () => {
+    cy.visit('/playground/auth');
     
-    // There are two forms: #login-form and #signup-form
-    // Both have an input[name="email"]
+    // We have a login tab content.
+    // Use .within() to scope commands to the login form container
     
-    // TODO: Target ONLY the signup form
+    // TODO: Target ONLY the login form
     // Use .within() to scope commands
     
-    cy.get('#signup-form').within(() => {
-      // commands here are scoped to #signup-form
-      // so cy.get('input[name="email"]') finds the right one
+    cy.get('#login-form').within(() => {
+      // commands here are scoped to #login-form
+      // so cy.get('[data-testid="input-username"]') finds the right one
       
     });
   });
@@ -890,7 +889,7 @@ export const CYPRESS_LABS: CypressLab[] = [
     missionBrief: {
       context: "When you have duplicate elements, scoping with `.within()` is cleaner than chaining long selectors.",
       objectives: [
-        { id: 1, text: "Get `#signup-form`" },
+        { id: 1, text: "Get `#login-form`" },
         { id: 2, text: "Call `.within(() => { ... })`" }
       ]
     },
@@ -899,7 +898,7 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasWithin = /\.within\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasWithin) {
         logs.push("✗ ERROR: .within() scope missing.");
         return { passed: false, logs };
@@ -920,13 +919,14 @@ export const CYPRESS_LABS: CypressLab[] = [
     // TODO: Freeze time before visiting
     // cy.clock()
     
-    cy.visit('/dashboard');
+    cy.visit('/playground/auth');
     
     // TODO: Fast forward time by 30 minutes (in ms)
     // 30 * 60 * 1000 = 1800000
     // cy.tick(...)
     
-    cy.get('.alert').should('contain', 'Session Expired');
+    // In our playground, we might not have a real timeout, 
+    // but the concept remains the same for learning.
   });
 });`,
     missionBrief: {
@@ -942,13 +942,13 @@ export const CYPRESS_LABS: CypressLab[] = [
       const hasTick = /cy\.tick\(\s*1800000\s*\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasClock) {
         logs.push("✗ ERROR: Time not frozen.");
         logs.push("  ↳ Call cy.clock() at the start");
         return { passed: false, logs };
       }
-      
+
       if (!hasTick) {
         logs.push("✗ ERROR: Time not advanced.");
         logs.push("  ↳ Use cy.tick(1800000)");
@@ -975,7 +975,7 @@ describe('Admin Dashboard', () => {
   it('should load for admin', () => {
     // TODO: Use the custom cy.login() command
     
-    cy.visit('/admin');
+    cy.visit('/playground/auth');
   });
 });`,
     missionBrief: {
@@ -989,7 +989,7 @@ describe('Admin Dashboard', () => {
       const hasCustomCommand = /cy\.login\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasCustomCommand) {
         logs.push("✗ ERROR: Custom command usage not found.");
         return { passed: false, logs };
@@ -1005,27 +1005,27 @@ describe('Admin Dashboard', () => {
     description: "Simulate drag and drop events using .trigger()",
     difficulty: "Intermediate",
     icon: MousePointerClick,
-    initialCode: `describe('Kanban Board', () => {
-  it('should move task to Done', () => {
-    cy.visit('/board');
+    initialCode: `describe('Drag and Drop', () => {
+  it('should move item to drop zone', () => {
+    cy.visit('/playground/interactions');
     
-    // We need to drag #task-1 to #column-done
+    // We need to drag [data-testid="draggable-item"] to [data-testid="drop-zone"]
     
     const dataTransfer = new DataTransfer();
     
     // TODO: Trigger 'dragstart' on the task
-    cy.get('#task-1').trigger('dragstart', {
+    cy.get('[data-testid="draggable-item"]').trigger('dragstart', {
       dataTransfer
     });
     
     // TODO: Trigger 'drop' on the destination
-    // cy.get('#column-done').trigger(...)
+    // cy.get('[data-testid="drop-zone"]').trigger(...)
   });
 });`,
     missionBrief: {
       context: "Cypress simulates drag and drop by triggering events manually.",
       objectives: [
-        { id: 1, text: "Trigger `drop` on `#column-done`" },
+        { id: 1, text: "Trigger `drop` on `[data-testid='drop-zone']`" },
         { id: 2, text: "Pass `dataTransfer` object" }
       ]
     },
@@ -1035,7 +1035,7 @@ describe('Admin Dashboard', () => {
       const hasDataTransfer = /dataTransfer/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasDrop) {
         logs.push("✗ ERROR: Drop event not triggered.");
         return { passed: false, logs };
@@ -1053,8 +1053,8 @@ describe('Admin Dashboard', () => {
     icon: Globe,
     initialCode: `describe('SSO Login', () => {
   it('should login via Auth0', () => {
-    cy.visit('/login');
-    cy.get('#login-btn').click();
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="btn-login"]').click();
     
     // Now we are redirected to auth0.com
     // We cannot access elements there normally
@@ -1076,7 +1076,7 @@ describe('Admin Dashboard', () => {
       const hasOrigin = /cy\.origin\(['"]https:\/\/auth0\.com['"]/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasOrigin) {
         logs.push("✗ ERROR: cy.origin() missing.");
         return { passed: false, logs };
@@ -1094,7 +1094,7 @@ describe('Admin Dashboard', () => {
     icon: Eye,
     initialCode: `describe('Accessibility', () => {
   it('should have no violations', () => {
-    cy.visit('/home');
+    cy.visit('/playground/auth');
     
     // TODO: Inject the axe-core library
     // cy.injectAxe();
@@ -1116,12 +1116,12 @@ describe('Admin Dashboard', () => {
       const hasCheck = /cy\.checkA11y\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasInject) {
         logs.push("✗ ERROR: Axe not injected.");
         return { passed: false, logs };
       }
-      
+
       if (!hasCheck) {
         logs.push("✗ ERROR: A11y check not performed.");
         return { passed: false, logs };
@@ -1139,7 +1139,7 @@ describe('Admin Dashboard', () => {
     icon: HardDrive,
     initialCode: `describe('Copy Code', () => {
   it('should copy text to clipboard', () => {
-    cy.visit('/snippets');
+    cy.visit('/playground/interactions');
     
     // We need to grant clipboard permissions first
     cy.wrap(Cypress.automation('remote:debugger:protocol', {
@@ -1150,7 +1150,7 @@ describe('Admin Dashboard', () => {
       },
     }));
 
-    cy.get('#copy-btn').click();
+    cy.get('[data-testid="btn-copy"]').click();
     
     // TODO: Assert clipboard content
     // cy.window().its('navigator.clipboard').invoke('readText')...
@@ -1170,7 +1170,7 @@ describe('Admin Dashboard', () => {
       const hasRead = /readText/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasClipboard || !hasRead) {
         logs.push("✗ ERROR: Clipboard access incorrect.");
         logs.push("  ↳ Use cy.window().its('navigator.clipboard').invoke('readText')");
@@ -1188,7 +1188,7 @@ describe('Admin Dashboard', () => {
     difficulty: "Intermediate",
     icon: Database,
     initialCode: `describe('Shopping Cart', () => {
-  it('should show saved items', () => {
+  it('should use local storage', () => {
     // TODO: Seed Local Storage BEFORE visiting
     // We want to simulate a user who already added items
     
@@ -1196,14 +1196,15 @@ describe('Admin Dashboard', () => {
        // win.localStorage.setItem(...)
     });
     
-    cy.visit('/cart');
-    cy.get('.cart-item').should('have.length', 1);
+    cy.visit('/playground/auth');
+    // Note: The Auth Zone doesn't automatically read from LS on mount for UI,
+    // but we can verify the state exists.
   });
 });`,
     missionBrief: {
       context: "Don't manually add items to the cart in every test. Seed `localStorage` directly to set the state instantly.",
       objectives: [
-        { id: 1, text: "Set `cart_items` in localStorage" },
+        { id: 1, text: "Set `session_token` in localStorage" },
         { id: 2, text: "Do this BEFORE `cy.visit`" }
       ]
     },
@@ -1214,15 +1215,15 @@ describe('Admin Dashboard', () => {
       const setIndex = code.indexOf('setItem');
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasSetItem) {
         logs.push("✗ ERROR: localStorage.setItem missing.");
         return { passed: false, logs };
       }
 
       if (visitIndex > -1 && setIndex > visitIndex) {
-         logs.push("⚠ WARN: You are visiting before seeding storage.");
-         logs.push("  ↳ Seed first, then visit, or the app won't see the data.");
+        logs.push("⚠ WARN: You are visiting before seeding storage.");
+        logs.push("  ↳ Seed first, then visit, or the app won't see the data.");
       }
 
       logs.push("✓ State seeded via LocalStorage");
@@ -1237,13 +1238,13 @@ describe('Admin Dashboard', () => {
     icon: Eye,
     initialCode: `describe('Visual Evidence', () => {
   it('should take a screenshot of the error', () => {
-    cy.visit('/error-page');
+    cy.visit('/playground/auth');
     
     // TODO: Take a full page screenshot
     // cy.screenshot('error-state');
     
     // TODO: Take a screenshot of a specific element
-    // cy.get('.error-box').screenshot();
+    // cy.get('form').screenshot();
   });
 });`,
     missionBrief: {
@@ -1259,7 +1260,7 @@ describe('Admin Dashboard', () => {
       const hasElementScreenshot = /\.screenshot\(/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasScreenshot) {
         logs.push("✗ ERROR: Screenshot command missing.");
         return { passed: false, logs };
@@ -1280,9 +1281,9 @@ const checkStatus = () => {
   // TODO: Recursively check if status is 'COMPLETE'
   // If not, wait and check again.
   
-  cy.get('#status').invoke('text').then((text) => {
-    if (text !== 'COMPLETE') {
-      cy.wait(1000);
+  cy.get('[data-testid="btn-get-users"]').invoke('text').then((text) => {
+    if (!text.includes('Loaded')) {
+      cy.wait(500);
       checkStatus(); // Recurse
     }
   });
@@ -1290,7 +1291,7 @@ const checkStatus = () => {
 
 describe('Long Process', () => {
   it('should wait for completion', () => {
-    cy.visit('/processing');
+    cy.visit('/playground/api');
     checkStatus();
   });
 });`,
@@ -1307,7 +1308,7 @@ describe('Long Process', () => {
       const hasWait = /cy\.wait/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasRecursion) {
         logs.push("✗ ERROR: Recursive call missing.");
         return { passed: false, logs };
@@ -1325,15 +1326,15 @@ describe('Long Process', () => {
     icon: MousePointerClick,
     initialCode: `describe('Form Validation', () => {
   it('should show error when field is left empty', () => {
-    cy.visit('/signup');
+    cy.visit('/playground/auth');
     
     // The error only appears when the user leaves the field (blur)
-    cy.get('#email').click();
+    cy.get('[data-testid="input-username"]').click();
     
     // TODO: Trigger blur event
-    // cy.get('#email').blur();
+    // cy.get('[data-testid="input-username"]').blur();
     
-    cy.get('.error').should('be.visible');
+    // cy.get('input:invalid').should('have.length', 1);
   });
 });`,
     missionBrief: {
@@ -1348,7 +1349,7 @@ describe('Long Process', () => {
       const hasBlur = /\.blur\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasBlur) {
         logs.push("✗ ERROR: .blur() command missing.");
         return { passed: false, logs };
@@ -1369,8 +1370,8 @@ describe('Long Process', () => {
     // TODO: Load 'user.json' fixture
     // cy.fixture('user.json').then((user) => { ... })
     
-    cy.visit('/profile');
-    // cy.get('#name').type(user.name);
+    cy.visit('/playground/auth');
+    // cy.get('[data-testid="input-username"]').type(user.name);
   });
 });`,
     missionBrief: {
@@ -1386,7 +1387,7 @@ describe('Long Process', () => {
       const hasUsage = /\.then/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasFixture) {
         logs.push("✗ ERROR: cy.fixture() missing.");
         return { passed: false, logs };
@@ -1408,22 +1409,22 @@ describe('Long Process', () => {
     // This will cache cookies/localStorage automatically
     
     // cy.session('user-session', () => {
-    //   cy.visit('/login');
-    //   cy.get('#user').type('admin');
-    //   cy.get('#pass').type('123');
-    //   cy.get('#btn').click();
-    //   cy.url().should('contain', '/dashboard');
+    //   cy.visit('/playground/auth');
+    //   cy.get('[data-testid="input-username"]').type('admin');
+    //   cy.get('[data-testid="input-password"]').type('password123');
+    //   cy.get('[data-testid="btn-login"]').click();
+    //   cy.get('[data-testid="alert-success"]').should('be.visible');
     // });
     
     // Original slow login:
-    cy.visit('/login');
-    cy.get('#user').type('admin');
-    cy.get('#pass').type('123');
-    cy.get('#btn').click();
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
   });
 
   it('should show stats', () => {
-    cy.visit('/dashboard');
+    cy.visit('/playground/auth');
   });
 });`,
     missionBrief: {
@@ -1437,7 +1438,7 @@ describe('Long Process', () => {
       const hasSession = /cy\.session/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasSession) {
         logs.push("✗ ERROR: cy.session() missing.");
         return { passed: false, logs };
@@ -1461,7 +1462,7 @@ describe('Long Process', () => {
     // TODO: Call the 'resetDb' task
     // cy.task(...)
     
-    cy.visit('/app');
+    cy.visit('/playground/data');
   });
 });`,
     missionBrief: {
@@ -1475,7 +1476,7 @@ describe('Long Process', () => {
       const hasTask = /cy\.task\(['"]resetDb['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasTask) {
         logs.push("✗ ERROR: cy.task() missing.");
         return { passed: false, logs };
@@ -1513,7 +1514,7 @@ describe('Long Process', () => {
       const hasShould = /\.should/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasRead) {
         logs.push("✗ ERROR: cy.readFile() missing.");
         return { passed: false, logs };
@@ -1535,23 +1536,23 @@ describe('Long Process', () => {
     difficulty: "Beginner",
     icon: Globe,
     initialCode: `describe('Redirects', () => {
-  it('should redirect to login page', () => {
-    cy.visit('/protected');
+  it('should redirect', () => {
+    cy.visit('/playground/auth');
     
     // User is redirected to: /login?returnTo=/protected
     
-    // TODO: Assert the URL contains '/login'
+    // TODO: Assert the URL contains '/auth'
     // cy.url()...
     
-    // TODO: Assert the pathname is '/login'
+    // TODO: Assert the pathname is '/playground/auth'
     // cy.location('pathname')...
   });
 });`,
     missionBrief: {
       context: "Verify that redirects happen correctly by checking the URL.",
       objectives: [
-        { id: 1, text: "Check `cy.url()` contains '/login'" },
-        { id: 2, text: "Check `cy.location('pathname')` is '/login'" }
+        { id: 1, text: "Check `cy.url()` contains '/auth'" },
+        { id: 2, text: "Check `cy.location('pathname')`" }
       ]
     },
     validation: (code: string) => {
@@ -1560,7 +1561,7 @@ describe('Long Process', () => {
       const hasLocation = /cy\.location\(['"]pathname['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasUrl) {
         logs.push("✗ ERROR: cy.url() check missing.");
         return { passed: false, logs };
@@ -1606,7 +1607,7 @@ describe('Long Process', () => {
       const hasShould = /\.should\(['"]eq['"],\s*60\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasWrap) {
         logs.push("✗ ERROR: cy.wrap() missing.");
         return { passed: false, logs };
@@ -1628,12 +1629,12 @@ describe('Long Process', () => {
     difficulty: "Beginner",
     icon: Monitor,
     initialCode: `describe('Tablet Layout', () => {
-  it('should show sidebar in landscape', () => {
+  it('should adjust layout in landscape', () => {
     // TODO: Set viewport to ipad-2 in landscape
     // cy.viewport('ipad-2', 'landscape');
     
-    cy.visit('/dashboard');
-    cy.get('.sidebar').should('be.visible');
+    cy.visit('/playground/auth');
+    cy.get('[role="tablist"]').should('be.visible');
   });
 });`,
     missionBrief: {
@@ -1647,7 +1648,7 @@ describe('Long Process', () => {
       const hasViewport = /cy\.viewport\(['"]ipad-2['"],\s*['"]landscape['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasViewport) {
         logs.push("✗ ERROR: Viewport orientation incorrect.");
         return { passed: false, logs };
@@ -1665,15 +1666,16 @@ describe('Long Process', () => {
     icon: MousePointerClick,
     initialCode: `describe('Footer Links', () => {
   it('should check footer visibility', () => {
-    cy.visit('/long-page');
+    cy.visit('/playground/data');
     
     // Footer is at the bottom.
     // Sometimes elements are lazy-loaded on scroll.
     
     // TODO: Scroll the footer into view
     // cy.get('footer').scrollIntoView();
+    // Or scroll the next button into view
     
-    cy.get('footer').should('be.visible');
+    cy.get('[data-testid="btn-next"]').scrollIntoView();
   });
 });`,
     missionBrief: {
@@ -1687,7 +1689,7 @@ describe('Long Process', () => {
       const hasScroll = /\.scrollIntoView\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasScroll) {
         logs.push("✗ ERROR: .scrollIntoView() missing.");
         return { passed: false, logs };
@@ -1705,15 +1707,15 @@ describe('Long Process', () => {
     icon: Clock,
     initialCode: `describe('Complex Flow', () => {
   it('should stop for debugging', () => {
-    cy.visit('/wizard/step-1');
-    cy.get('#next').click();
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('debug');
     
-    // I want to see the state of Step 2 before continuing
+    // I want to see the state before continuing
     
     // TODO: Pause execution here
     // cy.pause();
     
-    cy.get('#finish').click();
+    cy.get('[data-testid="btn-login"]').click();
   });
 });`,
     missionBrief: {
@@ -1727,7 +1729,7 @@ describe('Long Process', () => {
       const hasPause = /cy\.pause\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasPause) {
         logs.push("✗ ERROR: cy.pause() missing.");
         return { passed: false, logs };
@@ -1782,12 +1784,12 @@ describe('Long Process', () => {
       const hasDrop = /\.trigger\(['"]drop['"]/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasDataTransfer) {
         logs.push("✗ ERROR: DataTransfer object missing.");
         return { passed: false, logs };
       }
-      
+
       if (!hasDragStart || !hasDrop) {
         logs.push("✗ ERROR: Drag events missing.");
         logs.push("  ↳ Need both 'dragstart' and 'drop'");
@@ -1836,12 +1838,12 @@ describe('Long Process', () => {
       const hasAlias = /\.as\(['"]copy['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasStub) {
         logs.push("✗ ERROR: Clipboard stub missing.");
         return { passed: false, logs };
       }
-      
+
       if (!hasAlias) {
         logs.push("✗ ERROR: Alias for stub missing.");
         return { passed: false, logs };
@@ -1881,7 +1883,7 @@ describe('Long Process', () => {
       const hasType = /\.type\(['"]\{ctrl\}k['"]\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasType) {
         logs.push("✗ ERROR: Keyboard shortcut missing.");
         logs.push("  ↳ Use .type('{ctrl}k')");
@@ -1923,7 +1925,7 @@ describe('Long Process', () => {
       const hasClick = /\.click\(\)/.test(code);
 
       logs.push("✓ Test suite initialized");
-      
+
       if (!hasClick) {
         logs.push("✗ ERROR: Export button not clicked.");
         return { passed: false, logs };

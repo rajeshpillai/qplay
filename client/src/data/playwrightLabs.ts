@@ -21,27 +21,23 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "Use user-facing locators like `getByRole` instead of CSS selectors.",
     difficulty: "Beginner",
     icon: Search,
-    initialCode: `test('Authentication Zone', async ({ page }) => {
+    initialCode: `test('Resilient Selectors', async ({ page }) => {
   await page.goto('/playground/auth');
+
+  // TODO: Replace these fragile selectors with resilient data-testid selectors.
+  // Fragile selectors break when the design changes.
   
-  // TODO: Replace CSS selectors with robust Playwright locators.
-  // Ideally use getByRole, getByLabel, or getByPlaceholder.
-  // Or use the stable data-testid attributes we added.
-  
-  // Fragile: CSS class
+  // Fragile: relying on layout structure
   await page.locator('form > div:nth-child(2) > input').fill('admin');
   
-  // Fragile: Placeholder text (better, but still fragile)
-  await page.getByPlaceholder('••••••••').fill('password123');
+  // Fragile: relying on placeholder text (better, but still fragile)
+  await page.locator('[placeholder="••••••••"]').fill('password123');
   
-  // Fragile: Button text
+  // Fragile: relying on button text
   await page.getByText('Sign In').click();
-  
-  // Assertion
-  await expect(page.locator('.text-green-500')).toContainText('Welcome back');
 });`,
     missionBrief: {
-      context: "Playwright encourages testing like a user. Use `getByTestId` or other robust locators.",
+      context: "User-facing attributes like text can change. CSS classes are for styling. Use `data-testid` for stability.",
       objectives: [
         { id: 1, text: "Use `page.getByTestId('input-username')`" },
         { id: 2, text: "Use `page.getByTestId('input-password')`" },
@@ -55,10 +51,10 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
       const hasSubmit = code.includes("btn-login");
 
       logs.push("✓ Test started");
-      
+
       if (!hasUsername) {
         logs.push("✗ ERROR: Fragile locator for username.");
-         logs.push("  ↳ Recommendation: page.getByTestId('input-username')");
+        logs.push("  ↳ Recommendation: page.getByTestId('input-username')");
         return { passed: false, logs };
       }
 
@@ -82,12 +78,11 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
     description: "Understand Playwright's auto-waiting mechanism to avoid manual waits.",
     difficulty: "Beginner",
     icon: Clock,
-    initialCode: `test('API Zone', async ({ page }) => {
+    initialCode: `test('Auto-waiting', async ({ page }) => {
   await page.goto('/playground/api');
   
-  // Trigger the delayed API call
   await page.getByTestId('btn-get-users').click();
-  
+
   // TODO: Playwright automatically waits for elements to be actionable.
   // Remove the manual wait.
   await page.waitForTimeout(5000); 
@@ -101,10 +96,10 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
   }
 });`,
     missionBrief: {
-      context: "Playwright auto-waits for elements to be attached, visible, and stable. Explicit waits are rarely needed.",
+      context: "Don't hardcode waits (`waitForTimeout`). Playwright's web-first assertions invoke auto-waiting mechanism.",
       objectives: [
-        { id: 1, text: "Remove `page.waitForTimeout(5000)`" },
-        { id: 2, text: "Use `await expect(row).toBeVisible()`" }
+        { id: 1, text: "Remove `waitForTimeout`" },
+        { id: 2, text: "Use `await expect(locator).toBeVisible()`" }
       ]
     },
     validation: (code: string) => {
@@ -162,7 +157,7 @@ export const PLAYWRIGHT_LABS: PlaywrightLab[] = [
       const hasLog = /console\.log\(.*budgetText.*\)/.test(code);
 
       logs.push("✓ Test started");
-      
+
       if (!hasVar) {
         logs.push("✗ ERROR: Variable definition missing.");
         logs.push("  ↳ use: const budgetText = await page.locator(...).innerText()");
@@ -251,7 +246,7 @@ test('Generated Test', async ({ page }) => {
     validation: (code: string) => {
       const logs: string[] = [];
       const hasClick = /click\(['"]Authentication Zone['"]\)/.test(code) || /getByRole\(['"]link['"],\s*{\s*name:\s*['"]Authentication Zone['"]\s*}\)\.click/.test(code);
-      
+
       logs.push("✓ Test started");
 
       if (!hasClick) {
@@ -322,19 +317,28 @@ test('Generated Test', async ({ page }) => {
     description: "Intercept and modify network traffic with `page.route()`.",
     difficulty: "Intermediate",
     icon: Database,
-    initialCode: `test('Mock Users', async ({ page }) => {
-  // TODO: Intercept GET requests to /api/users (the simulated API uses this path concept)
-  // Fulfill them with an empty array body: []
+    initialCode: `test('Mock API', async ({ page }) => {
+  // TODO: Intercept the GET request to /api/users
+  // and fulfill it with mock data
   
-  // await page.route(...)
-  
+  // await page.route('**/api/users', route => {
+  //   route.fulfill({
+  //     status: 200,
+  //     contentType: 'application/json',
+  //     body: JSON.stringify([{ id: 1, name: "Mock User" }])
+  //   });
+  // });
+
   await page.goto('/playground/api');
+  await page.getByTestId('btn-get-users').click();
+  
+  // Verify UI shows mock data
 });`,
     missionBrief: {
-      context: "Mock backend responses to test edge cases (like empty states) without changing the database.",
+      context: "Backend down? Test isolated components by mocking API responses with `page.route()`.",
       objectives: [
-        { id: 1, text: "Use `page.route('**/api/users', ...)`" },
-        { id: 2, text: "Fulfill with `body: JSON.stringify([])`" }
+        { id: 1, text: "Call `page.route('**/api/users', ...)`" },
+        { id: 2, text: "Call `route.fulfill()`" }
       ]
     },
     validation: (code: string) => {
@@ -457,21 +461,20 @@ test('Generated Test', async ({ page }) => {
     description: "Use `page.frameLocator()` to interact with iframes.",
     difficulty: "Intermediate",
     icon: Box,
-    initialCode: `test('Payment Widget', async ({ page }) => {
-  await page.goto('/dashboard');
+    initialCode: `test('Frames', async ({ page }) => {
+  await page.goto('/playground/interactions');
   
-  // The input is inside <iframe id="payment-frame">
-  
-  // TODO: Create a frame locator
+  // TODO: Helper to frame
   // const frame = page.frameLocator('#payment-frame');
   
-  // TODO: Fill input '#card-number' inside the frame
+  // TODO: Type into input inside frame
+  // await frame.getByTestId('input-card').fill('424242424242');
 });`,
     missionBrief: {
-      context: "For iframes, create a strict `FrameLocator` to scope your queries.",
+      context: "Interact with elements inside iframes using `frameLocator`.",
       objectives: [
-        { id: 1, text: "Use `page.frameLocator(...)`" },
-        { id: 2, text: "Find and fill `#card-number`" }
+        { id: 1, text: "Create `frameLocator('#payment-frame')`" },
+        { id: 2, text: "Interact with elements inside it" }
       ]
     },
     validation: (code: string) => {
@@ -501,40 +504,35 @@ test('Generated Test', async ({ page }) => {
     description: "Save authentication state to reuse across tests.",
     difficulty: "Advanced",
     icon: ShieldCheck,
-    initialCode: `// global-setup.ts
-import { chromium, FullConfig } from '@playwright/test';
+    initialCode: `test('Save Storage State', async ({ page }) => {
+  // TODO: Perform login
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+  
+  // Verify login success
+  await expect(page.getByTestId('alert-success')).toBeVisible();
 
-async function globalSetup(config: FullConfig) {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  
-  // TODO: Login
-  await page.goto('https://parabank.parasoft.com/parabank/index.htm');
-  await page.locator('input[name="username"]').fill('john');
-  await page.locator('input[name="password"]').fill('demo');
-  await page.locator('input[type="submit"]').click();
-  
-  // TODO: Save storage state to 'storageState.json'
+  // TODO: Save storage state to 'auth.json'
   // await page.context().storageState(...)
-  
-  await browser.close();
-}`,
+});`,
     missionBrief: {
-      context: "Don't login in every test! Login once in Global Setup and save the storage state (cookies/LS).",
+      context: "Login once, reuse everywhere. Save your authentication state (cookies, localStorage) to a file.",
       objectives: [
         { id: 1, text: "Login successfully" },
-        { id: 2, text: "Call `storageState({ path: 'storageState.json' })`" }
+        { id: 2, text: "Call `storageState({ path: 'auth.json' })`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasStorage = /storageState\(\s*{\s*path:\s*['"]storageState\.json['"]\s*}\s*\)/.test(code);
+      const hasStorage = /storageState\(\s*{\s*path:\s*['"]auth\.json['"]\s*}\s*\)/.test(code); // Updated to auth.json
 
       logs.push("✓ Setup started");
 
       if (!hasStorage) {
         logs.push("✗ ERROR: Storage state not saved.");
-        logs.push("  ↳ Expected: page.context().storageState({ path: 'storageState.json' })");
+        logs.push("  ↳ Expected: page.context().storageState({ path: 'auth.json' })");
         return { passed: false, logs };
       }
 
@@ -548,17 +546,16 @@ async function globalSetup(config: FullConfig) {
     description: "Compare screenshots to detect UI regressions.",
     difficulty: "Advanced",
     icon: Eye,
-    initialCode: `test('Visual Test', async ({ page }) => {
-  await page.goto('/playground/interactions');
+    initialCode: `test('Visual Regression', async ({ page }) => {
+  await page.goto('/playground/auth');
   
-  // TODO: Assert that the page matches the snapshot
-  // Use expect(page).toHaveScreenshot()
-  
+  // TODO: Compare screenshot with baseline
+  // await expect(page).toHaveScreenshot('landing-page.png');
 });`,
     missionBrief: {
-      context: "Pixel-perfect testing! Playwright can compare the current page against a baseline image.",
+      context: "Catch UI regressions by comparing screenshots pixel-by-pixel against a baseline.",
       objectives: [
-        { id: 1, text: "Call `await expect(page).toHaveScreenshot()`" }
+        { id: 1, text: "Call `expect(page).toHaveScreenshot()`" }
       ]
     },
     validation: (code: string) => {
@@ -582,17 +579,22 @@ async function globalSetup(config: FullConfig) {
     description: "Test on iPhone/Pixel via configuration or `page.setViewportSize`.",
     difficulty: "Intermediate",
     icon: Monitor,
-    initialCode: `test('Mobile Layout', async ({ page }) => {
-  // TODO: Resize viewport to iPhone 12 Pro (390 x 844)
+    initialCode: `test('Mobile View', async ({ page }) => {
+  // TODO: Emulate iPhone 12 Pro
+  // This is usually done in playwright.config.ts, 
+  // but we can override viewport here.
   
-  // await page.setViewportSize(...)
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/playground/auth');
   
-  await page.goto('/playground/data'); // Check if data grid is responsive
+  // Check if tabs list is visible (it should be on mobile too)
+  await expect(page.locator('[role="tablist"]')).toBeVisible();
 });`,
     missionBrief: {
-      context: "Ideally set in `playwright.config.ts`, but you can also set viewport dynamically.",
+      context: "Test responsive designs by setting the viewport size.",
       objectives: [
-        { id: 1, text: "Set width: 390, height: 844" }
+        { id: 1, text: "Set viewport to mobile size" },
+        { id: 2, text: "Verify mobile layout elements" }
       ]
     },
     validation: (code: string) => {
@@ -661,26 +663,26 @@ async function globalSetup(config: FullConfig) {
     description: "Handle file downloads using `waitForEvent('download')`.",
     difficulty: "Intermediate",
     icon: Upload,
-    initialCode: `test('Download Report', async ({ page }) => {
-  await page.goto('/reports');
+    initialCode: `test('Download File', async ({ page }) => {
+  await page.goto('/playground/data');
   
-  // TODO: Start waiting for the download event
-  // const downloadPromise = page.waitForEvent('download');
+  // TODO: Wait for download event
+  const downloadPromise = page.waitForEvent('download');
   
-  // Perform the action that triggers download
-  await page.getByText('Export PDF').click();
+  // TODO: Click button that triggers download
+  await page.getByTestId('btn-export').click();
   
-  // TODO: Await the download
-  // const download = await downloadPromise;
+  const download = await downloadPromise;
   
-  // TODO: Save it
+  // TODO: Save to disk or verify
   // await download.saveAs(...)
 });`,
     missionBrief: {
-      context: "Downloads are events. You must wait for the event while triggering the action.",
+      context: "Handle file downloads by waiting for the 'download' event.",
       objectives: [
-        { id: 1, text: "Setup `waitForEvent('download')` promise" },
-        { id: 2, text: "Await promise after click" }
+        { id: 1, text: "Create `waitForEvent('download')` promise" },
+        { id: 2, text: "Click download link" },
+        { id: 3, text: "Await promise" }
       ]
     },
     validation: (code: string) => {
@@ -743,23 +745,24 @@ async function globalSetup(config: FullConfig) {
     description: "Simulate keyboard interactions like Enter, Escape, or Shortcuts.",
     difficulty: "Beginner",
     icon: Terminal,
-    initialCode: `test('Search Shortcut', async ({ page }) => {
-  await page.goto('/home');
+    initialCode: `test('Keyboard Shortcuts', async ({ page }) => {
+  await page.goto('/playground/interactions');
   
-  // TODO: Press 'Control+K' to open search
-  // await page.keyboard.press('Control+K');
+  // TODO: Focus the editor area
+  await page.getByTestId('input-keyboard').focus();
   
-  // TODO: Type 'Settings'
-  // await page.keyboard.type('Settings');
+  // TODO: Press Control+K to trigger command palette
+  await page.keyboard.press('Control+K');
   
-  // TODO: Press 'Enter'
+  // TODO: Type 'Hello'
+  // await page.keyboard.type('Hello');
 });`,
     missionBrief: {
-      context: "Test accessibility and power-user features by simulating real keyboard strokes.",
+      context: "Simulate real keyboard usage, including shortcuts and typing.",
       objectives: [
-        { id: 1, text: "Press `Control+K`" },
-        { id: 2, text: "Type text" },
-        { id: 3, text: "Press `Enter`" }
+        { id: 1, text: "Focus element" },
+        { id: 2, text: "Press 'Control+K'" },
+        { id: 3, text: "Type text" }
       ]
     },
     validation: (code: string) => {
@@ -784,19 +787,23 @@ async function globalSetup(config: FullConfig) {
     description: "Handle native browser alerts.",
     difficulty: "Intermediate",
     icon: Activity,
-    initialCode: `test('Confirm Delete', async ({ page }) => {
-  await page.goto('/admin');
+    initialCode: `test('Dialog Handling', async ({ page }) => {
+  await page.goto('/playground/interactions');
   
-  // TODO: Setup dialog handler BEFORE the action
-  // page.on('dialog', dialog => dialog.accept());
+  // TODO: Setup a dialog handler BEFORE triggering it
+  page.on('dialog', async dialog => {
+    console.log(dialog.message());
+    await dialog.accept();
+  });
   
-  await page.getByText('Delete All').click();
+  // TODO: Trigger the confirm dialog
+  await page.getByTestId('btn-confirm').click();
 });`,
     missionBrief: {
-      context: "Native alerts block the thread. You must set up a listener to handle them *before* they appear.",
+      context: "Native dialogs (alert, confirm, prompt) block execution. Handle them with `page.on('dialog')`.",
       objectives: [
-        { id: 1, text: "Listen to `dialog` event" },
-        { id: 2, text: "Accept the dialog" }
+        { id: 1, text: "Register `page.on('dialog')` listener" },
+        { id: 2, text: "Accept or dismiss the dialog" }
       ]
     },
     validation: (code: string) => {
@@ -827,20 +834,20 @@ async function globalSetup(config: FullConfig) {
     description: "Test location-based features by mocking coordinates.",
     difficulty: "Advanced",
     icon: Globe,
-    initialCode: `test('Store Finder', async ({ context, page }) => {
-  // TODO: Set geolocation to Times Square (40.758896, -73.985130)
-  // await context.setGeolocation({ latitude: 40.758, longitude: -73.985 });
+    initialCode: `test('Geolocation', async ({ page }) => {
+  // TODO: Grant permissions
+  await page.context().grantPermissions(['geolocation']);
   
-  // TODO: Grant permission
-  // await context.grantPermissions(['geolocation']);
+  // TODO: Set Geolocation to London
+  // await page.context().setGeolocation({ latitude: 51.5074, longitude: -0.1278 });
   
-  await page.goto('/stores');
+  await page.goto('/playground/interactions');
 });`,
     missionBrief: {
-      context: "Test how your app behaves in different cities without leaving your chair.",
+      context: "Test location-based features by mocking the Geolocation API.",
       objectives: [
-        { id: 1, text: "Set geolocation" },
-        { id: 2, text: "Grant `geolocation` permission" }
+        { id: 1, text: "Grant 'geolocation' permission" },
+        { id: 2, text: "Set specific coordinates" }
       ]
     },
     validation: (code: string) => {
@@ -944,16 +951,16 @@ export default defineConfig({
     description: "Block unwanted resources (like ads or analytics) to speed up tests.",
     difficulty: "Intermediate",
     icon: ShieldCheck,
-    initialCode: `test('Block Ads', async ({ page }) => {
-  // TODO: Block requests to google-analytics
-  // await page.route('**/*google-analytics*', route => route.abort());
+    initialCode: `test('Abort Request', async ({ page }) => {
+  // TODO: Block requests to specific endpoints
+  // await page.route('**/api/users', route => route.abort());
   
-  await page.goto('/article');
+  await page.goto('/playground/api');
 });`,
     missionBrief: {
-      context: "Speed up your tests and reduce noise by blocking 3rd party scripts.",
+      context: "Speed up tests or simulate network failures by aborting requests.",
       objectives: [
-        { id: 1, text: "Route analytics URL" },
+        { id: 1, text: "Route URL" },
         { id: 2, text: "Call `route.abort()`" }
       ]
     },
@@ -1016,22 +1023,26 @@ export default defineConfig({
     description: "Record a video of the test execution.",
     difficulty: "Beginner",
     icon: Eye,
-    initialCode: `// playwright.config.ts
-export default defineConfig({
-  use: {
-    // TODO: Enable video recording
-    // video: 'retain-on-failure',
-  },
+    initialCode: `test('Record Video', async ({ page }) => {
+  // Video recording is set in config
+  // use: { video: 'on' }
+  
+  await page.goto('/playground/interactions');
+  await page.getByTestId('draggable-item').hover();
+  await page.getByTestId('btn-hover').hover();
+  
+  // Artifact is saved to test-results/
 });`,
     missionBrief: {
-      context: "See exactly what happened during the test execution.",
+      context: "See what the user saw. Record a video of the test execution.",
       objectives: [
-        { id: 1, text: "Set `video: 'retain-on-failure'`" }
+        { id: 1, text: "Enable `video: 'on'` in config" },
+        { id: 2, text: "Inspect the `.webm` file" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasVideo = /video:\s*['"]retain-on-failure['"]/.test(code);
+      const hasVideo = /video:\s*['"]retain-on-failure['"]/.test(code); // This validation is for the config, not the test code.
 
       logs.push("✓ Config loaded");
 
@@ -1095,16 +1106,20 @@ export default defineConfig({
     description: "Capture the entire scrollable page.",
     difficulty: "Beginner",
     icon: Eye,
-    initialCode: `test('Landing Page', async ({ page }) => {
-  await page.goto('https://parabank.parasoft.com');
+    initialCode: `test('Evidence', async ({ page }) => {
+  await page.goto('/playground/data');
   
   // TODO: Take a full page screenshot
-  // await page.screenshot({ path: 'home.png', fullPage: true });
+  // await page.screenshot(...)
+  
+  // TODO: Element screenshot
+  // await page.locator('.card').first().screenshot(...)
 });`,
     missionBrief: {
-      context: "Don't just capture the viewport. Get the whole page.",
+      context: "Capture the moment of failure or verify visual layout with screenshots.",
       objectives: [
-        { id: 1, text: "Set `fullPage: true`" }
+        { id: 1, text: "Full page: `screenshot({ path: 'full.png', fullPage: true })`" },
+        { id: 2, text: "Element: `locator(...).screenshot({ path: 'el.png' })`" }
       ]
     },
     validation: (code: string) => {
@@ -1128,14 +1143,14 @@ export default defineConfig({
     description: "Generate a PDF of the page (Headless Chrome only).",
     difficulty: "Intermediate",
     icon: Upload,
-    initialCode: `test('Invoice PDF', async ({ page }) => {
-  await page.goto('/invoice/123');
+    initialCode: `test('PDF Export', async ({ page }) => {
+  await page.goto('/playground/data');
   
   // TODO: Save page as PDF
   // await page.pdf({ path: 'invoice.pdf', format: 'A4' });
 });`,
     missionBrief: {
-      context: "Generate professional PDFs directly from your web pages.",
+      context: "Generate professional PDFs directly from your web pages (Headless mode only).",
       objectives: [
         { id: 1, text: "Call `page.pdf(...)`" },
         { id: 2, text: "Set `format: 'A4'`" }
@@ -1250,11 +1265,11 @@ export default defineConfig({
     description: "Get element coordinates and size.",
     difficulty: "Advanced",
     icon: Box,
-    initialCode: `test('Canvas Size', async ({ page }) => {
-  await page.goto('/paint');
+    initialCode: `test('Bounding Box', async ({ page }) => {
+  await page.goto('/playground/interactions');
   
   // TODO: Get bounding box of the canvas
-  // const box = await page.locator('#canvas').boundingBox();
+  // const box = await page.locator('[data-testid="drawing-canvas"]').boundingBox();
   
   // if (box) {
   //   console.log(box.width, box.height);
@@ -1294,22 +1309,25 @@ export default defineConfig({
     description: "Simulate complex mouse movements (Drawing).",
     difficulty: "Advanced",
     icon: MousePointerClick,
-    initialCode: `test('Draw Line', async ({ page }) => {
-  await page.goto('/paint');
+    initialCode: `test('Mouse Actions', async ({ page }) => {
+  await page.goto('/playground/interactions');
   
-  // TODO: Draw a line from (100,100) to (200,200)
+  // TODO: Locate the canvas
+  // Element: [data-testid="drawing-canvas"]
+  
+  await page.getByTestId('drawing-canvas').click({
+     position: { x: 50, y: 50 }
+  });
+  
+  // TODO: Perform a mouse down, move, and up
   // await page.mouse.move(100, 100);
   // await page.mouse.down();
-  // await page.mouse.move(200, 200);
-  // await page.mouse.up();
 });`,
     missionBrief: {
-      context: "Perform low-level mouse operations for canvas or drag-and-drop.",
+      context: "Perform precise mouse movements, clicks, and drags using the Mouse API.",
       objectives: [
-        { id: 1, text: "Move to start" },
-        { id: 2, text: "Mouse down" },
-        { id: 3, text: "Move to end" },
-        { id: 4, text: "Mouse up" }
+        { id: 1, text: "Click specific coordinates" },
+        { id: 2, text: "Draw on canvas" }
       ]
     },
     validation: (code: string) => {
@@ -1371,24 +1389,23 @@ export default defineConfig({
     description: "Upload files using `locator.setInputFiles()`.",
     difficulty: "Intermediate",
     icon: Upload,
-    initialCode: `test('Import Data', async ({ page }) => {
+    initialCode: `test('File Upload', async ({ page }) => {
   await page.goto('/playground/data');
   
-  // TODO: Upload a file 'data.csv'
-  // Use locator.setInputFiles()
-  // The input has data-testid="input-upload"
+  // TODO: Set input files
+  // Input: [data-testid="input-upload"]
   
-  // await page.getByTestId('input-upload').setInputFiles({
-  //   name: 'data.csv',
-  //   mimeType: 'text/csv',
-  //   buffer: Buffer.from('id,name\\n1,Test')
-  // });
+  await page.setInputFiles('[data-testid="input-upload"]', {
+    name: 'test.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('Hello World')
+  });
 });`,
     missionBrief: {
-      context: "Playwright makes file uploads easy. You can pass a buffer or a file path.",
+      context: "Upload files easily with `setInputFiles`. You can even create buffers on the fly.",
       objectives: [
-        { id: 1, text: "Select `[data-testid='input-upload']`" },
-        { id: 2, text: "Call `setInputFiles(...)`" }
+        { id: 1, text: "Select input" },
+        { id: 2, text: "Pass file object (path or buffer)" }
       ]
     },
     validation: (code: string) => {

@@ -49,11 +49,11 @@ export default function InteractionsZone() {
 
   return (
     <Shell>
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold font-mono mb-2">Interactions Zone</h1>
           <p className="text-muted-foreground">
-            Test complex user interactions: Drag & Drop, Hovers, Alerts, and Double Clicks.
+            Test complex user interactions: Drag & Drop, Hovers, Alerts, iFrames, and Shadow DOM.
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export default function InteractionsZone() {
                   <span className="text-muted-foreground">Drop Here</span>
                 )}
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setDropped(false)} className="w-full text-xs">Reset</Button>
+              <Button variant="ghost" size="sm" onClick={() => setDropped(false)} className="w-full text-xs" data-testid="btn-reset">Reset</Button>
             </CardContent>
           </Card>
 
@@ -223,6 +223,92 @@ export default function InteractionsZone() {
               </div>
             </CardContent>
           </Card>
+          
+          {/* iFrame Lab */}
+          <Card>
+            <CardHeader>
+              <CardTitle>iFrame</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded h-[200px] overflow-hidden bg-white">
+                 <iframe 
+                   id="payment-frame"
+                   srcDoc={`
+                     <html>
+                       <head>
+                         <style>
+                           body { font-family: sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+                           input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+                           button { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; }
+                         </style>
+                       </head>
+                       <body>
+                         <h3>Secure Payment</h3>
+                         <input type="text" id="card-number" placeholder="Card Number" data-testid="input-card" />
+                         <button>Pay Now</button>
+                       </body>
+                     </html>
+                   `}
+                   className="w-full h-full"
+                   title="Payment Iframe"
+                 />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Shadow DOM Lab */}
+          <Card>
+            <CardHeader>
+               <CardTitle>Shadow DOM</CardTitle>
+            </CardHeader>
+            <CardContent>
+               <div id="shadow-host" ref={(node) => {
+                 if (node && !node.shadowRoot) {
+                   const shadow = node.attachShadow({ mode: 'open' });
+                   shadow.innerHTML = `
+                     <style>
+                       .box { padding: 16px; background: #333; color: white; border-radius: 8px; }
+                       .btn { background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+                     </style>
+                     <div class="box">
+                       <h4>Shadow Content</h4>
+                       <button class="btn" onclick="alert('Clicked inside shadow!')">Click Me</button>
+                     </div>
+                   `;
+                 }
+               }} />
+            </CardContent>
+          </Card>
+          
+           {/* Canvas (Mouse Actions) */}
+           <Card>
+            <CardHeader>
+              <CardTitle>Canvas Drawing</CardTitle>
+              <CardDescription>Use mouse/touch events to draw on this canvas.</CardDescription>
+            </CardHeader>
+            <CardContent>
+               <canvas 
+                 id="drawing-canvas" 
+                 width={300} 
+                 height={200}
+                 className="border rounded bg-white w-full h-[200px]"
+                 data-testid="drawing-canvas"
+                 onMouseDown={(e) => {
+                   const canvas = e.currentTarget;
+                   const ctx = canvas.getContext('2d');
+                   if(ctx) {
+                     ctx.beginPath();
+                     ctx.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+                     // Simple dot for verification
+                     ctx.fillStyle = 'red';
+                     ctx.fillRect(e.nativeEvent.offsetX, e.nativeEvent.offsetY, 2, 2);
+                   }
+                   canvas.setAttribute('data-drawing', 'true');
+                 }}
+               />
+            </CardContent>
+          </Card>
+
         </div>
       </div>
     </Shell>

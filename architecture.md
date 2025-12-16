@@ -74,11 +74,20 @@ client/src/
 │   ├── simulation/
 │   │   └── LoadSimulator.tsx  # Core simulation engine & visualization
 │   └── ui/                    # Reusable UI components (Buttons, Cards, Sliders)
+├── data/
+│   ├── cypressLabs.ts         # Cypress lab definitions & validation logic
+│   ├── playwrightLabs.ts      # Playwright lab definitions & validation logic
+│   └── incidents.ts           # Incident scenario data
 ├── pages/
 │   ├── Dashboard.tsx          # Main landing page with gamification stats
 │   ├── ModuleView.tsx         # Learning interface (Text content + Simulator tab)
 │   ├── Leaderboard.tsx        # Gamified ranking page
-│   └── Incidents.tsx          # Production incident scenarios
+│   ├── Incidents.tsx          # Production incident scenarios
+│   └── playground/            # Internal mock application for testing labs
+│       ├── AuthZone.tsx       # Login page mock
+│       ├── DataZone.tsx       # Data grid/table mock
+│       ├── ApiZone.tsx        # REST API mock
+│       └── InteractionsZone.tsx # Drag & drop / events mock
 ├── App.tsx                    # Route definitions
 └── main.tsx                   # Entry point
 ```
@@ -92,3 +101,69 @@ client/src/
     *   If `targetRPS` > 800, `generateData()` starts returning non-zero error counts.
     *   `latency` values increase.
 5.  **Visualization:** `Recharts` receives the new `data` array and re-renders the area chart, showing the "cliff" where performance degrades.
+
+## Lab & Cookbook Architecture
+
+The platform includes interactive coding labs for Cypress and Playwright. These labs are self-contained and run against an internal "Playground" environment to ensure stability and speed.
+
+### 1. Adding a New Lab
+
+To add a new recipe or lab, you must modify either `client/src/data/cypressLabs.ts` or `client/src/data/playwrightLabs.ts`.
+
+**Lab Structure:**
+
+```typescript
+{
+  id: "unique-id",            // URL-safe identifier
+  title: "Lab Title",         // Display title
+  description: "Short desc",  // One-line summary
+  difficulty: "Beginner",     // Beginner | Intermediate | Advanced
+  icon: IconComponent,        // Lucide-React icon
+  initialCode: `...`,         // Starting boilerplate code
+  missionBrief: {
+    context: "...",           // Explanation of the concept
+    objectives: [             // Bullet points for the user
+      { id: 1, text: "Do X" },
+      { id: 2, text: "Do Y" }
+    ]
+  },
+  validation: (code: string) => {
+    // Return object
+    return { passed: boolean, logs: string[] };
+  }
+}
+```
+
+### 2. Validation Logic
+
+Validation is performed client-side by analyzing the student's code string. It does **not** execute the code against a real browser.
+
+*   **Mechanism:** Regex pattern matching.
+*   **Strategy:** Check for specific API calls, correct selectors, and required parameters.
+*   **Output:** Returns a boolean `passed` status and an array of `logs` that act as feedback for the user (e.g., "✓ Selector is correct", "✗ Missing .click()").
+
+### 3. Playground Environment
+
+Labs run against simulated application routes defined in `client/src/pages/playground/`. This environment mimics a real-world application but is contained entirely within the client to enable fast, resilient testing.
+
+*   **Auth Zone (`/playground/auth`):** 
+    *   Login forms with validation.
+    *   Simulated network delays.
+    *   `localStorage` and Cookie persistence simulation.
+*   **Data Zone (`/playground/data`):** 
+    *   Complex data tables with pagination (`data-testid="btn-next"`).
+    *   Client-side filtering and sorting.
+    *   File upload (`input[type="file"]`) and download simulation.
+*   **Interactions Zone (`/playground/interactions`):** 
+    *   **Drag & Drop:** Native HTML5 drag and drop API.
+    *   **Secure Payment (iFrame):** A nested iframe to practice `cy.wrap` and `page.frameLocator`.
+    *   **Shadow DOM:** A simplified Shadow DOM component to practice piercing shadow roots.
+    *   **Canvas:** An HTML5 canvas for testing mouse events (`mousedown`, `mousemove`) and coordinate systems.
+    *   **Dialogs:** Native `alert`, `confirm`, and `prompt` triggers.
+*   **API Zone (`/playground/api`):** 
+    *   Mock REST API endpoints for User Management.
+    *   Simulated HTTP status codes (200, 401, 404, 500).
+    *   Network request interception practice.
+
+**Extending the Playground:**
+If a new lab requires a UI element that doesn't exist (e.g., a specific form input or a canvas element), add it to the relevant `*Zone.tsx` file. Ensure it has a stable `data-testid` attribute to facilitate robust testing in the lab.
