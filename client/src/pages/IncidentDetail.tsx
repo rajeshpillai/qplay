@@ -8,14 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertTriangle, Server, Database, Activity, Terminal, Search, CheckCircle2, Clock, Play, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocation, useRoute } from "wouter";
-import { INCIDENTS } from "@/data/incidents";
-
-export interface LogEntry {
-  timestamp: string;
-  level: "INFO" | "WARN" | "ERROR";
-  service: string;
-  message: string;
-}
+import { INCIDENTS, LogEntry } from "@/data/incidents";
 
 const IncidentScenario = ({ id }: { id: string }) => {
   const incident = INCIDENTS.find(i => i.id === id) || INCIDENTS[0];

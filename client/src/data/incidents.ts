@@ -1,4 +1,9 @@
-import { LogEntry } from "@/pages/IncidentDetail";
+export interface LogEntry {
+  timestamp: string;
+  level: "INFO" | "WARN" | "ERROR";
+  service: string;
+  message: string;
+}
 
 export interface Incident {
   id: string;
