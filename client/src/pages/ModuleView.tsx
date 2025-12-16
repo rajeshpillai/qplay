@@ -4,7 +4,7 @@ import LoadSimulator from "@/components/simulation/LoadSimulator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, CheckCircle, Info } from "lucide-react";
+import { ChevronRight, CheckCircle, Info, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ModuleView() {
@@ -60,7 +60,7 @@ export default function ModuleView() {
                    <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
                      <h3>The "9:00 AM" Problem</h3>
                      <p>
-                       In IDfy's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
+                       In Algorisys's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
                        A system that handles 500 RPS (Requests Per Second) perfectly might collapse under a 2000 RPS spike, even if that spike only lasts 10 seconds.
                      </p>
                      
