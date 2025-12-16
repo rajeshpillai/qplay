@@ -7,6 +7,7 @@ import { SimulationProvider } from "@/lib/SimulationContext";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import ModuleView from "@/pages/ModuleView";
+import Module1 from "@/pages/Module1";
 import Leaderboard from "@/pages/Leaderboard";
 import Incidents from "@/pages/Incidents";
 import IncidentDetail from "@/pages/IncidentDetail";
@@ -19,6 +20,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/modules/1" component={Module1} />
+      <Route path="/modules/2" component={ModuleView} />
       <Route path="/modules" component={ModuleView} />
       <Route path="/modules/k6" component={LabList} />
       <Route path="/modules/k6/:labId" component={K6Editor} />

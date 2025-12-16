@@ -141,6 +141,7 @@ export default function Dashboard() {
               level="Module 1"
               progress={100}
               status="completed"
+              href="/modules/1"
             />
             <ModuleCard 
               title="Load Modeling for KYC"
@@ -148,6 +149,7 @@ export default function Dashboard() {
               level="Module 2"
               progress={45}
               status="active"
+              href="/modules/2"
             />
             <ModuleCard 
               title="k6 Scripting Mastery"
