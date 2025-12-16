@@ -21,7 +21,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal, BookOpen } from "lucide-react";
+import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal, BookOpen, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSimulation } from "@/lib/SimulationContext";
 
@@ -280,6 +280,76 @@ export default function LoadSimulator() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+           {/* CPU Monitor */}
+           <Card className="bg-black/20 border-white/5">
+             <CardContent className="p-3">
+               <div className="flex justify-between items-center mb-2">
+                 <span className="text-[10px] text-muted-foreground uppercase">CPU Usage</span>
+                 <Cpu className={cn("h-3 w-3", stats.currentRPS > 1000 ? "text-red-400 animate-pulse" : "text-green-400")} />
+               </div>
+               <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-1">
+                 <div 
+                   className={cn("h-full transition-all duration-500", stats.currentRPS > 1000 ? "bg-red-500" : "bg-green-500")}
+                   style={{ width: `${Math.min((stats.currentRPS / 1200) * 100, 100)}%` }} 
+                 />
+               </div>
+               <span className="text-xs font-mono">{Math.round(Math.min((stats.currentRPS / 1200) * 100, 100))}%</span>
+             </CardContent>
+           </Card>
+
+           {/* Memory Monitor */}
+           <Card className="bg-black/20 border-white/5">
+             <CardContent className="p-3">
+               <div className="flex justify-between items-center mb-2">
+                 <span className="text-[10px] text-muted-foreground uppercase">Memory</span>
+                 <Activity className="h-3 w-3 text-blue-400" />
+               </div>
+               <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-1">
+                 <div 
+                   className="h-full bg-blue-500 transition-all duration-1000"
+                   style={{ width: `${Math.min(40 + (stats.currentRPS / 2000) * 60, 95)}%` }} 
+                 />
+               </div>
+               <span className="text-xs font-mono">{Math.round(Math.min(40 + (stats.currentRPS / 2000) * 60, 95))}%</span>
+             </CardContent>
+           </Card>
+
+           {/* DB Connections */}
+           <Card className="bg-black/20 border-white/5">
+             <CardContent className="p-3">
+               <div className="flex justify-between items-center mb-2">
+                 <span className="text-[10px] text-muted-foreground uppercase">DB Conn</span>
+                 <Server className={cn("h-3 w-3", stats.currentRPS > 400 ? "text-yellow-400" : "text-primary")} />
+               </div>
+               <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-1">
+                 <div 
+                   className={cn("h-full transition-all duration-500", stats.currentRPS > 400 ? "bg-yellow-500" : "bg-primary")}
+                   style={{ width: `${Math.min((stats.currentRPS / 500) * 100, 100)}%` }} 
+                 />
+               </div>
+               <span className="text-xs font-mono">{Math.round(Math.min((stats.currentRPS / 500) * 100, 100))} / 100</span>
+             </CardContent>
+           </Card>
+
+           {/* Network I/O */}
+           <Card className="bg-black/20 border-white/5">
+             <CardContent className="p-3">
+               <div className="flex justify-between items-center mb-2">
+                 <span className="text-[10px] text-muted-foreground uppercase">Net I/O</span>
+                 <Zap className="h-3 w-3 text-purple-400" />
+               </div>
+               <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden mb-1">
+                 <div 
+                   className="h-full bg-purple-500 transition-all duration-300"
+                   style={{ width: `${Math.min((stats.currentRPS / 2000) * 100, 80)}%` }} 
+                 />
+               </div>
+               <span className="text-xs font-mono">{((stats.currentRPS * 12) / 1024).toFixed(1)} MB/s</span>
+             </CardContent>
+           </Card>
         </div>
 
         {/* Graphs */}
