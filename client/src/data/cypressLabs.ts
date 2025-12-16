@@ -118,7 +118,13 @@ export const CYPRESS_LABS: CypressLab[] = [
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasFixedWait = /cy\.wait\(\s*\d+\s*\)/.test(code);
+      
+      // Remove comments to allow commenting out code
+      const cleanCode = code
+        .replace(/\/\/.*$/gm, '') // Remove single line comments
+        .replace(/\/\*[\s\S]*?\*\//g, ''); // Remove multi-line comments
+        
+      const hasFixedWait = /cy\.wait\(\s*\d+\s*\)/.test(cleanCode);
       const hasResultsWait = code.includes('#transactionTable') || code.includes("id='transactionTable'");
       const hasVisibleAssertion = code.includes('be.visible') || code.includes('exist');
 
