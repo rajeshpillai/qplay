@@ -3,11 +3,13 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SimulationProvider } from "@/lib/SimulationContext";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import ModuleView from "@/pages/ModuleView";
 import Leaderboard from "@/pages/Leaderboard";
 import Incidents from "@/pages/Incidents";
+import Settings from "@/pages/Settings";
 
 function Router() {
   return (
@@ -19,6 +21,7 @@ function Router() {
       )} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/incidents" component={Incidents} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -28,8 +31,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
+        <SimulationProvider>
+          <Toaster />
+          <Router />
+        </SimulationProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

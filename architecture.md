@@ -54,6 +54,16 @@ The simulator generates synthetic data based on the user-controlled **Target RPS
 *   **P95 Latency:** Calculated from the last batch of simulated request latencies.
 *   **Error Rate:** `(Total Errors / Total Requests) * 100`
 
+## System Configuration (New)
+
+The simulation engine is now configurable via the `/settings` page. Parameters are stored in a React Context and persisted to `localStorage`.
+
+**Configurable Parameters:**
+*   **Breaking Point (RPS):** The threshold where the system begins to fail (default: 800).
+*   **Base Latency:** The minimum latency at 0 load (default: 50ms).
+*   **Latency Multiplier:** How much latency increases per RPS (default: 0.1ms).
+*   **Spike Probability:** Chance of a random latency spike (default: 5%).
+
 ## File Structure
 
 ```

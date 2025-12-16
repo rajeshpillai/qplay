@@ -78,9 +78,11 @@ const Sidebar = ({ className }: { className?: string }) => {
               <p className="text-xs text-muted-foreground">Online</p>
             </div>
           </div>
-          <Button size="icon" variant="ghost" className="h-8 w-8">
-            <Settings className="h-4 w-4" />
-          </Button>
+          <Link href="/settings">
+            <Button size="icon" variant="ghost" className="h-8 w-8">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
         
         <div className="mt-4 pt-4 border-t border-white/5">

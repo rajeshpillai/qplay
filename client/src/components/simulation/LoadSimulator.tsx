@@ -16,25 +16,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock data generator
-const generateData = (rps: number, isSpike: boolean) => {
-  const baseLatency = 50 + (rps * 0.1); // Latency increases with RPS
-  const spikeFactor = isSpike ? Math.random() * 500 : 0;
-  
-  return {
-    time: new Date().toLocaleTimeString(),
-    rps: rps + (Math.random() * 20 - 10),
-    latency: baseLatency + spikeFactor + (Math.random() * 20),
-    errors: rps > 800 ? (rps - 800) / 10 : 0 // Errors start appearing after 800 RPS
-  };
-};
+import { useSimulation } from "@/lib/SimulationContext";
 
 export default function LoadSimulator() {
+  const { settings } = useSimulation();
   const [isRunning, setIsRunning] = useState(false);
   const [targetRPS, setTargetRPS] = useState([200]);
   const [data, setData] = useState<any[]>([]);
   const [stats, setStats] = useState({ p95: 0, errorRate: 0, currentRPS: 0 });
+
+  // Generate data based on current settings
+  const generateData = (rps: number, isSpike: boolean) => {
+    const baseLatency = settings.baseLatencyMs + (rps * settings.latencyMultiplier);
+    const spikeFactor = isSpike ? Math.random() * 500 : 0;
+    
+    // Calculate errors based on the configurable threshold
+    const errors = rps > settings.errorThresholdRPS 
+      ? (rps - settings.errorThresholdRPS) / 10 
+      : 0;
+
+    return {
+      time: new Date().toLocaleTimeString(),
+      rps: rps + (Math.random() * 20 - 10),
+      latency: baseLatency + spikeFactor + (Math.random() * 20),
+      errors: errors
+    };
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -42,7 +49,10 @@ export default function LoadSimulator() {
     if (isRunning) {
       interval = setInterval(() => {
         setData(prev => {
-          const newData = [...prev, generateData(targetRPS[0], Math.random() > 0.95)];
+          // Use the configurable spike probability
+          const isSpike = Math.random() < settings.spikeProbability;
+          const newData = [...prev, generateData(targetRPS[0], isSpike)];
+          
           if (newData.length > 20) newData.shift();
           
           // Calculate stats
@@ -63,7 +73,7 @@ export default function LoadSimulator() {
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, targetRPS]);
+  }, [isRunning, targetRPS, settings]); // Re-run if settings change
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -84,14 +94,19 @@ export default function LoadSimulator() {
             <Slider 
               value={targetRPS} 
               onValueChange={setTargetRPS} 
-              max={1500} 
+              max={2000} 
               step={50}
               className="py-4"
             />
             <div className="flex justify-between text-xs text-muted-foreground font-mono">
               <span>0 RPS</span>
-              <span>750 RPS</span>
-              <span>1500 RPS</span>
+              <span>1000 RPS</span>
+              <span>2000 RPS</span>
+            </div>
+            
+            <div className="flex items-center gap-2 text-xs text-yellow-500/80 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+              <AlertTriangle className="h-3 w-3" />
+              <span>Current Breaking Point: {settings.breakingPointRPS} RPS</span>
             </div>
           </div>
 
