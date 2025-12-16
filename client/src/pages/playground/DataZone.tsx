@@ -105,10 +105,26 @@ export default function DataZone() {
                   {filteredData.length} records found
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" data-testid="btn-export">
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="relative" data-testid="btn-import">
+                   <input 
+                     type="file" 
+                     className="absolute inset-0 opacity-0 cursor-pointer" 
+                     data-testid="input-upload"
+                     onChange={(e) => {
+                       if (e.target.files?.length) {
+                         alert(`Uploaded: ${e.target.files[0].name}`);
+                       }
+                     }}
+                   />
+                   <Database className="h-4 w-4 mr-2" />
+                   Import
+                </Button>
+                <Button variant="outline" size="sm" data-testid="btn-export">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export CSV
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

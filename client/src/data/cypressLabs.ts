@@ -1736,5 +1736,201 @@ describe('Long Process', () => {
       logs.push("✓ Execution paused");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "drag-drop",
+    title: "Drag and Drop",
+    description: "Simulate drag events using `.trigger()`.",
+    difficulty: "Advanced",
+    icon: MousePointerClick,
+    initialCode: `describe('Drag and Drop', () => {
+  it('should drag item to drop zone', () => {
+    cy.visit('/playground/interactions');
+    
+    // Cypress doesn't have a native drag command.
+    // We must manually trigger dragstart, dragover, and drop events.
+    
+    // TODO: Define a DataTransfer object
+    const dataTransfer = new DataTransfer();
+    
+    // TODO: Trigger 'dragstart' on draggable item
+    cy.get('[data-testid="draggable-item"]').trigger('dragstart', {
+      dataTransfer
+    });
+    
+    // TODO: Trigger 'drop' on drop zone
+    cy.get('[data-testid="drop-zone"]').trigger('drop', {
+      dataTransfer
+    });
+    
+    // Assert success message
+    cy.contains('Dropped!').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Drag and Drop is complex in Cypress. You need to simulate the `DataTransfer` object manually.",
+      objectives: [
+        { id: 1, text: "Create `new DataTransfer()`" },
+        { id: 2, text: "Trigger `dragstart` with dataTransfer" },
+        { id: 3, text: "Trigger `drop` with dataTransfer" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasDataTransfer = /new\s+DataTransfer\(\)/.test(code);
+      const hasDragStart = /\.trigger\(['"]dragstart['"]/.test(code);
+      const hasDrop = /\.trigger\(['"]drop['"]/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasDataTransfer) {
+        logs.push("✗ ERROR: DataTransfer object missing.");
+        return { passed: false, logs };
+      }
+      
+      if (!hasDragStart || !hasDrop) {
+        logs.push("✗ ERROR: Drag events missing.");
+        logs.push("  ↳ Need both 'dragstart' and 'drop'");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Drag and Drop simulated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "clipboard",
+    title: "Clipboard Testing",
+    description: "Stub `navigator.clipboard` to test copy functionality.",
+    difficulty: "Advanced",
+    icon: Clipboard,
+    initialCode: `describe('Copy to Clipboard', () => {
+  it('should copy the secret code', () => {
+    cy.visit('/playground/interactions');
+    
+    // Accessing real clipboard is flaky in CI.
+    // Best Practice: Stub the browser API.
+    
+    // TODO: Stub navigator.clipboard.writeText
+    // cy.window().then((win) => {
+    //   cy.stub(win.navigator.clipboard, 'writeText').as('copy');
+    // });
+    
+    cy.get('[data-testid="btn-copy"]').click();
+    
+    // TODO: Assert the stub was called with "AB-123"
+    // cy.get('@copy').should(...)
+  });
+});`,
+    missionBrief: {
+      context: "Don't test the browser's clipboard implementation. Test that your app CALLED the clipboard API correctly.",
+      objectives: [
+        { id: 1, text: "Stub `navigator.clipboard.writeText`" },
+        { id: 2, text: "Alias it as `copy`" },
+        { id: 3, text: "Assert it was called with correct value" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasStub = /cy\.stub\([^,]+,\s*['"]writeText['"]\)/.test(code);
+      const hasAlias = /\.as\(['"]copy['"]\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasStub) {
+        logs.push("✗ ERROR: Clipboard stub missing.");
+        return { passed: false, logs };
+      }
+      
+      if (!hasAlias) {
+        logs.push("✗ ERROR: Alias for stub missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Clipboard API stubbed");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "keyboard",
+    title: "Keyboard Shortcuts",
+    description: "Simulate special key combinations like `Ctrl+K`.",
+    difficulty: "Intermediate",
+    icon: Terminal,
+    initialCode: `describe('Power User Shortcuts', () => {
+  it('should trigger shortcut', () => {
+    cy.visit('/playground/interactions');
+    
+    // TODO: Type 'Ctrl+K' into the input
+    // Syntax: .type('{ctrl}k')
+    
+    cy.get('[data-testid="input-keyboard"]').type('{ctrl}k');
+    
+    // Assert message appears
+    cy.contains("Shortcut 'Ctrl+K' detected!").should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Use special character sequences like `{ctrl}`, `{shift}`, `{enter}` to simulate real keyboard use.",
+      objectives: [
+        { id: 1, text: "Use `.type('{ctrl}k')`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasType = /\.type\(['"]\{ctrl\}k['"]\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasType) {
+        logs.push("✗ ERROR: Keyboard shortcut missing.");
+        logs.push("  ↳ Use .type('{ctrl}k')");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Keyboard event simulated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "download",
+    title: "File Downloads",
+    description: "Verify file downloads without actually saving files.",
+    difficulty: "Intermediate",
+    icon: Download,
+    initialCode: `describe('Export Data', () => {
+  it('should trigger download', () => {
+    cy.visit('/playground/data');
+    
+    // In Cypress, we verify the anchor tag attributes usually, 
+    // or use a 'verifyDownload' plugin (not installed here).
+    // For this lab, let's verify the button exists and is clickable.
+    
+    // Ideally, we intercept the request if it's an API call, 
+    // or check the href if it's a link.
+    
+    cy.get('[data-testid="btn-export"]').click();
+  });
+});`,
+    missionBrief: {
+      context: "Native downloads are hard to verify in Cypress without plugins. We usually assert on the UI side effects or network calls.",
+      objectives: [
+        { id: 1, text: "Click export button" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasClick = /\.click\(\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasClick) {
+        logs.push("✗ ERROR: Export button not clicked.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Download interaction verified");
+      return { passed: true, logs };
+    }
   }
 ];

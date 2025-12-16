@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, MousePointer2 } from "lucide-react";
 import {
@@ -144,6 +145,56 @@ export default function InteractionsZone() {
                 <Button variant="secondary" onClick={handleConfirm} data-testid="btn-confirm">
                   Trigger Confirm
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Clipboard & Keyboard */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Advanced Inputs</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Clipboard */}
+              <div className="space-y-2">
+                <Label>Clipboard Interaction</Label>
+                <div className="flex gap-2">
+                   <Input value="Copy this secret code: AB-123" readOnly className="bg-muted" />
+                   <Button 
+                     variant="outline" 
+                     data-testid="btn-copy"
+                     onClick={() => {
+                       navigator.clipboard.writeText("AB-123");
+                       const btn = document.querySelector('[data-testid="btn-copy"]');
+                       if(btn) btn.textContent = "Copied!";
+                       setTimeout(() => { if(btn) btn.textContent = "Copy"; }, 2000);
+                     }}
+                   >
+                     Copy
+                   </Button>
+                </div>
+              </div>
+
+              {/* Keyboard */}
+              <div className="space-y-2">
+                <Label>Keyboard Shortcuts</Label>
+                <Input 
+                  placeholder="Press 'Control+K' here..." 
+                  data-testid="input-keyboard"
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                      e.preventDefault();
+                      const msg = document.getElementById('kbd-msg');
+                      if(msg) {
+                        msg.classList.remove('hidden');
+                        setTimeout(() => msg.classList.add('hidden'), 2000);
+                      }
+                    }
+                  }}
+                />
+                <p id="kbd-msg" className="text-xs text-green-500 font-mono hidden" data-testid="kbd-msg">
+                  Shortcut 'Ctrl+K' detected!
+                </p>
               </div>
             </CardContent>
           </Card>

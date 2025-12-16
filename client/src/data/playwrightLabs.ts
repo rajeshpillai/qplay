@@ -1236,11 +1236,11 @@ export default defineConfig({
       }
 
       if (!hasUncheck) {
-        logs.push("✗ ERROR: uncheck() missing.");
+        logs.push("✗ ERROR: Uncheck missing.");
         return { passed: false, logs };
       }
 
-      logs.push("✓ Iteration successful");
+      logs.push("✓ Iteration logic verified");
       return { passed: true, logs };
     }
   },
@@ -1362,6 +1362,94 @@ export default defineConfig({
       }
 
       logs.push("✓ Soft assertions active");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "file-upload",
+    title: "File Uploads",
+    description: "Upload files using `locator.setInputFiles()`.",
+    difficulty: "Intermediate",
+    icon: Upload,
+    initialCode: `test('Import Data', async ({ page }) => {
+  await page.goto('/playground/data');
+  
+  // TODO: Upload a file 'data.csv'
+  // Use locator.setInputFiles()
+  // The input has data-testid="input-upload"
+  
+  // await page.getByTestId('input-upload').setInputFiles({
+  //   name: 'data.csv',
+  //   mimeType: 'text/csv',
+  //   buffer: Buffer.from('id,name\\n1,Test')
+  // });
+});`,
+    missionBrief: {
+      context: "Playwright makes file uploads easy. You can pass a buffer or a file path.",
+      objectives: [
+        { id: 1, text: "Select `[data-testid='input-upload']`" },
+        { id: 2, text: "Call `setInputFiles(...)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSetInput = /\.setInputFiles\(/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasSetInput) {
+        logs.push("✗ ERROR: setInputFiles missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ File upload simulated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "clipboard",
+    title: "Clipboard Access",
+    description: "Read/Write clipboard content (requires permissions).",
+    difficulty: "Advanced",
+    icon: Clipboard,
+    initialCode: `test('Copy Code', async ({ page, context }) => {
+  // Clipboard access requires permission
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  
+  await page.goto('/playground/interactions');
+  
+  // TODO: Click Copy button
+  await page.getByTestId('btn-copy').click();
+  
+  // TODO: Verify clipboard content
+  // const content = await page.evaluate(() => navigator.clipboard.readText());
+  // expect(content).toBe('AB-123');
+});`,
+    missionBrief: {
+      context: "Headless browsers restrict clipboard access. Grant permissions first.",
+      objectives: [
+        { id: 1, text: "Grant `clipboard-read`" },
+        { id: 2, text: "Assert `navigator.clipboard.readText()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPerm = /grantPermissions/.test(code);
+      const hasRead = /navigator\.clipboard\.readText/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasPerm) {
+        logs.push("✗ ERROR: Permissions missing.");
+        return { passed: false, logs };
+      }
+
+      if (!hasRead) {
+        logs.push("✗ ERROR: Clipboard read verification missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Clipboard verified");
       return { passed: true, logs };
     }
   }
