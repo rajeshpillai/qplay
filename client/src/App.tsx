@@ -9,6 +9,7 @@ import Dashboard from "@/pages/Dashboard";
 import ModuleView from "@/pages/ModuleView";
 import Leaderboard from "@/pages/Leaderboard";
 import Incidents from "@/pages/Incidents";
+import IncidentDetail from "@/pages/IncidentDetail";
 import Settings from "@/pages/Settings";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       )} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route path="/incidents" component={Incidents} />
+      <Route path="/incidents/:id" component={IncidentDetail} />
       <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>

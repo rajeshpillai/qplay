@@ -42,7 +42,7 @@ export default function Incidents() {
                   <span>Impact: High</span>
                 </div>
               </div>
-              <Button variant="destructive" className="w-full md:w-auto">
+              <Button variant="destructive" className="w-full md:w-auto" onClick={() => window.location.href = '/incidents/1'}>
                 Investigate Incident <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
