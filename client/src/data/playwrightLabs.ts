@@ -691,5 +691,345 @@ async function globalSetup(config: FullConfig) {
       logs.push("✓ Download handled correctly");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "drag-drop",
+    title: "Drag and Drop",
+    description: "Use the native `dragTo` method.",
+    difficulty: "Intermediate",
+    icon: MousePointerClick,
+    initialCode: `test('Kanban Board', async ({ page }) => {
+  await page.goto('/board');
+  
+  // TODO: Drag #task-1 to #column-done
+  // await page.locator('#task-1').dragTo(page.locator('#column-done'));
+});`,
+    missionBrief: {
+      context: "Playwright has a high-level API for drag and drop. No need to trigger events manually.",
+      objectives: [
+        { id: 1, text: "Use `locator.dragTo(targetLocator)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasDrag = /\.dragTo\(/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasDrag) {
+        logs.push("✗ ERROR: dragTo command missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Drag operation simulated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "keyboard",
+    title: "Keyboard Shortcuts",
+    description: "Simulate keyboard interactions like Enter, Escape, or Shortcuts.",
+    difficulty: "Beginner",
+    icon: Terminal,
+    initialCode: `test('Search Shortcut', async ({ page }) => {
+  await page.goto('/home');
+  
+  // TODO: Press 'Control+K' to open search
+  // await page.keyboard.press('Control+K');
+  
+  // TODO: Type 'Settings'
+  // await page.keyboard.type('Settings');
+  
+  // TODO: Press 'Enter'
+});`,
+    missionBrief: {
+      context: "Test accessibility and power-user features by simulating real keyboard strokes.",
+      objectives: [
+        { id: 1, text: "Press `Control+K`" },
+        { id: 2, text: "Type text" },
+        { id: 3, text: "Press `Enter`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPress = /page\.keyboard\.press/.test(code);
+      const hasType = /page\.keyboard\.type/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasPress || !hasType) {
+        logs.push("✗ ERROR: Keyboard interactions missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Keyboard shortcuts fired");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "dialogs",
+    title: "Alerts & Dialogs",
+    description: "Handle native browser alerts.",
+    difficulty: "Intermediate",
+    icon: Activity,
+    initialCode: `test('Confirm Delete', async ({ page }) => {
+  await page.goto('/admin');
+  
+  // TODO: Setup dialog handler BEFORE the action
+  // page.on('dialog', dialog => dialog.accept());
+  
+  await page.getByText('Delete All').click();
+});`,
+    missionBrief: {
+      context: "Native alerts block the thread. You must set up a listener to handle them *before* they appear.",
+      objectives: [
+        { id: 1, text: "Listen to `dialog` event" },
+        { id: 2, text: "Accept the dialog" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasListener = /page\.on\(['"]dialog['"]/.test(code);
+      const hasAccept = /dialog\.accept\(\)/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasListener) {
+        logs.push("✗ ERROR: Dialog listener missing.");
+        logs.push("  ↳ Must be set up before the click!");
+        return { passed: false, logs };
+      }
+
+      if (!hasAccept) {
+        logs.push("✗ ERROR: Did not accept/dismiss dialog.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Dialog handled gracefully");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "geolocation",
+    title: "Geolocation",
+    description: "Test location-based features by mocking coordinates.",
+    difficulty: "Advanced",
+    icon: Globe,
+    initialCode: `test('Store Finder', async ({ context, page }) => {
+  // TODO: Set geolocation to Times Square (40.758896, -73.985130)
+  // await context.setGeolocation({ latitude: 40.758, longitude: -73.985 });
+  
+  // TODO: Grant permission
+  // await context.grantPermissions(['geolocation']);
+  
+  await page.goto('/stores');
+});`,
+    missionBrief: {
+      context: "Test how your app behaves in different cities without leaving your chair.",
+      objectives: [
+        { id: 1, text: "Set geolocation" },
+        { id: 2, text: "Grant `geolocation` permission" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasGeo = /context\.setGeolocation/.test(code);
+      const hasPerm = /grantPermissions/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasGeo) {
+        logs.push("✗ ERROR: Geolocation not set.");
+        return { passed: false, logs };
+      }
+
+      if (!hasPerm) {
+        logs.push("✗ ERROR: Permission not granted.");
+        logs.push("  ↳ Browser will block the location request without it.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Location mocked successfully");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "request-headers",
+    title: "Modifying Headers",
+    description: "Inject custom headers (like Auth tokens) into requests.",
+    difficulty: "Advanced",
+    icon: Database,
+    initialCode: `test('Authenticated API', async ({ page }) => {
+  // TODO: Add 'Authorization' header to all requests
+  // await page.setExtraHTTPHeaders({
+  //   'Authorization': 'Bearer 123'
+  // });
+  
+  await page.goto('/protected-route');
+});`,
+    missionBrief: {
+      context: "Inject headers globally for the page to simulate authentication or other states.",
+      objectives: [
+        { id: 1, text: "Use `page.setExtraHTTPHeaders`" },
+        { id: 2, text: "Add `Authorization` header" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasHeaders = /page\.setExtraHTTPHeaders/.test(code);
+      const hasAuth = /Authorization/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasHeaders) {
+        logs.push("✗ ERROR: Header injection missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Custom headers injected");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "tracing",
+    title: "Trace Viewer",
+    description: "Enable tracing for post-mortem debugging.",
+    difficulty: "Beginner",
+    icon: Search,
+    initialCode: `// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  use: {
+    // TODO: Enable tracing on failure
+    // trace: 'on-first-retry',
+  },
+});`,
+    missionBrief: {
+      context: "The Trace Viewer is Playwright's superpower. It records DOM snapshots, console logs, and network for every step.",
+      objectives: [
+        { id: 1, text: "Set `trace: 'on-first-retry'` or `'retain-on-failure'`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasTrace = /trace:\s*['"](on|retain|on-first-retry)['"]/.test(code);
+
+      logs.push("✓ Config loaded");
+
+      if (!hasTrace) {
+        logs.push("✗ ERROR: Trace config invalid.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Tracing enabled");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "abort-request",
+    title: "Abort Requests",
+    description: "Block unwanted resources (like ads or analytics) to speed up tests.",
+    difficulty: "Intermediate",
+    icon: ShieldCheck,
+    initialCode: `test('Block Ads', async ({ page }) => {
+  // TODO: Block requests to google-analytics
+  // await page.route('**/*google-analytics*', route => route.abort());
+  
+  await page.goto('/article');
+});`,
+    missionBrief: {
+      context: "Speed up your tests and reduce noise by blocking 3rd party scripts.",
+      objectives: [
+        { id: 1, text: "Route analytics URL" },
+        { id: 2, text: "Call `route.abort()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRoute = /page\.route/.test(code);
+      const hasAbort = /route\.abort\(\)/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasRoute || !hasAbort) {
+        logs.push("✗ ERROR: Route abort missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Resource blocked");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "console-logs",
+    title: "Listen to Console",
+    description: "Fail the test if the app throws a console error.",
+    difficulty: "Intermediate",
+    icon: Terminal,
+    initialCode: `test('No Console Errors', async ({ page }) => {
+  // TODO: Listen for console events
+  // page.on('console', msg => {
+  //   if (msg.type() === 'error') throw new Error(msg.text());
+  // });
+  
+  await page.goto('/app');
+});`,
+    missionBrief: {
+      context: "Ensure your app is clean. Fail the test instantly if any `console.error` occurs.",
+      objectives: [
+        { id: 1, text: "Listen to `console` event" },
+        { id: 2, text: "Check `msg.type() === 'error'`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasListener = /page\.on\(['"]console['"]/.test(code);
+      const hasErrorCheck = /msg\.type\(\)\s*===/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasListener) {
+        logs.push("✗ ERROR: Console listener missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Console monitoring active");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "video",
+    title: "Video Recording",
+    description: "Record a video of the test execution.",
+    difficulty: "Beginner",
+    icon: Eye,
+    initialCode: `// playwright.config.ts
+export default defineConfig({
+  use: {
+    // TODO: Enable video recording
+    // video: 'retain-on-failure',
+  },
+});`,
+    missionBrief: {
+      context: "See exactly what happened during the test execution.",
+      objectives: [
+        { id: 1, text: "Set `video: 'retain-on-failure'`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasVideo = /video:\s*['"]retain-on-failure['"]/.test(code);
+
+      logs.push("✓ Config loaded");
+
+      if (!hasVideo) {
+        logs.push("✗ ERROR: Video config invalid.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Video recording enabled");
+      return { passed: true, logs };
+    }
   }
 ];

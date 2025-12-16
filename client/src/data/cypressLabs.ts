@@ -1010,5 +1010,402 @@ describe('Admin Dashboard', () => {
       logs.push("✓ Custom command invoked");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "drag-drop",
+    title: "Drag and Drop",
+    description: "Simulate drag and drop events using .trigger()",
+    difficulty: "Intermediate",
+    icon: MousePointerClick,
+    initialCode: `describe('Kanban Board', () => {
+  it('should move task to Done', () => {
+    cy.visit('/board');
+    
+    // We need to drag #task-1 to #column-done
+    
+    const dataTransfer = new DataTransfer();
+    
+    // TODO: Trigger 'dragstart' on the task
+    cy.get('#task-1').trigger('dragstart', {
+      dataTransfer
+    });
+    
+    // TODO: Trigger 'drop' on the destination
+    // cy.get('#column-done').trigger(...)
+  });
+});`,
+    missionBrief: {
+      context: "Cypress simulates drag and drop by triggering events manually.",
+      objectives: [
+        { id: 1, text: "Trigger `drop` on `#column-done`" },
+        { id: 2, text: "Pass `dataTransfer` object" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasDrop = /\.trigger\(['"]drop['"]/.test(code);
+      const hasDataTransfer = /dataTransfer/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasDrop) {
+        logs.push("✗ ERROR: Drop event not triggered.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Drag and drop sequence valid");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "origin",
+    title: "Cross-Origin (Multi-Domain)",
+    description: "Test flows that span multiple domains using cy.origin()",
+    difficulty: "Advanced",
+    icon: Globe,
+    initialCode: `describe('SSO Login', () => {
+  it('should login via Auth0', () => {
+    cy.visit('/login');
+    cy.get('#login-btn').click();
+    
+    // Now we are redirected to auth0.com
+    // We cannot access elements there normally
+    
+    // TODO: Use cy.origin to switch context to 'auth0.com'
+    // cy.origin('https://auth0.com', () => {
+    //   cy.get('#username').type(...)
+    // })
+  });
+});`,
+    missionBrief: {
+      context: "Cypress runs in the browser. To test across domains (like SSO), use `cy.origin()`.",
+      objectives: [
+        { id: 1, text: "Use `cy.origin('https://auth0.com', ...)`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasOrigin = /cy\.origin\(['"]https:\/\/auth0\.com['"]/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasOrigin) {
+        logs.push("✗ ERROR: cy.origin() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Cross-origin context handled");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "accessibility",
+    title: "Accessibility (a11y)",
+    description: "Automated accessibility testing with cypress-axe.",
+    difficulty: "Intermediate",
+    icon: Eye,
+    initialCode: `describe('Accessibility', () => {
+  it('should have no violations', () => {
+    cy.visit('/home');
+    
+    // TODO: Inject the axe-core library
+    // cy.injectAxe();
+    
+    // TODO: Scan the page for a11y issues
+    // cy.checkA11y();
+  });
+});`,
+    missionBrief: {
+      context: "Ensure your app is accessible. Use `cy.injectAxe()` and `cy.checkA11y()` to audit the page automatically.",
+      objectives: [
+        { id: 1, text: "Call `cy.injectAxe()`" },
+        { id: 2, text: "Call `cy.checkA11y()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasInject = /cy\.injectAxe\(\)/.test(code);
+      const hasCheck = /cy\.checkA11y\(\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasInject) {
+        logs.push("✗ ERROR: Axe not injected.");
+        return { passed: false, logs };
+      }
+      
+      if (!hasCheck) {
+        logs.push("✗ ERROR: A11y check not performed.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Accessibility audit configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "clipboard",
+    title: "Clipboard Testing",
+    description: "Test copy-to-clipboard functionality.",
+    difficulty: "Advanced",
+    icon: HardDrive,
+    initialCode: `describe('Copy Code', () => {
+  it('should copy text to clipboard', () => {
+    cy.visit('/snippets');
+    
+    // We need to grant clipboard permissions first
+    cy.wrap(Cypress.automation('remote:debugger:protocol', {
+      command: 'Browser.grantPermissions',
+      params: {
+        permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+        origin: window.location.origin,
+      },
+    }));
+
+    cy.get('#copy-btn').click();
+    
+    // TODO: Assert clipboard content
+    // cy.window().its('navigator.clipboard').invoke('readText')...
+  });
+});`,
+    missionBrief: {
+      context: "Reading the clipboard requires browser permissions and accessing the `navigator.clipboard` API.",
+      objectives: [
+        { id: 1, text: "Access `navigator.clipboard`" },
+        { id: 2, text: "Invoke `readText`" },
+        { id: 3, text: "Assert content" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasClipboard = /navigator\.clipboard/.test(code);
+      const hasRead = /readText/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasClipboard || !hasRead) {
+        logs.push("✗ ERROR: Clipboard access incorrect.");
+        logs.push("  ↳ Use cy.window().its('navigator.clipboard').invoke('readText')");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Clipboard content verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "local-storage-seed",
+    title: "Seeding Local Storage",
+    description: "Set up app state before visiting the page.",
+    difficulty: "Intermediate",
+    icon: Database,
+    initialCode: `describe('Shopping Cart', () => {
+  it('should show saved items', () => {
+    // TODO: Seed Local Storage BEFORE visiting
+    // We want to simulate a user who already added items
+    
+    cy.window().then((win) => {
+       // win.localStorage.setItem(...)
+    });
+    
+    cy.visit('/cart');
+    cy.get('.cart-item').should('have.length', 1);
+  });
+});`,
+    missionBrief: {
+      context: "Don't manually add items to the cart in every test. Seed `localStorage` directly to set the state instantly.",
+      objectives: [
+        { id: 1, text: "Set `cart_items` in localStorage" },
+        { id: 2, text: "Do this BEFORE `cy.visit`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSetItem = /localStorage\.setItem/.test(code);
+      const visitIndex = code.indexOf('cy.visit');
+      const setIndex = code.indexOf('setItem');
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasSetItem) {
+        logs.push("✗ ERROR: localStorage.setItem missing.");
+        return { passed: false, logs };
+      }
+
+      if (visitIndex > -1 && setIndex > visitIndex) {
+         logs.push("⚠ WARN: You are visiting before seeding storage.");
+         logs.push("  ↳ Seed first, then visit, or the app won't see the data.");
+      }
+
+      logs.push("✓ State seeded via LocalStorage");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "screenshots",
+    title: "Screenshots",
+    description: "Capture evidence of test failures or states.",
+    difficulty: "Beginner",
+    icon: Eye,
+    initialCode: `describe('Visual Evidence', () => {
+  it('should take a screenshot of the error', () => {
+    cy.visit('/error-page');
+    
+    // TODO: Take a full page screenshot
+    // cy.screenshot('error-state');
+    
+    // TODO: Take a screenshot of a specific element
+    // cy.get('.error-box').screenshot();
+  });
+});`,
+    missionBrief: {
+      context: "Screenshots are vital for debugging CI failures. Use `cy.screenshot()`.",
+      objectives: [
+        { id: 1, text: "Capture full page screenshot" },
+        { id: 2, text: "Capture element screenshot" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasScreenshot = /cy\.screenshot/.test(code);
+      const hasElementScreenshot = /\.screenshot\(/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasScreenshot) {
+        logs.push("✗ ERROR: Screenshot command missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Screenshot captured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "recursion",
+    title: "Polling (Recursion)",
+    description: "Wait for a condition by polling an API or UI element.",
+    difficulty: "Advanced",
+    icon: Repeat,
+    initialCode: `// A custom function to poll for status
+const checkStatus = () => {
+  // TODO: Recursively check if status is 'COMPLETE'
+  // If not, wait and check again.
+  
+  cy.get('#status').invoke('text').then((text) => {
+    if (text !== 'COMPLETE') {
+      cy.wait(1000);
+      checkStatus(); // Recurse
+    }
+  });
+}
+
+describe('Long Process', () => {
+  it('should wait for completion', () => {
+    cy.visit('/processing');
+    checkStatus();
+  });
+});`,
+    missionBrief: {
+      context: "Sometimes `cy.wait` isn't enough. Use recursion to poll until a condition is met.",
+      objectives: [
+        { id: 1, text: "Check condition" },
+        { id: 2, text: "Call function recursively if false" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRecursion = /checkStatus\(\)/.test(code);
+      const hasWait = /cy\.wait/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasRecursion) {
+        logs.push("✗ ERROR: Recursive call missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Polling logic implemented");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "blur-focus",
+    title: "Blur & Focus",
+    description: "Trigger validation by blurring inputs.",
+    difficulty: "Beginner",
+    icon: MousePointerClick,
+    initialCode: `describe('Form Validation', () => {
+  it('should show error when field is left empty', () => {
+    cy.visit('/signup');
+    
+    // The error only appears when the user leaves the field (blur)
+    cy.get('#email').click();
+    
+    // TODO: Trigger blur event
+    // cy.get('#email').blur();
+    
+    cy.get('.error').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Many forms validate on 'blur' (losing focus). Use `.blur()` to trigger this.",
+      objectives: [
+        { id: 1, text: "Select input" },
+        { id: 2, text: "Call `.blur()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasBlur = /\.blur\(\)/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasBlur) {
+        logs.push("✗ ERROR: .blur() command missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Focus management verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "fixture",
+    title: "Using Fixtures",
+    description: "Load static data from JSON files.",
+    difficulty: "Beginner",
+    icon: Database,
+    initialCode: `describe('User Profile', () => {
+  it('should fill form with fixture data', () => {
+    // TODO: Load 'user.json' fixture
+    // cy.fixture('user.json').then((user) => { ... })
+    
+    cy.visit('/profile');
+    // cy.get('#name').type(user.name);
+  });
+});`,
+    missionBrief: {
+      context: "Keep your test data separate from test logic. Use `cy.fixture()` to load JSON data.",
+      objectives: [
+        { id: 1, text: "Load fixture" },
+        { id: 2, text: "Use data in `.type()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFixture = /cy\.fixture/.test(code);
+      const hasUsage = /\.then/.test(code);
+
+      logs.push("✓ Test suite initialized");
+      
+      if (!hasFixture) {
+        logs.push("✗ ERROR: cy.fixture() missing.");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Fixture data loaded");
+      return { passed: true, logs };
+    }
   }
 ];
