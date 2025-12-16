@@ -65,7 +65,7 @@ export default function Settings() {
                 onValueChange={(val) => updateSettings({ breakingPointRPS: val[0], errorThresholdRPS: val[0] })}
               />
               <p className="text-xs text-muted-foreground">
-                The Request Per Second threshold where the system begins to fail (errors > 0).
+                The Request Per Second threshold where the system begins to fail (errors &gt; 0).
               </p>
             </div>
 
