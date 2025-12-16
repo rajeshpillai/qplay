@@ -4,7 +4,7 @@ import LoadSimulator from "@/components/simulation/LoadSimulator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, CheckCircle, Info, AlertTriangle, PanelRight } from "lucide-react";
+import { ChevronRight, CheckCircle, Info, AlertTriangle, PanelRight, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ModuleView() {
@@ -152,6 +152,33 @@ export default function ModuleView() {
                     <p>
                       In this scenario, the bottleneck was the <strong>Database Connection Pool</strong>. The application could not open enough connections to the database to handle the incoming requests, causing them to queue up and eventually time out.
                     </p>
+
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-4 my-6 space-y-3">
+                      <h4 className="font-mono font-bold text-primary flex items-center gap-2">
+                        <Activity className="h-4 w-4" /> Real-World Metrics Guide
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        When running the <code>k6</code> load test against the real backend, use <code>/health/metrics</code> to diagnose issues:
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-white min-w-[120px]">Memory (RSS):</span>
+                          <span className="text-muted-foreground">Total memory allocated. A steady increase indicates a <span className="text-red-400">Memory Leak</span>.</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-white min-w-[120px]">Heap Used:</span>
+                          <span className="text-muted-foreground">Actual JS objects. High usage triggers frequent Garbage Collection (lag).</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-white min-w-[120px]">CPU (User):</span>
+                          <span className="text-muted-foreground">Time spent in your code (Business Logic). High values mean inefficient algorithms.</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-white min-w-[120px]">Uptime:</span>
+                          <span className="text-muted-foreground">If this resets to 0 during a test, your server <span className="text-red-400">Crashed</span>.</span>
+                        </li>
+                      </ul>
+                    </div>
 
                     <h3>Recommended Fixes</h3>
                     <ul className="list-disc pl-5 space-y-2">

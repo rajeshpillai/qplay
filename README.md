@@ -86,6 +86,22 @@ Beyond the client-side simulator, you can run **real load tests** against the ba
 3.  **Monitor**:
     Open `http://localhost:5000/health/metrics` in your browser to see real-time CPU/Memory usage of the Node.js server during the test.
 
+### 4. Interpreting Results
+How to analyze the data from `/health/metrics`:
+
+*   **Memory - RSS (Resident Set Size)**:
+    *   **What it is:** Total memory allocated to the server process.
+    *   **Bad Sign:** If this *steadily increases* during a load test and never drops, you likely have a **Memory Leak**.
+    *   **Good Sign:** Fluctuation is normal, but it should stay relatively stable under constant load.
+*   **Memory - HeapUsed**:
+    *   **What it is:** Memory actually being used by your Javascript objects.
+    *   **Analysis:** If `HeapUsed` is close to `HeapTotal`, the Garbage Collector (GC) will work harder, causing high CPU usage and latency spikes.
+*   **CPU Usage**:
+    *   **User Time:** High values mean your code (business logic) is heavy. (e.g., our `Math.sqrt` loop in the mock endpoint).
+    *   **System Time:** High values usually indicate OS-level overhead (networking, file I/O).
+*   **Uptime**:
+    *   **Critical:** If this value resets to `0` during a test, your server **crashed** and restarted (likely via PM2 or custom logic).
+
 ## ☁️ Deployment (Ubuntu)
 
 Guide to deploying the full-stack application (React + Express) on an Ubuntu server.

@@ -32,7 +32,8 @@ Enhance the existing Cypress and Playwright test automation labs by replacing pl
 *   **Load Testing:** Added `script/load-test.js` (k6) to stress test the backend.
 *   **UI Layout:** Refined `ModuleView.tsx` to remove fixed-height constraints and added a **Collapsible Sidebar** to maximize workspace.
 *   **Navigation:** Updated `Shell.tsx` to support a **Collapsible Left Sidebar** with smooth transitions.
-*   **Documentation:** Added "Deployment (Ubuntu)" guide to `README.md` covering PM2 and Nginx setup.
+*   **Documentation:** Added "Deployment (Ubuntu)" and "Analysis Guide" to `README.md`.
+*   **In-App Help:** Integrated "Real-World Metrics Guide" directly into the Module 2 Analysis step UI.
 
 ### 4. UX & Documentation
 *   **Lab Editors:** Fixed hardcoded "login.spec.js" label in `CypressEditor.tsx` and `PlaywrightEditor.tsx` to show dynamic spec names (e.g., `navigation.spec.js`).
