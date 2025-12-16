@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, 
@@ -99,7 +99,7 @@ const Sidebar = ({ className }: { className?: string }) => {
   );
 };
 
-export default function Shell({ children }: { children: React.ReactNode }) {
+export default function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden text-foreground">
       {/* Desktop Sidebar */}
