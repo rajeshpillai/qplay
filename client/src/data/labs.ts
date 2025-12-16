@@ -51,8 +51,10 @@ export default function () {
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasCorrectEndpoint = code.includes("https://api.algorisys.com/v1/kyc/init");
-      const hasSleep = code.includes("sleep(1)");
+      // Flexible matching for endpoint (allow http/https, trailing slash, quotes)
+      const hasCorrectEndpoint = /['"]https?:\/\/api\.algorisys\.com\/v1\/kyc\/init\/?['"]/.test(code);
+      // Flexible matching for sleep (allow sleep(1), sleep(1.0), sleep( 1 ))
+      const hasSleep = /sleep\s*\(\s*1(\.0)?\s*\)/.test(code);
       
       logs.push("✓ Virtual Users initialized: 10");
       
@@ -66,8 +68,8 @@ export default function () {
       logs.push("✓ check 'is status 200' passed");
 
       if (!hasSleep) {
-        logs.push("⚠ WARN: 'sleep' duration is too low (0.1s). This creates unrealistic load.");
-        logs.push("  ↳ Hint: Users typically pause for 1 second.");
+        logs.push("⚠ WARN: 'sleep' duration is too low. This creates unrealistic load.");
+        logs.push("  ↳ Hint: Users typically pause for 1 second. Use sleep(1).");
         return { passed: false, logs };
       }
 
@@ -108,8 +110,9 @@ export default function () {
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasDurationThreshold = code.includes("'p(95)<500'") || code.includes('"p(95)<500"');
-      const hasErrorThreshold = code.includes("'rate<0.01'") || code.includes('"rate<0.01"');
+      // Allow single/double quotes, whitespace
+      const hasDurationThreshold = /['"]?http_req_duration['"]?\s*:\s*\[\s*['"]p\(95\)\s*<\s*500['"]\s*\]/.test(code);
+      const hasErrorThreshold = /['"]?http_req_failed['"]?\s*:\s*\[\s*['"]rate\s*<\s*0\.01['"]\s*\]/.test(code);
 
       logs.push("✓ Virtual Users initialized: 50");
       logs.push("✓ Execution started...");
@@ -165,9 +168,10 @@ export default function () {
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasScenarios = code.includes("scenarios:");
-      const hasRampingExecutor = code.includes("'ramping-vus'") || code.includes('"ramping-vus"');
-      const hasStages = code.includes("stages:") && code.includes("target: 20") && code.includes("target: 0");
+      const hasScenarios = /scenarios\s*:\s*\{/.test(code);
+      const hasRampingExecutor = /executor\s*:\s*['"]ramping-vus['"]/.test(code);
+      const hasStages = /stages\s*:\s*\[/.test(code);
+      const hasTargets = /target\s*:\s*20/.test(code) && /target\s*:\s*0/.test(code);
 
       logs.push("✓ Configuration parsed.");
 
@@ -181,7 +185,7 @@ export default function () {
         return { passed: false, logs };
       }
 
-      if (!hasStages) {
+      if (!hasStages || !hasTargets) {
         logs.push("✗ ERROR: Stages configuration incomplete. Check targets (20, 0).");
         return { passed: false, logs };
       }
