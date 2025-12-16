@@ -1,5 +1,6 @@
 import React from "react";
 import Shell from "@/components/layout/Shell";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -15,7 +16,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 
-const ModuleCard = ({ title, description, level, progress, status }: any) => {
+const ModuleCard = ({ title, description, level, progress, status, href = "/modules" }: any) => {
   return (
     <Card className="border-border/40 bg-card/40 hover:bg-card/60 transition-colors group relative overflow-hidden">
       {/* Decorative gradient blob */}
@@ -39,14 +40,26 @@ const ModuleCard = ({ title, description, level, progress, status }: any) => {
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="h-1.5" />
-          <Button 
-            className="w-full mt-4" 
-            variant={status === "locked" ? "outline" : "default"}
-            disabled={status === "locked"}
-          >
-            {status === "locked" ? "Locked" : status === "completed" ? "Review" : "Continue"}
-            {status !== "locked" && <ArrowRight className="ml-2 h-4 w-4" />}
-          </Button>
+          
+          {status === "locked" ? (
+            <Button 
+              className="w-full mt-4" 
+              variant="outline"
+              disabled
+            >
+              Locked
+            </Button>
+          ) : (
+            <Link href={href}>
+              <Button 
+                className="w-full mt-4" 
+                variant={status === "completed" ? "secondary" : "default"}
+              >
+                {status === "completed" ? "Review" : "Continue"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>
