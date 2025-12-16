@@ -14,16 +14,90 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSimulation } from "@/lib/SimulationContext";
 
+const SCENARIOS = [
+  {
+    id: "default",
+    name: "Standard Load",
+    description: "Typical daily traffic. System should handle this comfortably.",
+    settings: {
+        breakingPointRPS: 800,
+        baseLatencyMs: 50,
+        latencyMultiplier: 0.1,
+        spikeProbability: 0.05,
+        errorThresholdRPS: 800,
+    },
+    targetRPS: 200
+  },
+  {
+    id: "black_friday",
+    name: "Black Friday Sale",
+    description: "Massive influx of users. High breaking point but extreme load.",
+    settings: {
+        breakingPointRPS: 1200,
+        baseLatencyMs: 40,
+        latencyMultiplier: 0.08,
+        spikeProbability: 0.1,
+        errorThresholdRPS: 1200,
+    },
+    targetRPS: 1500
+  },
+  {
+    id: "legacy_db",
+    name: "Legacy DB Bottleneck",
+    description: "Old database struggles with connections. Fails early.",
+    settings: {
+        breakingPointRPS: 400,
+        baseLatencyMs: 150,
+        latencyMultiplier: 0.5,
+        spikeProbability: 0.02,
+        errorThresholdRPS: 400,
+    },
+    targetRPS: 350
+  },
+  {
+    id: "ddos",
+    name: "DDoS Attack",
+    description: "Malicious traffic flood. System will likely collapse.",
+    settings: {
+        breakingPointRPS: 1000,
+        baseLatencyMs: 50,
+        latencyMultiplier: 0.1,
+        spikeProbability: 0.8,
+        errorThresholdRPS: 1000,
+    },
+    targetRPS: 2000
+  }
+];
+
 export default function LoadSimulator() {
-  const { settings } = useSimulation();
+  const { settings, updateSettings } = useSimulation();
   const [isRunning, setIsRunning] = useState(false);
   const [targetRPS, setTargetRPS] = useState([200]);
   const [data, setData] = useState<any[]>([]);
   const [stats, setStats] = useState({ p95: 0, errorRate: 0, currentRPS: 0 });
+  const [selectedScenario, setSelectedScenario] = useState("default");
+
+  const handleScenarioChange = (scenarioId: string) => {
+    setSelectedScenario(scenarioId);
+    const scenario = SCENARIOS.find(s => s.id === scenarioId);
+    if (scenario) {
+      updateSettings(scenario.settings);
+      setTargetRPS([scenario.targetRPS]);
+      setIsRunning(false);
+      setData([]); // Clear graph
+    }
+  };
 
   // Generate data based on current settings
   const generateData = (rps: number, isSpike: boolean) => {
@@ -86,6 +160,29 @@ export default function LoadSimulator() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          
+          {/* Scenario Selector */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <BookOpen className="h-4 w-4" /> Load Scenario
+            </label>
+            <Select value={selectedScenario} onValueChange={handleScenarioChange}>
+              <SelectTrigger className="w-full bg-black/20 border-white/10">
+                <SelectValue placeholder="Select a scenario" />
+              </SelectTrigger>
+              <SelectContent>
+                {SCENARIOS.map((scenario) => (
+                  <SelectItem key={scenario.id} value={scenario.id}>
+                    {scenario.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              {SCENARIOS.find(s => s.id === selectedScenario)?.description}
+            </p>
+          </div>
+
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <label className="text-sm font-medium text-muted-foreground">Target RPS (Requests/sec)</label>
@@ -94,14 +191,14 @@ export default function LoadSimulator() {
             <Slider 
               value={targetRPS} 
               onValueChange={setTargetRPS} 
-              max={2000} 
+              max={2500} 
               step={50}
               className="py-4"
             />
             <div className="flex justify-between text-xs text-muted-foreground font-mono">
               <span>0 RPS</span>
-              <span>1000 RPS</span>
-              <span>2000 RPS</span>
+              <span>1250 RPS</span>
+              <span>2500 RPS</span>
             </div>
             
             <div className="flex items-center gap-2 text-xs text-yellow-500/80 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
@@ -149,6 +246,7 @@ export default function LoadSimulator() {
 
       {/* Metrics Panel */}
       <div className="lg:col-span-2 space-y-6">
+
         {/* Heads Up Display */}
         <div className="grid grid-cols-3 gap-4">
           <Card className="bg-black/40 border-primary/20">
