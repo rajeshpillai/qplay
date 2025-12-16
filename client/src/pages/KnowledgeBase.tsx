@@ -125,6 +125,23 @@ export default function KnowledgeBase() {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="bg-card/40 border-white/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <TrendingUp className="h-5 w-5" /> Throughput vs. Bandwidth
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    <strong>Throughput:</strong> Successful requests processed per second.<br/>
+                    <strong>Bandwidth:</strong> Data transferred per second (KB/s, MB/s).
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    <em>Tip:</em> If throughput drops but RPS stays high, your server is rejecting requests (queuing/timeout).
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
