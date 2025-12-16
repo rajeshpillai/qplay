@@ -11,7 +11,8 @@ import {
   Server,
   Terminal,
   Cpu,
-  TestTube2
+  TestTube2,
+  Gamepad2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const Sidebar = ({ className }: { className?: string }) => {
     { icon: BookOpen, label: "Training Modules", href: "/modules" },
     { icon: TestTube2, label: "Cypress Training", href: "/modules/cypress" },
     { icon: Terminal, label: "Playwright Mastery", href: "/modules/playwright" },
+    { icon: Gamepad2, label: "Practice Arena", href: "/playground" },
     { icon: Activity, label: "Load Simulator", href: "/simulator" },
     { icon: ShieldAlert, label: "Incident Response", href: "/incidents" },
     { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },

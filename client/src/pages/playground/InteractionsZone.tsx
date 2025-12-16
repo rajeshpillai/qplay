@@ -1,0 +1,179 @@
+import React, { useState } from "react";
+import Shell from "@/components/layout/Shell";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, MousePointer2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+export default function InteractionsZone() {
+  const [dropped, setDropped] = useState(false);
+  const [doubleClicked, setDoubleClicked] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", "draggable-item");
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData("text/plain");
+    if (data === "draggable-item") {
+      setDropped(true);
+    }
+  };
+
+  const handleAlert = () => {
+    window.alert("This is a native browser alert!");
+  };
+
+  const handleConfirm = () => {
+    if (window.confirm("Are you sure?")) {
+      console.log("Confirmed!");
+    } else {
+      console.log("Cancelled!");
+    }
+  };
+
+  return (
+    <Shell>
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold font-mono mb-2">Interactions Zone</h1>
+          <p className="text-muted-foreground">
+            Test complex user interactions: Drag & Drop, Hovers, Alerts, and Double Clicks.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Drag and Drop */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MousePointer2 className="h-5 w-5" />
+                Drag & Drop
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div 
+                className="w-24 h-24 bg-blue-500 rounded-lg flex items-center justify-center cursor-move text-white font-bold shadow-lg active:scale-95 transition-transform"
+                draggable
+                onDragStart={handleDragStart}
+                data-testid="draggable-item"
+              >
+                Drag Me
+              </div>
+
+              <div 
+                className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors ${dropped ? "border-green-500 bg-green-500/10" : "border-muted-foreground/20"}`}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                data-testid="drop-zone"
+              >
+                {dropped ? (
+                  <span className="text-green-500 font-bold flex items-center gap-2">
+                    Dropped! <Badge variant="outline" className="border-green-500 text-green-500">Success</Badge>
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">Drop Here</span>
+                )}
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setDropped(false)} className="w-full text-xs">Reset</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mouse Events */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mouse Events</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant={doubleClicked ? "default" : "secondary"}
+                  onDoubleClick={() => setDoubleClicked(!doubleClicked)}
+                  data-testid="btn-dblclick"
+                >
+                  {doubleClicked ? "Double Clicked!" : "Double Click Me"}
+                </Button>
+                {doubleClicked && <Badge>Active</Badge>}
+              </div>
+
+              <div className="flex items-center justify-between">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" data-testid="btn-hover" onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+                        Hover Me
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p data-testid="tooltip-content">Hidden Secret!</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                {hovered && <span className="text-xs text-muted-foreground">Hovering...</span>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Native Dialogs */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Native Dialogs</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                These trigger browser-level popups which pause execution.
+              </p>
+              <div className="flex gap-4">
+                <Button onClick={handleAlert} data-testid="btn-alert">
+                  Trigger Alert
+                </Button>
+                <Button variant="secondary" onClick={handleConfirm} data-testid="btn-confirm">
+                  Trigger Confirm
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Visibility & States */}
+          <Card>
+            <CardHeader>
+              <CardTitle>States & Visibility</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <div className="flex items-center space-x-2">
+                <Switch id="airplane-mode" data-testid="switch-airplane" />
+                <Label htmlFor="airplane-mode">Airplane Mode</Label>
+              </div>
+
+              <div className="p-4 border rounded-md bg-muted/50">
+                 <p className="text-sm invisible" data-testid="invisible-text">
+                   I am in the DOM but invisible
+                 </p>
+                 <p className="text-sm mt-2" style={{ display: 'none' }} data-testid="hidden-text">
+                   I am display: none
+                 </p>
+                 <p className="text-sm mt-2 font-mono text-green-400" data-testid="visible-text">
+                   I am visible
+                 </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </Shell>
+  );
+}

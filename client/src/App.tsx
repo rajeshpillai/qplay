@@ -19,6 +19,9 @@ import CypressLabList from "@/pages/CypressLabList";
 import PlaywrightEditor from "@/pages/PlaywrightEditor";
 import PlaywrightLabList from "@/pages/PlaywrightLabList";
 import KnowledgeBase from "@/pages/KnowledgeBase";
+import PlaygroundHome from "@/pages/playground/PlaygroundHome";
+import AuthZone from "@/pages/playground/AuthZone";
+import InteractionsZone from "@/pages/playground/InteractionsZone";
 
 function Router() {
   return (
@@ -33,6 +36,9 @@ function Router() {
       <Route path="/modules/cypress/:labId" component={CypressEditor} />
       <Route path="/modules/playwright" component={PlaywrightLabList} />
       <Route path="/modules/playwright/:labId" component={PlaywrightEditor} />
+      <Route path="/playground" component={PlaygroundHome} />
+      <Route path="/playground/auth" component={AuthZone} />
+      <Route path="/playground/interactions" component={InteractionsZone} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />
