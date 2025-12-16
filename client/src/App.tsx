@@ -13,6 +13,7 @@ import IncidentDetail from "@/pages/IncidentDetail";
 import Settings from "@/pages/Settings";
 import K6Editor from "@/pages/K6Editor";
 import LabList from "@/pages/LabList";
+import KnowledgeBase from "@/pages/KnowledgeBase";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/incidents" component={Incidents} />
       <Route path="/incidents/:id" component={IncidentDetail} />
       <Route path="/settings" component={Settings} />
+      <Route path="/knowledge" component={KnowledgeBase} />
       <Route component={NotFound} />
     </Switch>
   );

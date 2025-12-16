@@ -183,17 +183,36 @@ export default function Dashboard() {
               </div>
            </div>
            
-           <div>
-             <h2 className="text-lg font-bold mb-4">Daily Challenge</h2>
-             <Card className="bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
-               <CardHeader>
-                 <CardTitle className="text-accent">Burst Traffic Survivor</CardTitle>
-                 <CardDescription>Survive a 3x traffic spike without dropping &gt;1% of requests.</CardDescription>
-               </CardHeader>
-               <CardContent>
-                 <Button className="w-full bg-accent hover:bg-accent/90 text-white">Start Challenge (+50 XP)</Button>
-               </CardContent>
-             </Card>
+           <div className="space-y-6">
+             <div>
+               <h2 className="text-lg font-bold mb-4">Daily Challenge</h2>
+               <Card className="bg-gradient-to-br from-accent/10 to-transparent border-accent/20">
+                 <CardHeader>
+                   <CardTitle className="text-accent">Burst Traffic Survivor</CardTitle>
+                   <CardDescription>Survive a 3x traffic spike without dropping &gt;1% of requests.</CardDescription>
+                 </CardHeader>
+                 <CardContent>
+                   <Button className="w-full bg-accent hover:bg-accent/90 text-white">Start Challenge (+50 XP)</Button>
+                 </CardContent>
+               </Card>
+             </div>
+
+             <div>
+                <h2 className="text-lg font-bold mb-4">Resources</h2>
+                <Link href="/knowledge">
+                  <Card className="bg-card/40 border-primary/20 hover:bg-card/60 transition-colors cursor-pointer group">
+                    <CardContent className="p-4 flex items-center gap-4">
+                       <div className="bg-blue-500/20 p-2 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                          <BookOpen className="h-5 w-5" />
+                       </div>
+                       <div>
+                          <h3 className="font-bold group-hover:text-primary transition-colors">Knowledge Base</h3>
+                          <p className="text-xs text-muted-foreground">Metrics, Scenarios & Theory</p>
+                       </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+             </div>
            </div>
         </div>
       </div>
