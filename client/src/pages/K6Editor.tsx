@@ -4,83 +4,45 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Play, RotateCcw, CheckCircle2, AlertTriangle, Terminal, Code2, FileCode } from "lucide-react";
+import { Play, RotateCcw, CheckCircle2, AlertTriangle, Terminal, Code2, FileCode, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useLocation } from "wouter";
-
-const INITIAL_CODE = `import http from 'k6/http';
-import { check, sleep } from 'k6';
-
-export const options = {
-  vus: 10,
-  duration: '30s',
-};
-
-export default function () {
-  // TODO: Fix the endpoint URL
-  // The correct endpoint is: https://api.algorisys.com/v1/kyc/init
-  const res = http.get('https://api.algorisys.com/v1/wrong-url');
-
-  // TODO: Add a check to ensure status is 200
-  check(res, {
-    'is status 200': (r) => r.status === 200,
-  });
-
-  // TODO: Simulate user think time (1 second)
-  sleep(0.1); 
-}`;
-
-const CORRECT_ENDPOINT = "https://api.algorisys.com/v1/kyc/init";
+import { useLocation, useRoute } from "wouter";
+import { LABS } from "@/data/labs";
 
 export default function K6Editor() {
-  const [code, setCode] = useState(INITIAL_CODE);
+  const [, params] = useRoute("/modules/k6/:labId");
+  const [, setLocation] = useLocation();
+  const labId = params?.labId || "basics";
+  const lab = LABS.find(l => l.id === labId) || LABS[0];
+
+  const [code, setCode] = useState(lab.initialCode);
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [status, setStatus] = useState<"idle" | "running" | "success" | "failed">("idle");
-  const [, setLocation] = useLocation();
+
+  // Reset code when lab changes
+  useEffect(() => {
+    setCode(lab.initialCode);
+    setOutput([]);
+    setStatus("idle");
+  }, [lab.id]);
 
   const runTest = () => {
     setIsRunning(true);
     setStatus("running");
     setOutput(["Initializing k6 runtime...", "Loading script...", "Starting test execution..."]);
 
-    let logs: string[] = [];
-    
     // Simulate execution steps
     setTimeout(() => {
-      // Analysis
-      const hasCorrectEndpoint = code.includes(CORRECT_ENDPOINT);
-      const hasSleep = code.includes("sleep(1)");
-      
-      logs.push("✓ Virtual Users initialized: 10");
-      
-      if (!hasCorrectEndpoint) {
-        logs.push("✗ ERROR: Request failed. 404 Not Found (https://api.algorisys.com/v1/wrong-url)");
-        logs.push("  ↳ check 'is status 200' failed");
-        completeTest(logs, "failed");
-        return;
-      }
-
-      logs.push("✓ GET https://api.algorisys.com/v1/kyc/init 200 OK");
-      logs.push("✓ check 'is status 200' passed");
-
-      if (!hasSleep) {
-        logs.push("⚠ WARN: 'sleep' duration is too low (0.1s). This creates unrealistic load.");
-        logs.push("  ↳ Hint: Users typically pause for 1 second.");
-        completeTest(logs, "failed");
-        return;
-      }
-
-      logs.push("✓ User think time simulated: 1s");
-      completeTest(logs, "success");
-
+      const result = lab.validation(code);
+      completeTest(result.logs, result.passed ? "success" : "failed");
     }, 2000);
   };
 
   const completeTest = (finalLogs: string[], finalStatus: "success" | "failed") => {
     setOutput(prev => [...prev, ...finalLogs]);
     if (finalStatus === "success") {
-      setOutput(prev => [...prev, "", "🎉 TEST PASSED! module completed."]);
+      setOutput(prev => [...prev, "", "🎉 TEST PASSED! Lab completed."]);
     } else {
       setOutput(prev => [...prev, "", "❌ TEST FAILED. Please fix the script and try again."]);
     }
@@ -89,7 +51,7 @@ export default function K6Editor() {
   };
 
   const handleReset = () => {
-    setCode(INITIAL_CODE);
+    setCode(lab.initialCode);
     setOutput([]);
     setStatus("idle");
   };
@@ -104,10 +66,15 @@ export default function K6Editor() {
               <Badge variant="outline" className="text-purple-400 border-purple-400/20">Module 3</Badge>
               <span className="text-muted-foreground text-sm">Scripting Mastery</span>
             </div>
-            <h1 className="text-2xl font-bold font-mono">k6 Scripting Lab</h1>
+            <h1 className="text-2xl font-bold font-mono flex items-center gap-3">
+              <span className="text-muted-foreground opacity-50 font-normal">/</span>
+              {lab.title}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setLocation("/")}>Exit Lab</Button>
+            <Button variant="outline" onClick={() => setLocation("/modules/k6")}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Labs
+            </Button>
           </div>
         </div>
 
@@ -157,18 +124,15 @@ export default function K6Editor() {
               </CardHeader>
               <CardContent className="text-sm space-y-4">
                 <p>
-                  We are migrating from Playwright to <strong>k6</strong> for high-concurrency load testing.
-                  Your task is to fix the broken k6 script on the left.
+                  {lab.missionBrief.context}
                 </p>
                 <div className="space-y-2">
-                  <div className="flex items-start gap-2">
-                    <div className="h-5 w-5 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center text-xs mt-0.5">1</div>
-                    <p>The endpoint is incorrect. It should point to <code className="bg-white/10 px-1 rounded text-primary">/v1/kyc/init</code>.</p>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <div className="h-5 w-5 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center text-xs mt-0.5">2</div>
-                    <p>The <code className="bg-white/10 px-1 rounded text-primary">sleep()</code> duration is too short (0.1s). Realistic user think time is <strong>1 second</strong>.</p>
-                  </div>
+                  {lab.missionBrief.objectives.map((obj) => (
+                    <div key={obj.id} className="flex items-start gap-2">
+                      <div className="h-5 w-5 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center text-xs mt-0.5">{obj.id}</div>
+                      <p>{obj.text}</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

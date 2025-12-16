@@ -12,13 +12,15 @@ import Incidents from "@/pages/Incidents";
 import IncidentDetail from "@/pages/IncidentDetail";
 import Settings from "@/pages/Settings";
 import K6Editor from "@/pages/K6Editor";
+import LabList from "@/pages/LabList";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/modules" component={ModuleView} />
-      <Route path="/modules/k6" component={K6Editor} />
+      <Route path="/modules/k6" component={LabList} />
+      <Route path="/modules/k6/:labId" component={K6Editor} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />
