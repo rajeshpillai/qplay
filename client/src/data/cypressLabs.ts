@@ -21,60 +21,67 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Learn how to select elements that won't break when CSS classes change.",
     difficulty: "Beginner",
     icon: Search,
-    initialCode: `describe('Login Flow', () => {
+    initialCode: `describe('Parabank Login', () => {
   it('should login successfully', () => {
-    cy.visit('/login');
+    // We are testing the Parabank demo site
+    cy.visit('https://parabank.parasoft.com/parabank/index.htm');
     
-    // TODO: Replace these fragile selectors with resilient data-testid selectors
-    // The input has data-testid="input-email"
-    cy.get('.form-control.input-lg.email-field').type('user@example.com');
+    // TODO: Replace these fragile selectors with resilient data-testid selectors if available, 
+    // or at least robust attributes (name, type) instead of CSS classes.
+    // NOTE: Parabank is a legacy app, so we might not have data-testids. 
+    // Let's use robust attributes like name="username" instead of classes.
     
-    // The password input has data-testid="input-password"
-    cy.get('#password-field-v2').type('password123');
+    // Fragile: relying on layout classes
+    cy.get('.input.field-1').type('john');
     
-    // The button has data-testid="btn-submit"
-    cy.get('button[type="submit"]').click();
+    // Fragile: relying on nth-child
+    cy.get('form > div:nth-child(2) > input').type('demo');
     
-    // The success message has data-testid="alert-success"
-    cy.get('.alert.alert-success').should('be.visible');
+    // Fragile: relying on button class
+    cy.get('.button.login').click();
+    
+    // Verify login success
+    cy.get('.smallText').should('contain', 'Welcome');
   });
 });`,
     missionBrief: {
-      context: "Our frontend team refactors CSS classes weekly. Your tests keep breaking. Switch to using stable `data-testid` attributes.",
+      context: "We are writing tests for the **Parabank** demo site. The current test uses fragile CSS selectors that break whenever the layout changes. Refactor it to use stable attributes.",
       objectives: [
-        { id: 1, text: "Select email input using `[data-testid=input-email]`" },
-        { id: 2, text: "Select password input using `[data-testid=input-password]`" },
-        { id: 3, text: "Select submit button using `[data-testid=btn-submit]`" }
+        { id: 1, text: "Select username using `input[name='username']`" },
+        { id: 2, text: "Select password using `input[name='password']`" },
+        { id: 3, text: "Select login button using `input[type='submit']`" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
-      const hasEmailTestId = code.includes('[data-testid="input-email"]') || code.includes("[data-testid='input-email']") || code.includes('data-testid=input-email');
-      const hasPassTestId = code.includes('[data-testid="input-password"]') || code.includes("[data-testid='input-password']") || code.includes('data-testid=input-password');
-      const hasBtnTestId = code.includes('[data-testid="btn-submit"]') || code.includes("[data-testid='btn-submit']") || code.includes('data-testid=btn-submit');
+      // Parabank specific selectors
+      const hasUsername = code.includes("input[name='username']") || code.includes('input[name="username"]');
+      const hasPassword = code.includes("input[name='password']") || code.includes('input[name="password"]');
+      const hasSubmit = code.includes("input[type='submit']") || code.includes('input[type="submit"]');
 
       logs.push("✓ Test suite initialized");
+      logs.push("✓ Visiting https://parabank.parasoft.com/parabank/index.htm");
       
-      if (!hasEmailTestId) {
-        logs.push("✗ ERROR: Fragile selector found for email field.");
-        logs.push("  ↳ Expected: cy.get('[data-testid=\"input-email\"]')");
+      if (!hasUsername) {
+        logs.push("✗ ERROR: Fragile selector found for username.");
+        logs.push("  ↳ Expected: cy.get(\"input[name='username']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Email selector is resilient");
+      logs.push("✓ Username selector is resilient (by name attribute)");
 
-      if (!hasPassTestId) {
-        logs.push("✗ ERROR: Fragile selector found for password field.");
-        logs.push("  ↳ Expected: cy.get('[data-testid=\"input-password\"]')");
+      if (!hasPassword) {
+        logs.push("✗ ERROR: Fragile selector found for password.");
+        logs.push("  ↳ Expected: cy.get(\"input[name='password']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Password selector is resilient");
+      logs.push("✓ Password selector is resilient (by name attribute)");
 
-      if (!hasBtnTestId) {
-        logs.push("✗ ERROR: Fragile selector found for submit button.");
-        logs.push("  ↳ Expected: cy.get('[data-testid=\"btn-submit\"]')");
+      if (!hasSubmit) {
+        logs.push("✗ ERROR: Fragile selector found for login button.");
+        logs.push("  ↳ Expected: cy.get(\"input[type='submit']\")");
         return { passed: false, logs };
       }
-      logs.push("✓ Submit button selector is resilient");
+      logs.push("✓ Login button selector is resilient (by type attribute)");
 
       return { passed: true, logs };
     }
@@ -85,35 +92,38 @@ export const CYPRESS_LABS: CypressLab[] = [
     description: "Eliminate flaky tests by replacing fixed waits with assertions.",
     difficulty: "Intermediate",
     icon: Clock,
-    initialCode: `describe('Search Results', () => {
+    initialCode: `describe('Find Transactions', () => {
   it('should show results after API loads', () => {
-    cy.visit('/search');
-    cy.get('[data-testid="input-search"]').type('React');
-    cy.get('[data-testid="btn-search"]').click();
+    cy.visit('https://parabank.parasoft.com/parabank/findtrans.htm');
+    
+    // Fill out the search form
+    cy.get("input[id='criteria.amount']").type('1000');
+    cy.get("button[ng-click='findTransactions()']").click();
     
     // TODO: This fixed wait is flaky (too short) or slow (too long). Remove it.
     cy.wait(5000); 
     
-    // TODO: Add an assertion that implicitly waits for the element to exist
-    // The results container has data-testid="results-grid"
-    const results = cy.get('.results-grid');
-    results.should('have.length.gt', 0);
+    // TODO: Add an assertion that implicitly waits for the results table
+    // The results table has ID #transactionTable
+    const results = cy.get('#transactionTable');
+    results.should('exist');
   });
 });`,
     missionBrief: {
-      context: "The CI pipeline is slow because everyone uses `cy.wait(5000)`. Replace hard waits with smart assertions.",
+      context: "Parabank's 'Find Transactions' feature is slow. The current test uses `cy.wait(5000)` which slows down our CI. Replace it with a smart assertion.",
       objectives: [
         { id: 1, text: "Remove `cy.wait(5000)`" },
-        { id: 2, text: "Wait for `[data-testid=\"results-grid\"]` to be visible" }
+        { id: 2, text: "Wait for `#transactionTable` to be visible" }
       ]
     },
     validation: (code: string) => {
       const logs: string[] = [];
       const hasFixedWait = /cy\.wait\(\s*\d+\s*\)/.test(code);
-      const hasResultsWait = code.includes('[data-testid="results-grid"]') || code.includes("[data-testid='results-grid']");
+      const hasResultsWait = code.includes('#transactionTable') || code.includes("id='transactionTable'");
       const hasVisibleAssertion = code.includes('be.visible') || code.includes('exist');
 
       logs.push("✓ Test suite initialized");
+      logs.push("✓ Visiting https://parabank.parasoft.com/parabank/findtrans.htm");
 
       if (hasFixedWait) {
         logs.push("✗ ERROR: Fixed wait detected! cy.wait(5000) is an anti-pattern.");
@@ -123,8 +133,8 @@ export const CYPRESS_LABS: CypressLab[] = [
       logs.push("✓ No fixed waits detected");
 
       if (!hasResultsWait) {
-        logs.push("✗ ERROR: You are targeting the wrong element class.");
-        logs.push("  ↳ Use the stable selector: [data-testid=\"results-grid\"]");
+        logs.push("✗ ERROR: You are targeting the wrong element ID.");
+        logs.push("  ↳ Use the stable selector: #transactionTable");
         return { passed: false, logs };
       }
       
