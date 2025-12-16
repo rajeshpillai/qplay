@@ -34,7 +34,12 @@ export default function ModuleView() {
                <p className="text-xs text-muted-foreground">Time Remaining</p>
                <p className="font-mono font-medium">14:20</p>
              </div>
-             <Button>Next Lesson <ChevronRight className="ml-2 h-4 w-4" /></Button>
+             <Button 
+               onClick={() => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1))}
+               disabled={currentStep === steps.length - 1}
+             >
+               Next Lesson <ChevronRight className="ml-2 h-4 w-4" />
+             </Button>
           </div>
         </div>
 
@@ -91,22 +96,30 @@ export default function ModuleView() {
              <h3 className="font-mono text-sm font-bold mb-4 uppercase text-muted-foreground tracking-wider">Mission Steps</h3>
              <div className="space-y-4">
                {steps.map((step, idx) => (
-                 <div key={idx} className={cn("flex gap-3 relative", idx !== steps.length - 1 && "pb-6")}>
-                   {idx !== steps.length - 1 && (
-                     <div className="absolute left-[11px] top-7 bottom-0 w-px bg-white/10" />
-                   )}
-                   <div className={cn(
-                     "h-6 w-6 rounded-full flex items-center justify-center text-xs border flex-shrink-0 z-10",
-                     step.completed ? "bg-green-500/20 border-green-500 text-green-500" : 
-                     idx === currentStep ? "bg-primary/20 border-primary text-primary" : "bg-card border-white/10 text-muted-foreground"
-                   )}>
-                     {step.completed ? <CheckCircle className="h-3 w-3" /> : idx + 1}
-                   </div>
-                   <div>
-                     <p className={cn("text-sm font-medium leading-none mb-1", idx === currentStep ? "text-foreground" : "text-muted-foreground")}>{step.title}</p>
-                     <p className="text-xs text-muted-foreground">Est. 5 mins</p>
-                   </div>
-                 </div>
+                   <div 
+                    key={idx} 
+                    className={cn(
+                      "flex gap-3 relative cursor-pointer hover:bg-white/5 p-2 rounded-md transition-colors", 
+                      idx !== steps.length - 1 && "pb-6",
+                      idx === currentStep && "bg-white/5"
+                    )}
+                    onClick={() => setCurrentStep(idx)}
+                  >
+                    {idx !== steps.length - 1 && (
+                      <div className="absolute left-[19px] top-9 bottom-0 w-px bg-white/10" />
+                    )}
+                    <div className={cn(
+                      "h-6 w-6 rounded-full flex items-center justify-center text-xs border flex-shrink-0 z-10",
+                      step.completed ? "bg-green-500/20 border-green-500 text-green-500" : 
+                      idx === currentStep ? "bg-primary/20 border-primary text-primary" : "bg-card border-white/10 text-muted-foreground"
+                    )}>
+                      {step.completed ? <CheckCircle className="h-3 w-3" /> : idx + 1}
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-medium leading-none mb-1", idx === currentStep ? "text-foreground" : "text-muted-foreground")}>{step.title}</p>
+                      <p className="text-xs text-muted-foreground">Est. 5 mins</p>
+                    </div>
+                  </div>
                ))}
              </div>
           </div>
