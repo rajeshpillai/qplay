@@ -22,6 +22,7 @@ import KnowledgeBase from "@/pages/KnowledgeBase";
 import PlaygroundHome from "@/pages/playground/PlaygroundHome";
 import AuthZone from "@/pages/playground/AuthZone";
 import InteractionsZone from "@/pages/playground/InteractionsZone";
+import ApiZone from "@/pages/playground/ApiZone";
 
 function Router() {
   return (
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/playground" component={PlaygroundHome} />
       <Route path="/playground/auth" component={AuthZone} />
       <Route path="/playground/interactions" component={InteractionsZone} />
+      <Route path="/playground/api" component={ApiZone} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />

@@ -32,7 +32,7 @@ const ZONES = [
     color: "text-green-500",
     bg: "bg-green-500/10",
     href: "/playground/api",
-    disabled: true
+    disabled: false
   },
   {
     id: "data",
