@@ -23,6 +23,7 @@ import PlaygroundHome from "@/pages/playground/PlaygroundHome";
 import AuthZone from "@/pages/playground/AuthZone";
 import InteractionsZone from "@/pages/playground/InteractionsZone";
 import ApiZone from "@/pages/playground/ApiZone";
+import DataZone from "@/pages/playground/DataZone";
 
 function Router() {
   return (
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/playground/auth" component={AuthZone} />
       <Route path="/playground/interactions" component={InteractionsZone} />
       <Route path="/playground/api" component={ApiZone} />
+      <Route path="/playground/data" component={DataZone} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />

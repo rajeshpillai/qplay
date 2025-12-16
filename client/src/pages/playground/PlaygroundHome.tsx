@@ -42,7 +42,7 @@ const ZONES = [
     color: "text-orange-500",
     bg: "bg-orange-500/10",
     href: "/playground/data",
-    disabled: true
+    disabled: false
   }
 ];
 
