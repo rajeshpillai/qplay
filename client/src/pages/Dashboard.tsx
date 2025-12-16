@@ -154,7 +154,8 @@ export default function Dashboard() {
               description="Translate Playwright flows into high-performance k6 load tests."
               level="Module 3"
               progress={0}
-              status="locked"
+              status="active"
+              href="/modules/k6"
             />
           </div>
         </div>
