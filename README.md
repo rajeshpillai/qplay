@@ -1,4 +1,4 @@
-# Algorisys Performance Engineering Academy (QPlay)
+# FP Performance Engineering Academy (QPlay)
 
 A React-based interactive training platform for mastering performance engineering and test automation concepts (Cypress & Playwright).
 

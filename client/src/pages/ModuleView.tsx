@@ -70,7 +70,7 @@ export default function ModuleView() {
                   <div className="prose prose-invert max-w-none animate-in fade-in duration-500">
                     <h3>The "9:00 AM" Problem</h3>
                     <p>
-                      In Algorisys's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
+                      In FP's KYC context, traffic is rarely flat. We see massive spikes at 9:00 AM when businesses open and start processing onboarding requests in bulk.
                       A system that handles 500 RPS (Requests Per Second) perfectly might collapse under a 2000 RPS spike, even if that spike only lasts 10 seconds.
                     </p>
 

@@ -49,7 +49,7 @@ const Sidebar = ({ className, collapsed, onToggle }: { className?: string, colla
             </div>
             {!collapsed && (
               <div className="overflow-hidden whitespace-nowrap">
-                <h1 className="font-mono font-bold text-lg tracking-tighter text-sidebar-primary">Algorisys.PERF</h1>
+                <h1 className="font-mono font-bold text-lg tracking-tighter text-sidebar-primary">FP.PERF</h1>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Academy v1.0</p>
               </div>
             )}
@@ -152,7 +152,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-sidebar">
           <div className="flex items-center gap-2">
             <Server className="h-5 w-5 text-primary" />
-            <span className="font-mono font-bold">Algorisys.PERF</span>
+            <span className="font-mono font-bold">FP.PERF</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>

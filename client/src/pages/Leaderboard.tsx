@@ -63,7 +63,7 @@ export default function Leaderboard() {
             <Trophy className="h-8 w-8 text-yellow-500" />
           </div>
           <h1 className="text-3xl font-bold font-mono">Performance Elite</h1>
-          <p className="text-muted-foreground">Top engineers keeping Algorisys's systems stable.</p>
+          <p className="text-muted-foreground">Top engineers keeping FP's systems stable.</p>
         </div>
 
         <div className="bg-card/30 rounded-xl border border-white/5 overflow-hidden">

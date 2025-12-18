@@ -31,8 +31,8 @@ export const options = {
 
 export default function () {
   // TODO: Fix the endpoint URL
-  // The correct endpoint is: https://api.algorisys.com/v1/kyc/init
-  const res = http.get('https://api.algorisys.com/v1/wrong-url');
+  // The correct endpoint is: https://api.FP.com/v1/kyc/init
+  const res = http.get('https://api.FP.com/v1/wrong-url');
 
   // TODO: Add a check to ensure status is 200
   check(res, {
@@ -52,19 +52,19 @@ export default function () {
     validation: (code: string) => {
       const logs: string[] = [];
       // Flexible matching for endpoint (allow http/https, trailing slash, quotes)
-      const hasCorrectEndpoint = /['"]https?:\/\/api\.algorisys\.com\/v1\/kyc\/init\/?['"]/.test(code);
+      const hasCorrectEndpoint = /['"]https?:\/\/api\.FP\.com\/v1\/kyc\/init\/?['"]/.test(code);
       // Flexible matching for sleep (allow sleep(1), sleep(1.0), sleep( 1 ))
       const hasSleep = /sleep\s*\(\s*1(\.0)?\s*\)/.test(code);
       
       logs.push("✓ Virtual Users initialized: 10");
       
       if (!hasCorrectEndpoint) {
-        logs.push("✗ ERROR: Request failed. 404 Not Found (https://api.algorisys.com/v1/wrong-url)");
+        logs.push("✗ ERROR: Request failed. 404 Not Found (https://api.FP.com/v1/wrong-url)");
         logs.push("  ↳ check 'is status 200' failed");
         return { passed: false, logs };
       }
 
-      logs.push("✓ GET https://api.algorisys.com/v1/kyc/init 200 OK");
+      logs.push("✓ GET https://api.FP.com/v1/kyc/init 200 OK");
       logs.push("✓ check 'is status 200' passed");
 
       if (!hasSleep) {
@@ -98,7 +98,7 @@ export const options = {
 };
 
 export default function () {
-  http.get('https://api.algorisys.com/v1/kyc/ocr');
+  http.get('https://api.FP.com/v1/kyc/ocr');
   sleep(1);
 }`,
     missionBrief: {
@@ -155,7 +155,7 @@ export const options = {
 };
 
 export default function () {
-  http.get('https://api.algorisys.com/v1/search');
+  http.get('https://api.FP.com/v1/search');
   sleep(1);
 }`,
     missionBrief: {

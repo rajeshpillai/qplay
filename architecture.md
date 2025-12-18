@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Algorisys Performance Engineering Academy is a React-based Single Page Application (SPA) designed to teach performance engineering concepts through interactive simulation. It uses a client-side simulation engine to mimic distributed system behavior without requiring a complex backend infrastructure.
+The FP Performance Engineering Academy is a React-based Single Page Application (SPA) designed to teach performance engineering concepts through interactive simulation. It uses a client-side simulation engine to mimic distributed system behavior without requiring a complex backend infrastructure.
 
 ## Tech Stack
 
