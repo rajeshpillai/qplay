@@ -9,6 +9,7 @@ import { Play, RotateCcw, CheckCircle2, Terminal, Code2, FileCode, ArrowLeft, Bo
 import { cn } from "@/lib/utils";
 import { useLocation, useRoute } from "wouter";
 import { PLAYWRIGHT_LABS } from "@/data/playwrightLabs";
+import { useProgress, getXpForDifficulty } from "@/lib/useProgress";
 
 export default function PlaywrightEditor() {
   const [, params] = useRoute("/modules/playwright/:labId");
@@ -22,6 +23,7 @@ export default function PlaywrightEditor() {
   const [status, setStatus] = useState<"idle" | "running" | "success" | "failed">("idle");
   const [activeTab, setActiveTab] = useState("instructions");
 
+  const { completeLab, isLabCompleted } = useProgress();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -46,7 +48,15 @@ export default function PlaywrightEditor() {
   const completeTest = (finalLogs: string[], finalStatus: "success" | "failed") => {
     setOutput(prev => [...prev, ...finalLogs]);
     if (finalStatus === "success") {
-      setOutput(prev => [...prev, "", "  1 passed (1.5s)"]);
+      const alreadyDone = isLabCompleted(lab.id, "playwright");
+      completeLab(lab.id, "playwright", lab.difficulty);
+      const xp = getXpForDifficulty(lab.difficulty);
+      setOutput(prev => [
+        ...prev,
+        "",
+        "  1 passed (1.5s)",
+        alreadyDone ? "  (already completed — no additional XP)" : `  +${xp} XP earned!`,
+      ]);
     } else {
       setOutput(prev => [...prev, "", "  1 failed"]);
     }

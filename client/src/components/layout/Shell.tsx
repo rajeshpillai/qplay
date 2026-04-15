@@ -17,6 +17,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useProgress } from "@/lib/useProgress";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -27,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Sidebar = ({ className, collapsed, onToggle }: { className?: string, collapsed?: boolean, onToggle?: () => void }) => {
   const [location] = useLocation();
+  const { progress, level, levelProgress } = useProgress();
 
   const navItems = [
     { icon: LayoutDashboard, label: "Mission Control", href: "/" },
@@ -117,11 +119,11 @@ const Sidebar = ({ className, collapsed, onToggle }: { className?: string, colla
           {!collapsed && (
             <div className="mt-4 pt-4 border-t border-white/5">
               <div className="flex justify-between text-xs font-mono mb-1">
-                <span className="text-muted-foreground">XP Progress</span>
-                <span className="text-primary">Lvl 3</span>
+                <span className="text-muted-foreground">{progress.totalXp.toLocaleString()} XP</span>
+                <span className="text-primary">Lvl {level}</span>
               </div>
               <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
-                <div className="h-full bg-primary w-[65%]" />
+                <div className="h-full bg-primary transition-all duration-500" style={{ width: `${levelProgress}%` }} />
               </div>
             </div>
           )}

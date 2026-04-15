@@ -4,11 +4,15 @@ import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Play, Lock, Terminal } from "lucide-react";
+import { Play, Lock, Terminal, CheckCircle2 } from "lucide-react";
 import { PLAYWRIGHT_LABS } from "@/data/playwrightLabs";
 import { cn } from "@/lib/utils";
+import { useProgress } from "@/lib/useProgress";
 
 export default function PlaywrightLabList() {
+  const { isLabCompleted, progress } = useProgress();
+  const completedCount = progress.completedLabs.filter(l => l.module === "playwright").length;
+
   return (
     <Shell>
       <div className="max-w-5xl mx-auto space-y-8">
@@ -17,7 +21,10 @@ export default function PlaywrightLabList() {
             <Badge variant="outline" className="text-orange-400 border-orange-400/20">Module 5</Badge>
             <span className="text-muted-foreground text-sm">Modern E2E</span>
           </div>
-          <h1 className="text-3xl font-bold font-mono mb-2">Playwright Mastery</h1>
+          <h1 className="text-3xl font-bold font-mono mb-2">
+            Playwright Mastery
+            <span className="text-sm font-normal text-muted-foreground ml-3">{completedCount}/{PLAYWRIGHT_LABS.length} completed</span>
+          </h1>
           <p className="text-muted-foreground">
             Fast, reliable, and capable. Learn the next-generation automation tool.
           </p>
@@ -26,7 +33,8 @@ export default function PlaywrightLabList() {
         <div className="grid gap-4">
           {PLAYWRIGHT_LABS.map((lab, index) => {
             const Icon = lab.icon;
-            const isLocked = false; 
+            const isLocked = false;
+            const completed = isLabCompleted(lab.id, "playwright");
             
             return (
               <Card key={lab.id} className="bg-card/40 border-white/10 hover:bg-card/60 transition-colors group">
@@ -64,8 +72,15 @@ export default function PlaywrightLabList() {
                       </Button>
                     ) : (
                       <Link href={`/modules/playwright/${lab.id}`}>
-                        <Button className="bg-orange-600/20 hover:bg-orange-600/30 text-orange-500 border border-orange-600/50">
-                          <Play className="h-4 w-4 mr-2 fill-current" /> Start Lab
+                        <Button className={cn(
+                          completed
+                            ? "bg-orange-600/10 hover:bg-orange-600/20 text-orange-400 border border-orange-600/30"
+                            : "bg-orange-600/20 hover:bg-orange-600/30 text-orange-500 border border-orange-600/50"
+                        )}>
+                          {completed
+                            ? <><CheckCircle2 className="h-4 w-4 mr-2" /> Completed</>
+                            : <><Play className="h-4 w-4 mr-2 fill-current" /> Start Lab</>
+                          }
                         </Button>
                       </Link>
                     )}

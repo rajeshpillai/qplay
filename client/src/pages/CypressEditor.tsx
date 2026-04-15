@@ -9,6 +9,7 @@ import { Play, RotateCcw, CheckCircle2, Terminal, Code2, FileCode, ArrowLeft, Bo
 import { cn } from "@/lib/utils";
 import { useLocation, useRoute } from "wouter";
 import { CYPRESS_LABS } from "@/data/cypressLabs";
+import { useProgress, getXpForDifficulty } from "@/lib/useProgress";
 
 export default function CypressEditor() {
   const [, params] = useRoute("/modules/cypress/:labId");
@@ -22,6 +23,7 @@ export default function CypressEditor() {
   const [status, setStatus] = useState<"idle" | "running" | "success" | "failed">("idle");
   const [activeTab, setActiveTab] = useState("instructions");
 
+  const { completeLab, isLabCompleted } = useProgress();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -46,7 +48,15 @@ export default function CypressEditor() {
   const completeTest = (finalLogs: string[], finalStatus: "success" | "failed") => {
     setOutput(prev => [...prev, ...finalLogs]);
     if (finalStatus === "success") {
-      setOutput(prev => [...prev, "", "🎉 ALL TESTS PASSED"]);
+      const alreadyDone = isLabCompleted(lab.id, "cypress");
+      completeLab(lab.id, "cypress", lab.difficulty);
+      const xp = getXpForDifficulty(lab.difficulty);
+      setOutput(prev => [
+        ...prev,
+        "",
+        "🎉 ALL TESTS PASSED",
+        alreadyDone ? "  (already completed — no additional XP)" : `  +${xp} XP earned!`,
+      ]);
     } else {
       setOutput(prev => [...prev, "", "❌ TESTS FAILED"]);
     }
