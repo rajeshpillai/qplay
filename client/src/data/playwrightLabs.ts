@@ -1,4 +1,4 @@
-import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Play, Clipboard } from "lucide-react";
+import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Play, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench } from "lucide-react";
 
 export interface PlaywrightLab {
   id: string;
@@ -1467,6 +1467,1359 @@ export default defineConfig({
       }
 
       logs.push("✓ Clipboard verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "kyc-onboarding",
+    title: "KYC Onboarding Flow",
+    description: "Test a multi-step KYC wizard from personal info to document upload.",
+    difficulty: "Advanced",
+    icon: Shield,
+    initialCode: `test('KYC Onboarding Flow', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // Step 1: Personal Info
+  // TODO: Fill full name
+  // await page.getByTestId('input-fullname').fill('Jane Doe');
+  // TODO: Fill date of birth
+  // await page.getByTestId('input-dob').fill('1990-05-15');
+  // TODO: Fill phone number
+  // await page.getByTestId('input-phone').fill('+1234567890');
+  // TODO: Click Next
+  // await page.getByTestId('btn-next').click();
+
+  // Step 2: Address
+  // TODO: Fill street address
+  // await page.getByTestId('input-street').fill('123 Main St');
+  // TODO: Fill city
+  // await page.getByTestId('input-city').fill('Springfield');
+  // TODO: Select country from dropdown
+  // await page.getByTestId('select-country').selectOption('US');
+  // TODO: Click Next
+  // await page.getByTestId('btn-next').click();
+
+  // Step 3: Document Upload
+  // TODO: Upload a document file
+  // await page.getByTestId('input-doc-upload').setInputFiles('path/to/doc.pdf');
+  // TODO: Click Next
+  // await page.getByTestId('btn-next').click();
+
+  // Step 4: Review & Submit
+  // TODO: Click Submit
+  // await page.getByTestId('btn-submit-kyc').click();
+});`,
+    missionBrief: {
+      context: "Multi-step wizards require navigating through each step sequentially. Each step must be completed before proceeding.",
+      objectives: [
+        { id: 1, text: "Fill personal info fields (fullname, dob, phone)" },
+        { id: 2, text: "Navigate to address step using btn-next" },
+        { id: 3, text: "Fill address fields and select country" },
+        { id: 4, text: "Navigate to upload step and upload document" },
+        { id: 5, text: "Submit the KYC form with btn-submit-kyc" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFullname = /input-fullname/.test(code);
+      const hasStreet = /input-street/.test(code);
+      const hasCountry = /select-country|selectOption/.test(code);
+      const hasNext = /btn-next/.test(code);
+      const hasSubmit = /btn-submit-kyc/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasFullname) {
+        logs.push("✗ ERROR: Missing fullname field.");
+        logs.push("  ↳ Use page.getByTestId('input-fullname')");
+        return { passed: false, logs };
+      }
+
+      if (!hasStreet) {
+        logs.push("✗ ERROR: Missing street address field.");
+        logs.push("  ↳ Use page.getByTestId('input-street')");
+        return { passed: false, logs };
+      }
+
+      if (!hasCountry) {
+        logs.push("✗ ERROR: Missing country selection.");
+        logs.push("  ↳ Use page.getByTestId('select-country').selectOption(...)");
+        return { passed: false, logs };
+      }
+
+      if (!hasNext) {
+        logs.push("✗ ERROR: Missing next button navigation.");
+        logs.push("  ↳ Use page.getByTestId('btn-next').click()");
+        return { passed: false, logs };
+      }
+
+      if (!hasSubmit) {
+        logs.push("✗ ERROR: Missing KYC submit button.");
+        logs.push("  ↳ Use page.getByTestId('btn-submit-kyc').click()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ All KYC steps completed");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "otp-verification",
+    title: "OTP Verification",
+    description: "Test OTP input fields, auto-focus behavior, and resend countdown.",
+    difficulty: "Intermediate",
+    icon: Phone,
+    initialCode: `test('OTP Verification', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Fill each OTP digit field (1-4)
+  // The OTP code is "1234"
+  // await page.getByTestId('otp-digit-1').fill('1');
+  // await page.getByTestId('otp-digit-2').fill('2');
+  // await page.getByTestId('otp-digit-3').fill('3');
+  // await page.getByTestId('otp-digit-4').fill('4');
+
+  // TODO: Click verify button
+  // await page.getByTestId('btn-verify-otp').click();
+
+  // TODO: Assert success message is visible
+  // await expect(page.getByTestId('otp-success')).toBeVisible();
+});`,
+    missionBrief: {
+      context: "OTP fields often auto-focus to the next input. Test each digit individually and verify the complete flow.",
+      objectives: [
+        { id: 1, text: "Fill each OTP digit (otp-digit-1 through otp-digit-4)" },
+        { id: 2, text: "Click the verify button (btn-verify-otp)" },
+        { id: 3, text: "Assert the success message (otp-success) is visible" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasDigit1 = /otp-digit-1/.test(code);
+      const hasDigit4 = /otp-digit-4/.test(code);
+      const hasVerify = /btn-verify-otp/.test(code);
+      const hasSuccess = /otp-success/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasDigit1) {
+        logs.push("✗ ERROR: Missing first OTP digit.");
+        logs.push("  ↳ Use page.getByTestId('otp-digit-1').fill('1')");
+        return { passed: false, logs };
+      }
+
+      if (!hasDigit4) {
+        logs.push("✗ ERROR: Missing fourth OTP digit.");
+        logs.push("  ↳ Use page.getByTestId('otp-digit-4').fill('4')");
+        return { passed: false, logs };
+      }
+
+      if (!hasVerify) {
+        logs.push("✗ ERROR: Missing verify button click.");
+        logs.push("  ↳ Use page.getByTestId('btn-verify-otp').click()");
+        return { passed: false, logs };
+      }
+
+      if (!hasSuccess) {
+        logs.push("✗ ERROR: Missing success assertion.");
+        logs.push("  ↳ Assert page.getByTestId('otp-success') is visible");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ OTP verification complete");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "video-kyc",
+    title: "Video KYC Session",
+    description: "Test a simulated Video KYC flow: start call, wait for agent, capture selfie.",
+    difficulty: "Advanced",
+    icon: Camera,
+    initialCode: `test('Video KYC Session', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Click the start video call button
+  // await page.getByTestId('btn-start-video').click();
+
+  // TODO: Wait for the agent to join (text "Agent Joined" appears)
+  // await expect(page.getByText('Agent Joined')).toBeVisible();
+
+  // TODO: Capture a selfie
+  // await page.getByTestId('btn-capture-selfie').click();
+
+  // TODO: Assert selfie was captured
+  // await expect(page.getByTestId('selfie-status')).toContainText('Captured');
+
+  // TODO: End the call
+  // await page.getByTestId('btn-end-call').click();
+});`,
+    missionBrief: {
+      context: "Video KYC involves real-time interactions. Test the full flow from starting a call to ending it after verification.",
+      objectives: [
+        { id: 1, text: "Start the video call with btn-start-video" },
+        { id: 2, text: "Wait for 'Agent Joined' status text" },
+        { id: 3, text: "Capture selfie with btn-capture-selfie" },
+        { id: 4, text: "End the call with btn-end-call" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasStartVideo = /btn-start-video/.test(code);
+      const hasAgentJoined = /Agent Joined/.test(code);
+      const hasCaptureSelfie = /btn-capture-selfie/.test(code);
+      const hasSelfieStatus = /selfie-status/.test(code);
+      const hasEndCall = /btn-end-call/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasStartVideo) {
+        logs.push("✗ ERROR: Missing start video button.");
+        logs.push("  ↳ Use page.getByTestId('btn-start-video').click()");
+        return { passed: false, logs };
+      }
+
+      if (!hasAgentJoined) {
+        logs.push("✗ ERROR: Missing agent joined check.");
+        logs.push("  ↳ Wait for text 'Agent Joined' to appear");
+        return { passed: false, logs };
+      }
+
+      if (!hasCaptureSelfie) {
+        logs.push("✗ ERROR: Missing selfie capture.");
+        logs.push("  ↳ Use page.getByTestId('btn-capture-selfie').click()");
+        return { passed: false, logs };
+      }
+
+      if (!hasSelfieStatus) {
+        logs.push("✗ ERROR: Missing selfie status assertion.");
+        logs.push("  ↳ Assert page.getByTestId('selfie-status') contains 'Captured'");
+        return { passed: false, logs };
+      }
+
+      if (!hasEndCall) {
+        logs.push("✗ ERROR: Missing end call button.");
+        logs.push("  ↳ Use page.getByTestId('btn-end-call').click()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Video KYC session complete");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "iframe-communication",
+    title: "iframe Widget Communication",
+    description: "Test cross-frame communication using postMessage between parent and iframe.",
+    difficulty: "Advanced",
+    icon: MessageSquare,
+    initialCode: `test('iframe Widget Communication', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Access the iframe using frameLocator
+  // const widget = page.frameLocator('#kyc-widget-frame');
+
+  // TODO: Fill the widget input inside the iframe
+  // await widget.getByTestId('widget-input-name').fill('Jane Doe');
+
+  // TODO: Click send inside the iframe
+  // await widget.getByTestId('btn-widget-send').click();
+
+  // TODO: Assert parent page received the data
+  // await expect(page.getByTestId('received-data')).toContainText('Jane Doe');
+
+  // TODO: Send data from parent to widget
+  // await page.getByTestId('btn-send-to-widget').click();
+  // await expect(widget.getByTestId('widget-received')).toBeVisible();
+});`,
+    missionBrief: {
+      context: "iframes create isolated browsing contexts. Use frameLocator to interact with elements inside an iframe and test postMessage communication.",
+      objectives: [
+        { id: 1, text: "Access the iframe using page.frameLocator()" },
+        { id: 2, text: "Fill the widget input (widget-input-name) inside the iframe" },
+        { id: 3, text: "Verify parent page receives data (received-data)" },
+        { id: 4, text: "Send a message from parent to widget (btn-send-to-widget)" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFrameLocator = /frameLocator/.test(code);
+      const hasWidgetInput = /widget-input-name/.test(code);
+      const hasReceivedData = /received-data/.test(code);
+      const hasSendToWidget = /btn-send-to-widget/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasFrameLocator) {
+        logs.push("✗ ERROR: Missing frameLocator for iframe access.");
+        logs.push("  ↳ Use page.frameLocator('#kyc-widget-frame')");
+        return { passed: false, logs };
+      }
+
+      if (!hasWidgetInput) {
+        logs.push("✗ ERROR: Missing widget input interaction.");
+        logs.push("  ↳ Fill widget.getByTestId('widget-input-name')");
+        return { passed: false, logs };
+      }
+
+      if (!hasReceivedData) {
+        logs.push("✗ ERROR: Missing parent data verification.");
+        logs.push("  ↳ Assert page.getByTestId('received-data') has expected text");
+        return { passed: false, logs };
+      }
+
+      if (!hasSendToWidget) {
+        logs.push("✗ ERROR: Missing parent-to-widget communication.");
+        logs.push("  ↳ Use page.getByTestId('btn-send-to-widget').click()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ iframe communication verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "doc-upload-status",
+    title: "Document Upload & Status Polling",
+    description: "Upload a document and poll for verification status changes.",
+    difficulty: "Intermediate",
+    icon: Upload,
+    initialCode: `test('Document Upload & Status Polling', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Upload a document file
+  // await page.getByTestId('input-doc-upload').setInputFiles('path/to/document.pdf');
+
+  // TODO: Wait for status to change from "Uploading..." to "Verifying..."
+  // await expect(page.getByTestId('upload-status')).toContainText('Verifying...');
+
+  // TODO: Wait for final status "Verified ✓"
+  // await expect(page.getByTestId('upload-status')).toContainText('Verified');
+});`,
+    missionBrief: {
+      context: "File uploads often trigger async status changes. Use Playwright's auto-retrying assertions to poll for status transitions.",
+      objectives: [
+        { id: 1, text: "Upload a file using setInputFiles on input-doc-upload" },
+        { id: 2, text: "Wait for the upload-status to show 'Verified'" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasUploadInput = /input-doc-upload/.test(code);
+      const hasSetInputFiles = /setInputFiles/.test(code);
+      const hasStatus = /upload-status/.test(code);
+      const hasVerified = /Verified/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasUploadInput) {
+        logs.push("✗ ERROR: Missing document upload input.");
+        logs.push("  ↳ Use page.getByTestId('input-doc-upload')");
+        return { passed: false, logs };
+      }
+
+      if (!hasSetInputFiles) {
+        logs.push("✗ ERROR: Missing setInputFiles call.");
+        logs.push("  ↳ Use .setInputFiles('path/to/file')");
+        return { passed: false, logs };
+      }
+
+      if (!hasStatus) {
+        logs.push("✗ ERROR: Missing upload status check.");
+        logs.push("  ↳ Assert page.getByTestId('upload-status')");
+        return { passed: false, logs };
+      }
+
+      if (!hasVerified) {
+        logs.push("✗ ERROR: Missing verified status assertion.");
+        logs.push("  ↳ Assert status contains 'Verified'");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Document upload and status verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "consent-scroll",
+    title: "Consent & Scroll Gating",
+    description: "Scroll a terms box to the bottom to unlock a consent checkbox.",
+    difficulty: "Intermediate",
+    icon: ScrollText,
+    initialCode: `test('Consent & Scroll Gating', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // The consent checkbox is disabled until the terms box is scrolled to the bottom
+
+  // TODO: Scroll the terms box to the bottom
+  // await page.getByTestId('terms-box').evaluate(
+  //   (el) => el.scrollTop = el.scrollHeight
+  // );
+
+  // TODO: Check the consent checkbox (now enabled)
+  // await page.getByTestId('checkbox-consent').check();
+
+  // TODO: Click accept terms button
+  // await page.getByTestId('btn-accept-terms').click();
+});`,
+    missionBrief: {
+      context: "Some forms require users to scroll through terms before enabling a checkbox. Use evaluate() to programmatically scroll an element.",
+      objectives: [
+        { id: 1, text: "Scroll the terms-box to the bottom using evaluate or scrollTop" },
+        { id: 2, text: "Check the checkbox-consent checkbox" },
+        { id: 3, text: "Click btn-accept-terms to submit" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasTermsBox = /terms-box/.test(code);
+      const hasScroll = /evaluate|scrollTop/.test(code);
+      const hasCheckbox = /checkbox-consent/.test(code);
+      const hasAccept = /btn-accept-terms/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasTermsBox) {
+        logs.push("✗ ERROR: Missing terms box locator.");
+        logs.push("  ↳ Use page.getByTestId('terms-box')");
+        return { passed: false, logs };
+      }
+
+      if (!hasScroll) {
+        logs.push("✗ ERROR: Missing scroll logic.");
+        logs.push("  ↳ Use .evaluate(el => el.scrollTop = el.scrollHeight)");
+        return { passed: false, logs };
+      }
+
+      if (!hasCheckbox) {
+        logs.push("✗ ERROR: Missing consent checkbox.");
+        logs.push("  ↳ Use page.getByTestId('checkbox-consent').check()");
+        return { passed: false, logs };
+      }
+
+      if (!hasAccept) {
+        logs.push("✗ ERROR: Missing accept button.");
+        logs.push("  ↳ Use page.getByTestId('btn-accept-terms').click()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Consent flow completed");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "page-object-model",
+    title: "Page Object Model",
+    description: "Refactor raw locators into a structured Page Object class.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// TODO: Extract this into a LoginPage class
+// class LoginPage {
+//   constructor(private page: Page) {}
+//   async goto() { await this.page.goto('/playground/auth'); }
+//   async login(user: string, pass: string) {
+//     await this.page.getByTestId('input-username').fill(user);
+//     await this.page.getByTestId('input-password').fill(pass);
+//     await this.page.getByTestId('btn-login').click();
+//   }
+// }
+
+test('Login with Page Object', async ({ page }) => {
+  // Raw locators — refactor these into the LoginPage class above
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+
+  // TODO: Replace the above with:
+  // const loginPage = new LoginPage(page);
+  // await loginPage.goto();
+  // await loginPage.login('admin', 'password123');
+});`,
+    missionBrief: {
+      context: "Page Object Model encapsulates page interactions in a class, making tests more readable and maintainable.",
+      objectives: [
+        { id: 1, text: "Create a LoginPage class with a page property" },
+        { id: 2, text: "Add a goto() method that navigates to the auth page" },
+        { id: 3, text: "Add an async login() method that fills credentials and clicks login" },
+        { id: 4, text: "Use the LoginPage in the test instead of raw locators" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasClass = /class\s+LoginPage/.test(code);
+      const hasThisPage = /this\.page/.test(code);
+      const hasFill = /\.fill\(/.test(code);
+      const hasAsyncLogin = /async\s+login/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasClass) {
+        logs.push("✗ ERROR: Missing LoginPage class.");
+        logs.push("  ↳ Define: class LoginPage { ... }");
+        return { passed: false, logs };
+      }
+
+      if (!hasThisPage) {
+        logs.push("✗ ERROR: Missing page reference in class.");
+        logs.push("  ↳ Use this.page to reference the page object");
+        return { passed: false, logs };
+      }
+
+      if (!hasFill) {
+        logs.push("✗ ERROR: Missing fill interactions.");
+        logs.push("  ↳ Use .fill() to enter credentials");
+        return { passed: false, logs };
+      }
+
+      if (!hasAsyncLogin) {
+        logs.push("✗ ERROR: Missing async login method.");
+        logs.push("  ↳ Define: async login(user, pass) { ... }");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Page Object Model implemented");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "test-fixtures",
+    title: "Test Fixtures & Data Factories",
+    description: "Use Playwright test fixtures to share setup and test data across tests.",
+    difficulty: "Intermediate",
+    icon: Wrench,
+    initialCode: `// Both tests repeat the same login setup. Refactor using test.extend!
+
+// TODO: Create a custom fixture using test.extend
+// const test = base.extend<{ loggedInPage: Page }>({
+//   loggedInPage: async ({ page }, use) => {
+//     await page.goto('/playground/auth');
+//     await page.getByTestId('input-username').fill('admin');
+//     await page.getByTestId('input-password').fill('password123');
+//     await page.getByTestId('btn-login').click();
+//     await use(page);
+//   },
+// });
+
+test('View dashboard', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+  // Now test dashboard...
+});
+
+test('View profile', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+  // Now test profile...
+});`,
+    missionBrief: {
+      context: "Test fixtures eliminate repeated setup by sharing state across tests. Use test.extend to create reusable fixtures.",
+      objectives: [
+        { id: 1, text: "Use test.extend to create a custom fixture" },
+        { id: 2, text: "Share authentication state across both tests" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasTestExtend = /test\.extend/.test(code);
+      const hasFixtureUsage = /fixtures|use/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasTestExtend) {
+        logs.push("✗ ERROR: Missing test.extend for fixtures.");
+        logs.push("  ↳ Use test.extend<{ ... }>({ ... })");
+        return { passed: false, logs };
+      }
+
+      if (!hasFixtureUsage) {
+        logs.push("✗ ERROR: Missing fixture usage pattern.");
+        logs.push("  ↳ Use the `use` callback in your fixture definition");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Fixtures configured correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "data-driven",
+    title: "Data-Driven Tests",
+    description: "Run the same test with multiple data sets using array iteration.",
+    difficulty: "Intermediate",
+    icon: Database,
+    initialCode: `// This test only covers one credential. Make it data-driven!
+
+// TODO: Create an array of test data
+// const testData = [
+//   { username: 'admin', password: 'password123', expected: 'Welcome' },
+//   { username: 'user', password: 'pass456', expected: 'Welcome' },
+//   { username: 'invalid', password: 'wrong', expected: 'Invalid' },
+// ];
+
+// TODO: Iterate over test data using for...of
+// for (const data of testData) {
+//   test(\`Login with \${data.username}\`, async ({ page }) => {
+//     await page.goto('/playground/auth');
+//     await page.getByTestId('input-username').fill(data.username);
+//     await page.getByTestId('input-password').fill(data.password);
+//     await page.getByTestId('btn-login').click();
+//   });
+// }
+
+test('Login as admin', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+});`,
+    missionBrief: {
+      context: "Data-driven testing runs the same logic with multiple inputs. Use arrays and loops to avoid duplicating test code.",
+      objectives: [
+        { id: 1, text: "Create an array of test data with multiple credentials" },
+        { id: 2, text: "Use for...of or forEach to iterate over the data" },
+        { id: 3, text: "Use template literals for dynamic test names" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasArray = /\[\s*\{|const\s+testData/.test(code);
+      const hasLoop = /for\s*\(|\.forEach/.test(code);
+      const hasMultipleCredentials = /admin[\s\S]*user|user[\s\S]*admin/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasArray) {
+        logs.push("✗ ERROR: Missing test data array.");
+        logs.push("  ↳ Create: const testData = [{ ... }, { ... }]");
+        return { passed: false, logs };
+      }
+
+      if (!hasLoop) {
+        logs.push("✗ ERROR: Missing iteration over test data.");
+        logs.push("  ↳ Use: for (const data of testData) { ... }");
+        return { passed: false, logs };
+      }
+
+      if (!hasMultipleCredentials) {
+        logs.push("✗ ERROR: Need multiple credential sets.");
+        logs.push("  ↳ Include at least admin and user credentials");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Data-driven tests configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "accessibility",
+    title: "Accessibility (a11y)",
+    description: "Use @axe-core/playwright to audit pages for accessibility violations.",
+    difficulty: "Intermediate",
+    icon: Accessibility,
+    initialCode: `// TODO: Import AxeBuilder
+// import AxeBuilder from '@axe-core/playwright';
+
+test('Accessibility audit', async ({ page }) => {
+  await page.goto('/playground/auth');
+
+  // TODO: Run an accessibility scan using AxeBuilder
+  // const results = await new AxeBuilder({ page }).analyze();
+
+  // TODO: Assert there are no violations
+  // expect(results.violations).toHaveLength(0);
+});`,
+    missionBrief: {
+      context: "Accessibility testing ensures your app is usable by everyone. @axe-core/playwright integrates axe into Playwright tests.",
+      objectives: [
+        { id: 1, text: "Import AxeBuilder from @axe-core/playwright" },
+        { id: 2, text: "Run an accessibility scan with .analyze()" },
+        { id: 3, text: "Assert results.violations has length 0" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasAxe = /AxeBuilder|axe/.test(code);
+      const hasViolations = /violations/.test(code);
+      const hasLengthCheck = /toHaveLength\(0\)|length\s*===\s*0/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasAxe) {
+        logs.push("✗ ERROR: Missing AxeBuilder import/usage.");
+        logs.push("  ↳ Import and use: new AxeBuilder({ page }).analyze()");
+        return { passed: false, logs };
+      }
+
+      if (!hasViolations) {
+        logs.push("✗ ERROR: Missing violations check.");
+        logs.push("  ↳ Access results.violations");
+        return { passed: false, logs };
+      }
+
+      if (!hasLengthCheck) {
+        logs.push("✗ ERROR: Missing length assertion.");
+        logs.push("  ↳ Use: expect(results.violations).toHaveLength(0)");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Accessibility audit passed");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "api-request-validation",
+    title: "API Request Validation",
+    description: "Intercept API requests and validate request payloads and headers.",
+    difficulty: "Advanced",
+    icon: Network,
+    initialCode: `test('API Request Validation', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Intercept the KYC submission request
+  // await page.route('**/api/kyc/submit', (route) => {
+  //   const request = route.request();
+  //   const postData = JSON.parse(request.postData() || '{}');
+  //   expect(postData.fullname).toBeDefined();
+  //   expect(request.headers()['content-type']).toContain('application/json');
+  //   route.continue();
+  // });
+
+  // TODO: Or use waitForRequest to capture the request
+  // const requestPromise = page.waitForRequest('**/api/kyc/submit');
+
+  // Fill and submit the form
+  await page.getByTestId('input-fullname').fill('Jane Doe');
+  await page.getByTestId('btn-submit-kyc').click();
+
+  // TODO: Validate the captured request
+  // const request = await requestPromise;
+  // const body = request.postData();
+});`,
+    missionBrief: {
+      context: "Intercepting API requests lets you validate that your frontend sends the correct data. Use page.route or waitForRequest.",
+      objectives: [
+        { id: 1, text: "Use page.route or waitForRequest to intercept the API call" },
+        { id: 2, text: "Validate the request body contains expected fields" },
+        { id: 3, text: "Check request headers" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasIntercept = /route|waitForRequest/.test(code);
+      const hasBody = /postData|request\(\)\.json|body/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasIntercept) {
+        logs.push("✗ ERROR: Missing request interception.");
+        logs.push("  ↳ Use page.route() or page.waitForRequest()");
+        return { passed: false, logs };
+      }
+
+      if (!hasBody) {
+        logs.push("✗ ERROR: Missing request body validation.");
+        logs.push("  ↳ Use request.postData() to read the payload");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ API request validated");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "performance",
+    title: "Performance Assertions",
+    description: "Measure page load time and assert it's within acceptable thresholds.",
+    difficulty: "Advanced",
+    icon: Gauge,
+    initialCode: `test('Performance Assertions', async ({ page }) => {
+  // TODO: Navigate and measure performance
+  await page.goto('/playground/auth');
+
+  // TODO: Use the Performance API to measure load time
+  // const loadTime = await page.evaluate(() => {
+  //   const timing = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+  //   return timing.loadEventEnd - timing.startTime;
+  // });
+
+  // TODO: Assert load time is under 3000ms
+  // expect(loadTime).toBeLessThan(3000);
+
+  // TODO: Measure LCP (Largest Contentful Paint)
+  // const lcp = await page.evaluate(() => {
+  //   return new Promise((resolve) => {
+  //     new PerformanceObserver((list) => {
+  //       const entries = list.getEntries();
+  //       resolve(entries[entries.length - 1].startTime);
+  //     }).observe({ type: 'largest-contentful-paint', buffered: true });
+  //   });
+  // });
+});`,
+    missionBrief: {
+      context: "Performance testing ensures pages load within acceptable thresholds. Use the browser's Performance API inside evaluate().",
+      objectives: [
+        { id: 1, text: "Use page.evaluate with the Performance API" },
+        { id: 2, text: "Measure navigation timing or LCP" },
+        { id: 3, text: "Assert the metric is under a threshold" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPerformance = /performance|evaluate/.test(code);
+      const hasTiming = /timing|loadEvent|navigation|startTime|LCP|contentful/.test(code);
+      const hasThreshold = /\d{3,4}/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasPerformance) {
+        logs.push("✗ ERROR: Missing performance measurement.");
+        logs.push("  ↳ Use page.evaluate() with the Performance API");
+        return { passed: false, logs };
+      }
+
+      if (!hasTiming) {
+        logs.push("✗ ERROR: Missing timing metric.");
+        logs.push("  ↳ Access performance.getEntriesByType('navigation')");
+        return { passed: false, logs };
+      }
+
+      if (!hasThreshold) {
+        logs.push("✗ ERROR: Missing threshold assertion.");
+        logs.push("  ↳ Assert: expect(loadTime).toBeLessThan(3000)");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Performance assertions configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "test-tags",
+    title: "Tagging & Filtering Tests",
+    description: "Organize tests with tags like @smoke, @regression for selective execution.",
+    difficulty: "Beginner",
+    icon: Tag,
+    initialCode: `// TODO: Add tags to these test titles for selective execution
+// Use @smoke for critical path tests and @regression for full suite
+// Example: test('Login @smoke', ...)
+// Run with: npx playwright test --grep @smoke
+
+test('Login flow', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+});
+
+test('Form validation', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('btn-login').click();
+  // Assert error messages
+});
+
+test('Password reset', async ({ page }) => {
+  await page.goto('/playground/auth');
+  // Test password reset flow
+});`,
+    missionBrief: {
+      context: "Tags let you run subsets of tests. Add @smoke to critical tests and @regression to comprehensive tests. Use --grep to filter.",
+      objectives: [
+        { id: 1, text: "Add @smoke tag to the login test title" },
+        { id: 2, text: "Add @regression tag to other test titles" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSmoke = /@smoke/.test(code);
+      const hasRegression = /@regression/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasSmoke) {
+        logs.push("✗ ERROR: Missing @smoke tag.");
+        logs.push("  ↳ Add @smoke to critical test titles");
+        return { passed: false, logs };
+      }
+
+      if (!hasRegression) {
+        logs.push("✗ ERROR: Missing @regression tag.");
+        logs.push("  ↳ Add @regression to comprehensive test titles");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Tests tagged correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "custom-matchers",
+    title: "Custom Matchers",
+    description: "Extend Playwright's expect with custom matcher functions.",
+    difficulty: "Advanced",
+    icon: Wrench,
+    initialCode: `// TODO: Create a custom matcher using expect.extend
+// expect.extend({
+//   async toHaveTestId(page, testId) {
+//     const locator = page.getByTestId(testId);
+//     const isVisible = await locator.isVisible();
+//     return {
+//       pass: isVisible,
+//       message: () => \`Expected element with testId "\${testId}" to be visible\`,
+//     };
+//   },
+// });
+
+test('Custom matcher example', async ({ page }) => {
+  await page.goto('/playground/auth');
+
+  // Without custom matcher (repetitive)
+  await expect(page.getByTestId('input-username')).toBeVisible();
+  await expect(page.getByTestId('input-password')).toBeVisible();
+  await expect(page.getByTestId('btn-login')).toBeVisible();
+
+  // TODO: Replace with custom matcher
+  // await expect(page).toHaveTestId('input-username');
+  // await expect(page).toHaveTestId('input-password');
+  // await expect(page).toHaveTestId('btn-login');
+});`,
+    missionBrief: {
+      context: "Custom matchers make assertions more expressive and reduce repetition. Use expect.extend to add new assertion methods.",
+      objectives: [
+        { id: 1, text: "Use expect.extend to define a custom matcher" },
+        { id: 2, text: "Create a matcher function (e.g., toHaveTestId)" },
+        { id: 3, text: "Use the custom matcher in your test" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasExpectExtend = /expect\.extend/.test(code);
+      const hasCustomMatcher = /toHave|toBe/.test(code);
+      const hasMatcherDef = /pass:|message:/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasExpectExtend) {
+        logs.push("✗ ERROR: Missing expect.extend call.");
+        logs.push("  ↳ Use: expect.extend({ matcherName: async (...) => { ... } })");
+        return { passed: false, logs };
+      }
+
+      if (!hasCustomMatcher) {
+        logs.push("✗ ERROR: Missing custom matcher usage.");
+        return { passed: false, logs };
+      }
+
+      if (!hasMatcherDef) {
+        logs.push("✗ ERROR: Missing matcher function definition.");
+        logs.push("  ↳ Return { pass: boolean, message: () => string }");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Custom matcher implemented");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "retry-strategy",
+    title: "Retry & Flaky Test Strategy",
+    description: "Configure test retries and understand flaky test handling.",
+    difficulty: "Intermediate",
+    icon: Repeat,
+    initialCode: `// TODO: Configure retries in the test or config
+// Option 1: In playwright.config.ts
+// export default defineConfig({
+//   retries: 2,
+// });
+
+// Option 2: Per-test retry
+// test.describe.configure({ retries: 3 });
+
+test('Flaky network test', async ({ page }) => {
+  await page.goto('/playground/api');
+
+  // This test might fail intermittently due to network timing
+  await page.getByTestId('btn-get-users').click();
+  await expect(page.getByTestId('user-row-1')).toBeVisible();
+
+  // TODO: Access retry info
+  // const retryCount = test.info().retry;
+  // console.log('Current retry:', retryCount);
+});`,
+    missionBrief: {
+      context: "Flaky tests fail intermittently. Configure retries to re-run failed tests automatically. Use test.info().retry to track attempts.",
+      objectives: [
+        { id: 1, text: "Configure retries (in config or per-test)" },
+        { id: 2, text: "Use test.info().retry to check retry count" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRetries = /retries/.test(code);
+      const hasNumber = /retries:\s*\d/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasRetries) {
+        logs.push("✗ ERROR: Missing retries configuration.");
+        logs.push("  ↳ Add retries: 2 to config or test.describe.configure");
+        return { passed: false, logs };
+      }
+
+      if (!hasNumber) {
+        logs.push("✗ ERROR: Missing retry count value.");
+        logs.push("  ↳ Specify a number: retries: 2");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Retry strategy configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "cross-browser",
+    title: "Cross-Browser Testing",
+    description: "Configure Playwright to run tests across Chromium, Firefox, and WebKit.",
+    difficulty: "Intermediate",
+    icon: Globe,
+    initialCode: `// playwright.config.ts
+// TODO: Add Firefox and WebKit projects alongside Chromium
+
+// import { defineConfig, devices } from '@playwright/test';
+// export default defineConfig({
+//   projects: [
+//     {
+//       name: 'chromium',
+//       use: { ...devices['Desktop Chrome'] },
+//     },
+//     // TODO: Add Firefox project
+//     // TODO: Add WebKit project
+//   ],
+// });
+
+test('Cross-browser login', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('input-password').fill('password123');
+  await page.getByTestId('btn-login').click();
+});`,
+    missionBrief: {
+      context: "Playwright supports Chromium, Firefox, and WebKit. Configure projects in the config to run tests across all browsers.",
+      objectives: [
+        { id: 1, text: "Add a Firefox project to the projects array" },
+        { id: 2, text: "Add a WebKit project to the projects array" },
+        { id: 3, text: "Keep the existing Chromium project" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFirefox = /firefox/i.test(code);
+      const hasWebkit = /webkit/i.test(code);
+      const hasChromium = /chromium/i.test(code);
+      const hasProjects = /projects/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasProjects) {
+        logs.push("✗ ERROR: Missing projects array.");
+        logs.push("  ↳ Define projects: [...] in the config");
+        return { passed: false, logs };
+      }
+
+      if (!hasChromium) {
+        logs.push("✗ ERROR: Missing Chromium project.");
+        return { passed: false, logs };
+      }
+
+      if (!hasFirefox) {
+        logs.push("✗ ERROR: Missing Firefox project.");
+        logs.push("  ↳ Add: { name: 'firefox', use: { ...devices['Desktop Firefox'] } }");
+        return { passed: false, logs };
+      }
+
+      if (!hasWebkit) {
+        logs.push("✗ ERROR: Missing WebKit project.");
+        logs.push("  ↳ Add: { name: 'webkit', use: { ...devices['Desktop Safari'] } }");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Cross-browser configuration complete");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "ci-cd",
+    title: "CI/CD Integration",
+    description: "Write a GitHub Actions workflow to run Playwright tests in CI.",
+    difficulty: "Intermediate",
+    icon: GitBranch,
+    initialCode: `// TODO: Complete this GitHub Actions workflow YAML
+// .github/workflows/playwright.yml
+
+// name: Playwright Tests
+// on: [push, pull_request]
+// jobs:
+//   test:
+//     runs-on: ubuntu-latest
+//     steps:
+//       - uses: actions/checkout@v4
+//       - uses: actions/setup-node@v4
+//         with:
+//           node-version: 18
+//       - run: npm ci
+//
+//       # TODO: Install Playwright browsers
+//       # - run: npx playwright install --with-deps
+//
+//       # TODO: Run the tests
+//       # - run: npx playwright test
+//
+//       # TODO: Upload test report as artifact
+//       # - uses: actions/upload-artifact@v4
+//       #   if: always()
+//       #   with:
+//       #     name: playwright-report
+//       #     path: playwright-report/
+
+test('CI smoke test', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await page.getByTestId('input-username').fill('admin');
+  await page.getByTestId('btn-login').click();
+});`,
+    missionBrief: {
+      context: "Running Playwright tests in CI ensures tests pass before merging. GitHub Actions is a popular CI/CD platform.",
+      objectives: [
+        { id: 1, text: "Add a step to install Playwright browsers" },
+        { id: 2, text: "Add a step to run the Playwright tests" },
+        { id: 3, text: "Upload the test report as an artifact" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasInstall = /npx playwright install|playwright install/.test(code);
+      const hasTest = /npx playwright test/.test(code);
+      const hasArtifact = /actions\/upload-artifact|artifact/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasInstall) {
+        logs.push("✗ ERROR: Missing Playwright browser install step.");
+        logs.push("  ↳ Add: npx playwright install --with-deps");
+        return { passed: false, logs };
+      }
+
+      if (!hasTest) {
+        logs.push("✗ ERROR: Missing test execution step.");
+        logs.push("  ↳ Add: npx playwright test");
+        return { passed: false, logs };
+      }
+
+      if (!hasArtifact) {
+        logs.push("✗ ERROR: Missing artifact upload step.");
+        logs.push("  ↳ Use actions/upload-artifact to save the report");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ CI/CD pipeline configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "reporters",
+    title: "Reporter Configuration",
+    description: "Configure HTML, JSON, and JUnit reporters for test results.",
+    difficulty: "Beginner",
+    icon: BarChart3,
+    initialCode: `// playwright.config.ts
+// TODO: Add reporters to the configuration
+
+// import { defineConfig } from '@playwright/test';
+// export default defineConfig({
+//   reporter: [
+//     // TODO: Add HTML reporter
+//     // ['html', { open: 'never' }],
+//     // TODO: Add JUnit reporter for CI
+//     // ['junit', { outputFile: 'results.xml' }],
+//     // TODO: Add JSON reporter
+//     // ['json', { outputFile: 'results.json' }],
+//   ],
+// });
+
+test('Reporter demo', async ({ page }) => {
+  await page.goto('/playground/auth');
+  await expect(page.getByTestId('input-username')).toBeVisible();
+});`,
+    missionBrief: {
+      context: "Reporters generate test result files in various formats. HTML for human review, JUnit/JSON for CI integration.",
+      objectives: [
+        { id: 1, text: "Configure the HTML reporter" },
+        { id: 2, text: "Add a JUnit or JSON reporter for CI" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasReporter = /reporter/.test(code);
+      const hasHtml = /html/.test(code);
+      const hasJunitOrJson = /junit|json/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasReporter) {
+        logs.push("✗ ERROR: Missing reporter configuration.");
+        logs.push("  ↳ Add reporter: [...] to the config");
+        return { passed: false, logs };
+      }
+
+      if (!hasHtml) {
+        logs.push("✗ ERROR: Missing HTML reporter.");
+        logs.push("  ↳ Add: ['html', { open: 'never' }]");
+        return { passed: false, logs };
+      }
+
+      if (!hasJunitOrJson) {
+        logs.push("✗ ERROR: Missing JUnit or JSON reporter.");
+        logs.push("  ↳ Add: ['junit', { outputFile: 'results.xml' }]");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Reporters configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "component-testing",
+    title: "Component Testing",
+    description: "Test individual React components in isolation using Playwright CT.",
+    difficulty: "Advanced",
+    icon: Box,
+    initialCode: `// TODO: Import mount from @playwright/experimental-ct-react
+// import { test, expect } from '@playwright/experimental-ct-react';
+// import { LoginForm } from './components/LoginForm';
+
+test('Component: LoginForm', async ({ mount }) => {
+  // TODO: Mount the component in isolation
+  // const component = await mount(<LoginForm onSubmit={() => {}} />);
+
+  // TODO: Interact with the mounted component
+  // await component.getByTestId('input-username').fill('admin');
+  // await component.getByTestId('input-password').fill('password123');
+  // await component.getByTestId('btn-login').click();
+
+  // TODO: Assert component behavior
+  // await expect(component).toContainText('Welcome');
+});`,
+    missionBrief: {
+      context: "Component testing lets you test UI components in isolation without a full app. Use @playwright/experimental-ct-react for React components.",
+      objectives: [
+        { id: 1, text: "Use mount to render a component in isolation" },
+        { id: 2, text: "Interact with the component (click, fill)" },
+        { id: 3, text: "Assert the component output" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMount = /mount/i.test(code);
+      const hasComponent = /component/i.test(code);
+      const hasInteraction = /\.click|\.fill/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasMount) {
+        logs.push("✗ ERROR: Missing mount call.");
+        logs.push("  ↳ Use: const component = await mount(<Component />)");
+        return { passed: false, logs };
+      }
+
+      if (!hasComponent) {
+        logs.push("✗ ERROR: Missing component reference.");
+        logs.push("  ↳ Import and mount a React component");
+        return { passed: false, logs };
+      }
+
+      if (!hasInteraction) {
+        logs.push("✗ ERROR: Missing component interaction.");
+        logs.push("  ↳ Use .click() or .fill() on the mounted component");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Component test implemented");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "websocket",
+    title: "WebSocket Testing",
+    description: "Intercept and test WebSocket connections and messages.",
+    difficulty: "Advanced",
+    icon: Network,
+    initialCode: `test('WebSocket Testing', async ({ page }) => {
+  // TODO: Listen for WebSocket connections
+  // page.on('websocket', (ws) => {
+  //   console.log('WebSocket opened:', ws.url());
+  //
+  //   ws.on('framesent', (frame) => {
+  //     console.log('Sent:', frame.payload);
+  //   });
+  //
+  //   ws.on('framereceived', (frame) => {
+  //     console.log('Received:', frame.payload);
+  //   });
+  // });
+
+  // TODO: Set up a promise to capture a specific message
+  // const wsMessage = new Promise((resolve) => {
+  //   page.on('websocket', (ws) => {
+  //     ws.on('framereceived', (frame) => {
+  //       if (frame.payload.includes('connected')) resolve(frame.payload);
+  //     });
+  //   });
+  // });
+
+  await page.goto('/playground/kyc');
+
+  // TODO: Trigger WebSocket connection and assert message
+  // const message = await wsMessage;
+  // expect(message).toContain('connected');
+});`,
+    missionBrief: {
+      context: "WebSocket connections persist between client and server. Use page.on('websocket') to intercept and validate messages.",
+      objectives: [
+        { id: 1, text: "Use page.on('websocket') to listen for connections" },
+        { id: 2, text: "Capture sent or received frames" },
+        { id: 3, text: "Assert message content" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWebsocket = /websocket/i.test(code);
+      const hasOn = /on\(/.test(code);
+      const hasMessage = /frame|payload|message/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasWebsocket) {
+        logs.push("✗ ERROR: Missing WebSocket handling.");
+        logs.push("  ↳ Use page.on('websocket', ...)");
+        return { passed: false, logs };
+      }
+
+      if (!hasOn) {
+        logs.push("✗ ERROR: Missing event listener.");
+        logs.push("  ↳ Use ws.on('framereceived', ...) or ws.on('framesent', ...)");
+        return { passed: false, logs };
+      }
+
+      if (!hasMessage) {
+        logs.push("✗ ERROR: Missing message assertion.");
+        logs.push("  ↳ Assert on frame.payload content");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ WebSocket testing configured");
       return { passed: true, logs };
     }
   }

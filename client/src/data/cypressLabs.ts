@@ -1,4 +1,4 @@
-import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Download, Clipboard } from "lucide-react";
+import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Download, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench } from "lucide-react";
 
 export interface CypressLab {
   id: string;
@@ -1740,31 +1740,31 @@ describe('Long Process', () => {
     }
   },
   {
-    id: "drag-drop",
-    title: "Drag and Drop",
-    description: "Simulate drag events using `.trigger()`.",
+    id: "drag-drop-advanced",
+    title: "Drag and Drop (Advanced)",
+    description: "Simulate drag events using `.trigger()` with DataTransfer.",
     difficulty: "Advanced",
     icon: MousePointerClick,
     initialCode: `describe('Drag and Drop', () => {
   it('should drag item to drop zone', () => {
     cy.visit('/playground/interactions');
-    
+
     // Cypress doesn't have a native drag command.
     // We must manually trigger dragstart, dragover, and drop events.
-    
+
     // TODO: Define a DataTransfer object
     const dataTransfer = new DataTransfer();
-    
+
     // TODO: Trigger 'dragstart' on draggable item
     cy.get('[data-testid="draggable-item"]').trigger('dragstart', {
       dataTransfer
     });
-    
+
     // TODO: Trigger 'drop' on drop zone
     cy.get('[data-testid="drop-zone"]').trigger('drop', {
       dataTransfer
     });
-    
+
     // Assert success message
     cy.contains('Dropped!').should('be.visible');
   });
@@ -1801,8 +1801,8 @@ describe('Long Process', () => {
     }
   },
   {
-    id: "clipboard",
-    title: "Clipboard Testing",
+    id: "clipboard-advanced",
+    title: "Clipboard Testing (Stub)",
     description: "Stub `navigator.clipboard` to test copy functionality.",
     difficulty: "Advanced",
     icon: Clipboard,
@@ -1932,6 +1932,1431 @@ describe('Long Process', () => {
       }
 
       logs.push("✓ Download interaction verified");
+      return { passed: true, logs };
+    }
+  },
+  // ═══════════════════════════════════════════════════════════
+  // Real-World KYC Scenarios
+  // ═══════════════════════════════════════════════════════════
+  {
+    id: "kyc-onboarding",
+    title: "KYC Onboarding Flow",
+    description: "Test a multi-step KYC wizard from personal info to document upload.",
+    difficulty: "Advanced",
+    icon: Shield,
+    initialCode: `describe('KYC Onboarding', () => {
+  it('should complete the full KYC flow', () => {
+    cy.visit('/playground/kyc');
+
+    // Step 1: Personal Info
+    // TODO: Fill in full name using data-testid="input-fullname"
+
+    // TODO: Fill in date of birth using data-testid="input-dob"
+
+    // TODO: Fill in phone using data-testid="input-phone"
+
+    // TODO: Click "Next" button (data-testid="btn-next")
+
+    // Step 2: Address
+    // TODO: Fill in street using data-testid="input-street"
+
+    // TODO: Fill in city using data-testid="input-city"
+
+    // TODO: Select country from dropdown (data-testid="select-country")
+
+    // TODO: Click "Next" again
+
+    // Step 3: Document Upload (skip file for now)
+    // TODO: Click "Next" to go to review
+
+    // Step 4: Review & Submit
+    // TODO: Click submit (data-testid="btn-submit-kyc")
+
+    // TODO: Assert success message (data-testid="kyc-success")
+    // cy.get('[data-testid="kyc-success"]').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "KYC (Know Your Customer) onboarding is a multi-step process common in fintech. You must navigate through each step, filling forms and asserting progress.",
+      objectives: [
+        { id: 1, text: "Fill personal info (fullname, dob, phone)" },
+        { id: 2, text: "Navigate to address step and fill it" },
+        { id: 3, text: "Select a country from the dropdown" },
+        { id: 4, text: "Submit the KYC and assert success" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFullname = code.includes("input-fullname");
+      const hasStreet = code.includes("input-street");
+      const hasCountry = code.includes("select-country");
+      const hasNext = code.includes("btn-next");
+      const hasSubmit = code.includes("btn-submit-kyc");
+
+      logs.push("✓ Test suite initialized");
+      logs.push("✓ Visiting /playground/kyc");
+
+      if (!hasFullname) {
+        logs.push("✗ ERROR: Personal info not filled.");
+        logs.push("  ↳ Use cy.get('[data-testid=\"input-fullname\"]')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Step 1: Personal info filled");
+
+      if (!hasStreet || !hasCountry) {
+        logs.push("✗ ERROR: Address step incomplete.");
+        logs.push("  ↳ Fill street and select country");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Step 2: Address filled");
+
+      if (!hasNext) {
+        logs.push("✗ ERROR: Navigation buttons not used.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Step navigation working");
+
+      if (!hasSubmit) {
+        logs.push("✗ ERROR: KYC not submitted.");
+        logs.push("  ↳ Click btn-submit-kyc on the review step");
+        return { passed: false, logs };
+      }
+      logs.push("✓ KYC submitted successfully");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "otp-verification",
+    title: "OTP Verification",
+    description: "Test OTP input fields, auto-focus behavior, and resend countdown.",
+    difficulty: "Intermediate",
+    icon: Phone,
+    initialCode: `describe('OTP Verification', () => {
+  it('should verify OTP successfully', () => {
+    cy.visit('/playground/kyc');
+
+    // The OTP section has 4 digit inputs
+    // Valid OTP is "1234"
+
+    // TODO: Type '1' into the first OTP digit input
+    // cy.get('[data-testid="otp-digit-1"]').type('1');
+
+    // TODO: Type '2' into the second digit
+
+    // TODO: Type '3' into the third digit
+
+    // TODO: Type '4' into the fourth digit
+
+    // TODO: Click the verify button (data-testid="btn-verify-otp")
+
+    // TODO: Assert the success message is visible
+    // data-testid="otp-success"
+  });
+
+  it('should show error for wrong OTP', () => {
+    cy.visit('/playground/kyc');
+
+    // TODO: Enter wrong OTP "0000"
+    // TODO: Click verify
+    // TODO: Assert error message (data-testid="otp-error")
+  });
+});`,
+    missionBrief: {
+      context: "OTP (One-Time Password) verification is standard in fintech apps. Each digit auto-focuses to the next input. Test both valid and invalid flows.",
+      objectives: [
+        { id: 1, text: "Fill all 4 OTP digits with '1234'" },
+        { id: 2, text: "Click verify and assert success" },
+        { id: 3, text: "Test invalid OTP and assert error" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasDigit1 = code.includes("otp-digit-1");
+      const hasDigit4 = code.includes("otp-digit-4");
+      const hasVerify = code.includes("btn-verify-otp");
+      const hasSuccess = code.includes("otp-success");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasDigit1 || !hasDigit4) {
+        logs.push("✗ ERROR: Not all OTP digits filled.");
+        logs.push("  ↳ Fill otp-digit-1 through otp-digit-4");
+        return { passed: false, logs };
+      }
+      logs.push("✓ All OTP digits targeted");
+
+      if (!hasVerify) {
+        logs.push("✗ ERROR: Verify button not clicked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ OTP submitted");
+
+      if (!hasSuccess) {
+        logs.push("✗ ERROR: Success assertion missing.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ OTP verification passed");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "video-kyc",
+    title: "Video KYC Session",
+    description: "Test a simulated Video KYC flow: start call, wait for agent, capture selfie.",
+    difficulty: "Advanced",
+    icon: Camera,
+    initialCode: `describe('Video KYC', () => {
+  it('should complete a video KYC session', () => {
+    cy.visit('/playground/kyc');
+
+    // The Video KYC card simulates a video call
+    // Flow: Start → Connecting... → Agent Joined → Capture Selfie → Done
+
+    // TODO: Click "Start Video KYC" (data-testid="btn-start-video")
+
+    // TODO: Wait for "Agent Joined" text to appear
+    // Hint: The status transitions through "Connecting..." first
+    // cy.contains('Agent Joined').should('be.visible');
+
+    // TODO: Click "Capture Selfie" (data-testid="btn-capture-selfie")
+
+    // TODO: Assert selfie status shows captured (data-testid="selfie-status")
+
+    // TODO: End the call (data-testid="btn-end-call")
+  });
+});`,
+    missionBrief: {
+      context: "Video KYC is a real-time identity verification process. The simulated flow has timed status transitions you must wait for correctly.",
+      objectives: [
+        { id: 1, text: "Start the video KYC call" },
+        { id: 2, text: "Wait for 'Agent Joined' status" },
+        { id: 3, text: "Capture a selfie" },
+        { id: 4, text: "End the call" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasStart = code.includes("btn-start-video");
+      const hasAgentWait = code.includes("Agent Joined");
+      const hasCapture = code.includes("btn-capture-selfie");
+      const hasSelfieStatus = code.includes("selfie-status");
+      const hasEnd = code.includes("btn-end-call");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasStart) {
+        logs.push("✗ ERROR: Video call not started.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Video call started");
+
+      if (!hasAgentWait) {
+        logs.push("✗ ERROR: Not waiting for agent to join.");
+        logs.push("  ↳ Use cy.contains('Agent Joined')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Waiting for agent status");
+
+      if (!hasCapture) {
+        logs.push("✗ ERROR: Selfie not captured.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Selfie captured");
+
+      if (!hasEnd) {
+        logs.push("✗ ERROR: Call not ended.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Video KYC session completed");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "iframe-communication",
+    title: "iframe Widget Communication",
+    description: "Test cross-frame communication using postMessage between parent and iframe.",
+    difficulty: "Advanced",
+    icon: MessageSquare,
+    initialCode: `describe('iFrame Widget Communication', () => {
+  it('should exchange data between parent and iframe widget', () => {
+    cy.visit('/playground/kyc');
+
+    // The KYC widget is inside an iframe (data-testid="kyc-widget-frame")
+    // It communicates with the parent via postMessage
+
+    // TODO: Access the iframe's body
+    // cy.get('[data-testid="kyc-widget-frame"]')
+    //   .its('0.contentDocument.body')
+    //   .should('not.be.empty')
+    //   .then(cy.wrap)
+
+    // TODO: Inside the iframe, fill the name input (data-testid="widget-input-name")
+
+    // TODO: Click "Send to Parent" (data-testid="widget-btn-send")
+
+    // TODO: Back in parent, assert received data is visible
+    // cy.get('[data-testid="received-data"]').should('contain', ...)
+  });
+});`,
+    missionBrief: {
+      context: "Many KYC solutions embed a third-party widget in an iframe that communicates via `postMessage`. In Cypress, access iframe content through `contentDocument.body`.",
+      objectives: [
+        { id: 1, text: "Access the iframe content document" },
+        { id: 2, text: "Fill input inside the iframe" },
+        { id: 3, text: "Trigger postMessage from iframe to parent" },
+        { id: 4, text: "Assert parent received the data" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasIframe = code.includes("kyc-widget-frame");
+      const hasContentDoc = code.includes("contentDocument") || code.includes("contents()");
+      const hasWidgetInput = code.includes("widget-input-name");
+      const hasReceivedData = code.includes("received-data");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasIframe) {
+        logs.push("✗ ERROR: iframe not targeted.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ iframe element found");
+
+      if (!hasContentDoc) {
+        logs.push("✗ ERROR: iframe content not accessed.");
+        logs.push("  ↳ Use .its('0.contentDocument.body') or .contents()");
+        return { passed: false, logs };
+      }
+      logs.push("✓ iframe content accessed");
+
+      if (!hasWidgetInput) {
+        logs.push("✗ ERROR: Widget input not filled.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Widget input interacted");
+
+      if (!hasReceivedData) {
+        logs.push("✗ ERROR: Parent received data not asserted.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Cross-frame communication verified");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "doc-upload-status",
+    title: "Document Upload & Status Polling",
+    description: "Upload a document and poll for verification status changes.",
+    difficulty: "Intermediate",
+    icon: Upload,
+    initialCode: `describe('Document Upload', () => {
+  it('should upload and verify document', () => {
+    cy.visit('/playground/kyc');
+
+    // Navigate to Step 3 of KYC (Document Upload)
+    // First fill steps 1 & 2 or navigate directly
+
+    // TODO: Attach a file to the upload input
+    // cy.get('[data-testid="input-doc-upload"]').selectFile(...)
+    // Hint: You can use cy.get(...).selectFile('cypress/fixtures/id-card.png')
+    // Or create a fixture: selectFile({ contents: Cypress.Buffer.from('file'), fileName: 'id.png' })
+
+    // TODO: Click the upload button (data-testid="btn-upload-doc")
+
+    // TODO: Wait for status to change to "Verified"
+    // The status goes: "Uploading..." → "Verifying..." → "Verified ✓"
+    // cy.get('[data-testid="upload-status"]').should('contain', 'Verified');
+  });
+});`,
+    missionBrief: {
+      context: "Document upload in KYC involves async processing. The status transitions through multiple states. Use Cypress assertions to wait for the final state.",
+      objectives: [
+        { id: 1, text: "Attach a file using `selectFile`" },
+        { id: 2, text: "Click the upload button" },
+        { id: 3, text: "Wait for 'Verified' status" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFileInput = code.includes("input-doc-upload");
+      const hasSelectFile = code.includes("selectFile");
+      const hasStatus = code.includes("upload-status");
+      const hasVerified = code.includes("Verified");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasFileInput || !hasSelectFile) {
+        logs.push("✗ ERROR: File not attached.");
+        logs.push("  ↳ Use cy.get('[data-testid=\"input-doc-upload\"]').selectFile(...)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ File attached");
+
+      if (!hasStatus || !hasVerified) {
+        logs.push("✗ ERROR: Status polling missing.");
+        logs.push("  ↳ Assert upload-status contains 'Verified'");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Document verified");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "consent-scroll",
+    title: "Consent & Scroll Gating",
+    description: "Scroll a terms box to the bottom to unlock a consent checkbox.",
+    difficulty: "Intermediate",
+    icon: ScrollText,
+    initialCode: `describe('Terms & Consent', () => {
+  it('should enable consent after scrolling to bottom', () => {
+    cy.visit('/playground/kyc');
+
+    // The terms box must be scrolled to the bottom before
+    // the consent checkbox becomes enabled.
+
+    // TODO: Scroll the terms box to the bottom
+    // data-testid="terms-box"
+    // Hint: Use .scrollTo('bottom') or set scrollTop via JS
+    // cy.get('[data-testid="terms-box"]').scrollTo('bottom');
+
+    // TODO: Check the consent checkbox (data-testid="checkbox-consent")
+    // It should now be enabled after scrolling
+
+    // TODO: Click accept button (data-testid="btn-accept-terms")
+
+    // TODO: Assert consent recorded (data-testid="consent-success")
+  });
+});`,
+    missionBrief: {
+      context: "Many compliance flows require the user to scroll through terms before enabling the consent checkbox. Test the scroll-gating behavior.",
+      objectives: [
+        { id: 1, text: "Scroll the terms box to the bottom" },
+        { id: 2, text: "Check the consent checkbox (now enabled)" },
+        { id: 3, text: "Click accept and assert success" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasTermsBox = code.includes("terms-box");
+      const hasScroll = code.includes("scrollTo") || code.includes("scrollTop") || code.includes("scroll");
+      const hasCheckbox = code.includes("checkbox-consent");
+      const hasAccept = code.includes("btn-accept-terms");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasTermsBox || !hasScroll) {
+        logs.push("✗ ERROR: Terms box not scrolled.");
+        logs.push("  ↳ Use .scrollTo('bottom') on the terms box");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Terms scrolled to bottom");
+
+      if (!hasCheckbox) {
+        logs.push("✗ ERROR: Consent checkbox not checked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Consent checkbox checked");
+
+      if (!hasAccept) {
+        logs.push("✗ ERROR: Accept button not clicked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Consent recorded");
+
+      return { passed: true, logs };
+    }
+  },
+  // ═══════════════════════════════════════════════════════════
+  // Architecture & Patterns
+  // ═══════════════════════════════════════════════════════════
+  {
+    id: "page-object-model",
+    title: "Page Object Model",
+    description: "Refactor raw selectors into a structured Page Object class.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// Page Object Model - Cypress Style
+// In Cypress, POM is typically a plain class (no Cypress commands in constructor)
+
+// TODO: Create a LoginPage class above the describe block
+// class LoginPage {
+//   visit() { ... }
+//   fillUsername(name) { ... }
+//   fillPassword(pass) { ... }
+//   submit() { ... }
+//   getSuccessMessage() { ... }
+// }
+
+describe('Login with Page Object', () => {
+  it('should login using page object', () => {
+    // Raw selectors — refactor these into the LoginPage class
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
+    cy.get('[data-testid="alert-success"]').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Page Object Model (POM) encapsulates page selectors and actions into reusable classes. This reduces duplication and makes tests resilient to UI changes.",
+      objectives: [
+        { id: 1, text: "Create a `LoginPage` class" },
+        { id: 2, text: "Add methods: `visit()`, `fillUsername()`, `fillPassword()`, `submit()`" },
+        { id: 3, text: "Use the page object in the test instead of raw selectors" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasClass = /class\s+LoginPage/.test(code);
+      const hasVisitMethod = /visit\s*\(/.test(code);
+      const hasUsernameMethod = /fillUsername|typeUsername|enterUsername/.test(code);
+      const hasSubmitMethod = /submit\s*\(/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasClass) {
+        logs.push("✗ ERROR: LoginPage class not found.");
+        logs.push("  ↳ Create: class LoginPage { ... }");
+        return { passed: false, logs };
+      }
+      logs.push("✓ LoginPage class defined");
+
+      if (!hasVisitMethod || !hasUsernameMethod || !hasSubmitMethod) {
+        logs.push("✗ ERROR: Page object methods incomplete.");
+        logs.push("  ↳ Need visit(), fillUsername(), submit() at minimum");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Page object methods defined");
+      logs.push("✓ POM pattern implemented");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "custom-commands-advanced",
+    title: "Reusable Custom Commands",
+    description: "Build a cy.login() custom command to avoid repeating auth logic.",
+    difficulty: "Advanced",
+    icon: Wrench,
+    initialCode: `// Custom Commands allow you to extend Cypress with reusable logic.
+
+// TODO: Register a custom command 'login' that takes username and password
+// Cypress.Commands.add('login', (username, password) => {
+//   cy.visit('/playground/auth');
+//   cy.get('[data-testid="input-username"]').type(username);
+//   cy.get('[data-testid="input-password"]').type(password);
+//   cy.get('[data-testid="btn-login"]').click();
+// });
+
+describe('Using Custom Commands', () => {
+  it('should login with custom command', () => {
+    // TODO: Replace the manual steps below with cy.login('admin', 'password123')
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
+
+    cy.get('[data-testid="alert-success"]').should('be.visible');
+  });
+
+  it('should also use the custom command', () => {
+    // TODO: Use cy.login() here too
+  });
+});`,
+    missionBrief: {
+      context: "Custom commands DRY up repetitive test logic. `Cypress.Commands.add` registers new commands available as `cy.<name>()`.",
+      objectives: [
+        { id: 1, text: "Register a `login` custom command with `Cypress.Commands.add`" },
+        { id: 2, text: "Use `cy.login()` in both test cases" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasCommandsAdd = /Cypress\.Commands\.add\(['"]login['"]/.test(code);
+      const hasUsage = /cy\.login\(/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasCommandsAdd) {
+        logs.push("✗ ERROR: Custom command not registered.");
+        logs.push("  ↳ Use Cypress.Commands.add('login', ...)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Custom command 'login' registered");
+
+      if (!hasUsage) {
+        logs.push("✗ ERROR: Custom command not used in tests.");
+        logs.push("  ↳ Use cy.login('admin', 'password123')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Custom command used in tests");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "data-driven",
+    title: "Data-Driven Tests",
+    description: "Run the same test with multiple data sets using array iteration.",
+    difficulty: "Intermediate",
+    icon: Database,
+    initialCode: `describe('Data-Driven Login Tests', () => {
+  // Currently testing only one credential set.
+  // TODO: Create an array of test cases with different credentials and expected outcomes.
+  // const testCases = [
+  //   { user: 'admin', pass: 'password123', shouldPass: true },
+  //   { user: 'wrong', pass: 'wrong', shouldPass: false },
+  //   { user: '', pass: '', shouldPass: false },
+  // ];
+
+  // TODO: Iterate over testCases using forEach or for...of
+  // testCases.forEach(({ user, pass, shouldPass }) => {
+  //   it(\`should \${shouldPass ? 'succeed' : 'fail'} for \${user || 'empty'}\`, () => { ... });
+  // });
+
+  it('should login with admin', () => {
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
+    cy.get('[data-testid="alert-success"]').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Data-driven tests run the same logic across multiple inputs. This catches edge cases without duplicating test code.",
+      objectives: [
+        { id: 1, text: "Create a `testCases` array with at least 3 entries" },
+        { id: 2, text: "Iterate with `forEach` to generate dynamic test names" },
+        { id: 3, text: "Assert both success and failure scenarios" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasArray = /\[\s*\{/.test(code) && code.includes("testCases") || /const\s+\w+\s*=\s*\[/.test(code);
+      const hasLoop = code.includes("forEach") || code.includes("for (") || code.includes("for(");
+      const hasMultipleCreds = code.includes("admin") && (code.includes("wrong") || code.includes("invalid") || code.includes("empty"));
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasArray) {
+        logs.push("✗ ERROR: Test data array not found.");
+        logs.push("  ↳ Create: const testCases = [{ ... }, { ... }]");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Test data array defined");
+
+      if (!hasLoop) {
+        logs.push("✗ ERROR: No iteration over test cases.");
+        logs.push("  ↳ Use testCases.forEach(...)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Iterating over test cases");
+
+      if (!hasMultipleCreds) {
+        logs.push("⚠ WARN: Only one credential set found. Add failure cases too.");
+      }
+      logs.push("✓ Data-driven pattern implemented");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "accessibility",
+    title: "Accessibility (a11y) Audit",
+    description: "Use cypress-axe to audit pages for accessibility violations.",
+    difficulty: "Intermediate",
+    icon: Accessibility,
+    initialCode: `describe('Accessibility', () => {
+  it('should have no a11y violations on the auth page', () => {
+    cy.visit('/playground/auth');
+
+    // TODO: Inject axe-core into the page
+    // cy.injectAxe();
+
+    // TODO: Run the accessibility check
+    // cy.checkA11y();
+
+    // For more granular checks:
+    // cy.checkA11y('#login-form');
+    // cy.checkA11y(null, { rules: { 'color-contrast': { enabled: false } } });
+  });
+
+  it('should check KYC form accessibility', () => {
+    cy.visit('/playground/kyc');
+
+    // TODO: Inject and check a11y on the KYC wizard
+  });
+});`,
+    missionBrief: {
+      context: "Accessibility testing ensures your app is usable by everyone. `cypress-axe` wraps the axe-core engine to audit pages for WCAG violations.",
+      objectives: [
+        { id: 1, text: "Inject axe with `cy.injectAxe()`" },
+        { id: 2, text: "Run audit with `cy.checkA11y()`" },
+        { id: 3, text: "Test multiple pages" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasInject = code.includes("injectAxe");
+      const hasCheck = code.includes("checkA11y");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasInject) {
+        logs.push("✗ ERROR: axe not injected.");
+        logs.push("  ↳ Use cy.injectAxe()");
+        return { passed: false, logs };
+      }
+      logs.push("✓ axe-core injected");
+
+      if (!hasCheck) {
+        logs.push("✗ ERROR: a11y check not run.");
+        logs.push("  ↳ Use cy.checkA11y()");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Accessibility audit passed");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "api-request-validation",
+    title: "API Request Validation",
+    description: "Intercept API requests and validate payloads and headers.",
+    difficulty: "Advanced",
+    icon: Network,
+    initialCode: `describe('API Request Validation', () => {
+  it('should validate the login request payload', () => {
+    cy.visit('/playground/auth');
+
+    // TODO: Intercept the login API call
+    // cy.intercept('POST', '/api/login').as('loginRequest');
+
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
+
+    // TODO: Wait for the intercepted request and validate its body
+    // cy.wait('@loginRequest').then((interception) => {
+    //   expect(interception.request.body).to.have.property('username', 'admin');
+    //   expect(interception.request.headers).to.have.property('content-type');
+    // });
+  });
+});`,
+    missionBrief: {
+      context: "API request validation ensures the frontend sends correct data. Use `cy.intercept` to capture requests and inspect their bodies and headers.",
+      objectives: [
+        { id: 1, text: "Intercept a POST request with `cy.intercept`" },
+        { id: 2, text: "Use `.as()` to alias the intercept" },
+        { id: 3, text: "Use `cy.wait('@alias')` to validate the request body" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasIntercept = /cy\.intercept\(/.test(code);
+      const hasAlias = /\.as\(/.test(code);
+      const hasWait = /cy\.wait\(['"]@/.test(code);
+      const hasBody = code.includes("request.body") || code.includes("request.headers");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasIntercept) {
+        logs.push("✗ ERROR: No intercept defined.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Request intercepted");
+
+      if (!hasAlias || !hasWait) {
+        logs.push("✗ ERROR: Intercept not aliased or waited on.");
+        logs.push("  ↳ Use .as('alias') then cy.wait('@alias')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Intercept aliased and awaited");
+
+      if (!hasBody) {
+        logs.push("✗ ERROR: Request body/headers not validated.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Request payload validated");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "test-tags",
+    title: "Tagging & Filtering Tests",
+    description: "Organize tests with tags like @smoke, @regression for selective execution.",
+    difficulty: "Beginner",
+    icon: Tag,
+    initialCode: `// In Cypress, tags are added to test titles as conventions.
+// Use --spec or grep plugin to filter at runtime.
+// Example: cypress run --env grepTags="@smoke"
+
+describe('Authentication', () => {
+  // TODO: Add @smoke tag to this critical test
+  it('should login with valid credentials', () => {
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').type('admin');
+    cy.get('[data-testid="input-password"]').type('password123');
+    cy.get('[data-testid="btn-login"]').click();
+  });
+
+  // TODO: Add @regression tag to this edge-case test
+  it('should show error for empty fields', () => {
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="btn-login"]').click();
+  });
+
+  // TODO: Add both @smoke and @regression tags
+  it('should show login form on page load', () => {
+    cy.visit('/playground/auth');
+    cy.get('[data-testid="input-username"]').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Tags let you run subsets of tests (smoke tests in CI, full regression nightly). The convention is to add `@tag` in the test title string.",
+      objectives: [
+        { id: 1, text: "Add `@smoke` tag to the login test" },
+        { id: 2, text: "Add `@regression` tag to the edge-case test" },
+        { id: 3, text: "Add both tags to the third test" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSmoke = code.includes("@smoke");
+      const hasRegression = code.includes("@regression");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasSmoke) {
+        logs.push("✗ ERROR: @smoke tag not found.");
+        logs.push("  ↳ Add @smoke to test titles: it('@smoke should ...')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ @smoke tag applied");
+
+      if (!hasRegression) {
+        logs.push("✗ ERROR: @regression tag not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ @regression tag applied");
+      logs.push("✓ Tests tagged for selective execution");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "retry-strategy",
+    title: "Retry & Flaky Test Strategy",
+    description: "Configure test retries to handle intermittent failures gracefully.",
+    difficulty: "Intermediate",
+    icon: Repeat,
+    initialCode: `// Cypress supports retries at the test or suite level.
+
+describe('Flaky Network Test', {
+  // TODO: Add retries configuration here
+  // retries: { runMode: 2, openMode: 1 }
+}, () => {
+  it('should handle intermittent API failures', () => {
+    cy.visit('/playground/api');
+
+    // This test sometimes fails due to network timing
+    cy.get('[data-testid="btn-get-users"]').click();
+    cy.get('[data-testid="user-row-1"]').should('be.visible');
+  });
+});
+
+// TODO: You can also configure retries globally in cypress.config.js
+// module.exports = defineConfig({
+//   retries: { runMode: 2, openMode: 0 }
+// });`,
+    missionBrief: {
+      context: "Flaky tests waste CI time. Cypress retries re-run failed tests automatically. Configure wisely — retries mask real bugs if overused.",
+      objectives: [
+        { id: 1, text: "Add `retries` config to the describe block" },
+        { id: 2, text: "Set `runMode: 2` for CI and `openMode: 1` for local" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRetries = code.includes("retries");
+      const hasRunMode = code.includes("runMode");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasRetries) {
+        logs.push("✗ ERROR: Retry configuration missing.");
+        logs.push("  ↳ Add retries: { runMode: 2, openMode: 1 }");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Retries configured");
+
+      if (!hasRunMode) {
+        logs.push("⚠ WARN: Consider separate runMode/openMode values.");
+      }
+      logs.push("✓ Retry strategy implemented");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "ci-cd",
+    title: "CI/CD Integration",
+    description: "Write a GitHub Actions workflow to run Cypress tests in CI.",
+    difficulty: "Intermediate",
+    icon: GitBranch,
+    initialCode: `# .github/workflows/cypress.yml
+# TODO: Complete this GitHub Actions workflow
+
+name: Cypress Tests
+on: [push, pull_request]
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # TODO: Add Node.js setup step
+      # - name: Setup Node
+      #   uses: actions/setup-node@v4
+
+      # TODO: Install dependencies
+      # - name: Install
+      #   run: npm ci
+
+      # TODO: Run Cypress tests
+      # - name: Cypress run
+      #   uses: cypress-io/github-action@v6
+      #   with:
+      #     start: npm start
+      #     wait-on: 'http://localhost:5173'
+
+      # TODO: Upload screenshots on failure
+      # - name: Upload Artifacts
+      #   uses: actions/upload-artifact@v4
+      #   if: failure()
+      #   with:
+      #     name: cypress-screenshots
+      #     path: cypress/screenshots`,
+    missionBrief: {
+      context: "CI/CD integration ensures tests run on every push. GitHub Actions with `cypress-io/github-action` is the standard approach.",
+      objectives: [
+        { id: 1, text: "Set up Node.js in the workflow" },
+        { id: 2, text: "Run Cypress using the official GitHub Action" },
+        { id: 3, text: "Upload screenshots as artifacts on failure" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasNodeSetup = code.includes("setup-node") || code.includes("npm ci") || code.includes("npm install");
+      const hasCypressAction = code.includes("cypress-io/github-action") || code.includes("npx cypress run");
+      const hasArtifact = code.includes("upload-artifact") || code.includes("artifact");
+
+      logs.push("✓ Workflow initialized");
+
+      if (!hasNodeSetup) {
+        logs.push("✗ ERROR: Node.js setup missing.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Node.js configured");
+
+      if (!hasCypressAction) {
+        logs.push("✗ ERROR: Cypress run step missing.");
+        logs.push("  ↳ Use cypress-io/github-action@v6 or npx cypress run");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Cypress test step configured");
+
+      if (!hasArtifact) {
+        logs.push("⚠ WARN: No artifact upload for failure screenshots.");
+      }
+      logs.push("✓ CI/CD pipeline configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "reporters",
+    title: "Reporter Configuration",
+    description: "Configure mochawesome and JUnit reporters for test results.",
+    difficulty: "Beginner",
+    icon: BarChart3,
+    initialCode: `// cypress.config.js — Reporter Configuration
+// Cypress uses Mocha reporters by default.
+
+// TODO: Configure the reporter in your cypress.config.js
+// const { defineConfig } = require('cypress');
+
+// module.exports = defineConfig({
+//   reporter: 'mochawesome',
+//   reporterOptions: {
+//     reportDir: 'cypress/reports',
+//     overwrite: false,
+//     html: true,
+//     json: true,
+//   },
+//   e2e: {
+//     baseUrl: 'http://localhost:5173',
+//   }
+// });
+
+// For CI, you might want JUnit format:
+// reporter: 'junit'
+// reporterOptions: { mochaFile: 'results/output-[hash].xml' }`,
+    missionBrief: {
+      context: "Reporters format test output for humans (HTML) or machines (JUnit XML for CI). Configure them in `cypress.config.js`.",
+      objectives: [
+        { id: 1, text: "Set `reporter` to 'mochawesome'" },
+        { id: 2, text: "Configure `reporterOptions` with HTML and JSON output" },
+        { id: 3, text: "Add JUnit configuration as an alternative" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasReporter = code.includes("reporter");
+      const hasHtml = code.includes("html") || code.includes("mochawesome");
+      const hasJunit = code.includes("junit") || code.includes("JUnit") || code.includes("json");
+
+      logs.push("✓ Config initialized");
+
+      if (!hasReporter) {
+        logs.push("✗ ERROR: reporter not configured.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Reporter set");
+
+      if (!hasHtml) {
+        logs.push("✗ ERROR: HTML/mochawesome reporter missing.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ HTML reports configured");
+
+      if (!hasJunit) {
+        logs.push("⚠ WARN: Consider adding JUnit for CI.");
+      }
+      logs.push("✓ Reporter configuration complete");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "alerts-dialogs",
+    title: "Alerts & Dialogs",
+    description: "Handle native browser alerts, confirms, and prompts in Cypress.",
+    difficulty: "Intermediate",
+    icon: AlertTriangle,
+    initialCode: `describe('Native Dialogs', () => {
+  it('should handle alert', () => {
+    cy.visit('/playground/interactions');
+
+    // Cypress auto-accepts alerts. To assert on them:
+    // TODO: Listen for the window:alert event
+    // cy.on('window:alert', (text) => {
+    //   expect(text).to.equal('This is a native browser alert!');
+    // });
+
+    // TODO: Click the alert trigger button (data-testid="btn-alert")
+  });
+
+  it('should handle confirm dialog', () => {
+    cy.visit('/playground/interactions');
+
+    // TODO: Stub window.confirm to return true
+    // cy.on('window:confirm', () => true);
+
+    // TODO: Click the confirm trigger (data-testid="btn-confirm")
+  });
+});`,
+    missionBrief: {
+      context: "Cypress automatically closes native dialogs. Use `cy.on('window:alert')` and `cy.on('window:confirm')` to intercept and control them.",
+      objectives: [
+        { id: 1, text: "Listen for `window:alert` and assert its text" },
+        { id: 2, text: "Stub `window:confirm` to return true or false" },
+        { id: 3, text: "Click trigger buttons for both dialogs" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasAlertListener = code.includes("window:alert");
+      const hasConfirmListener = code.includes("window:confirm");
+      const hasAlertBtn = code.includes("btn-alert");
+      const hasConfirmBtn = code.includes("btn-confirm");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasAlertListener) {
+        logs.push("✗ ERROR: Alert listener missing.");
+        logs.push("  ↳ Use cy.on('window:alert', ...)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Alert listener registered");
+
+      if (!hasConfirmListener) {
+        logs.push("✗ ERROR: Confirm listener missing.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Confirm handler registered");
+
+      if (!hasAlertBtn || !hasConfirmBtn) {
+        logs.push("✗ ERROR: Dialog trigger buttons not clicked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Native dialogs handled");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "multiple-tabs",
+    title: "Multiple Tabs & Windows",
+    description: "Handle links that open in new tabs using Cypress workarounds.",
+    difficulty: "Advanced",
+    icon: Layers,
+    initialCode: `describe('Multiple Tabs', () => {
+  it('should handle target=_blank links', () => {
+    cy.visit('/playground/interactions');
+
+    // Cypress runs in a single tab — it can't switch tabs.
+    // Workaround: Remove the target attribute before clicking.
+
+    // TODO: Find a link with target="_blank" and remove the attribute
+    // cy.get('a[target="_blank"]')
+    //   .invoke('removeAttr', 'target')
+    //   .click();
+
+    // TODO: Assert the navigation happened in the same tab
+    // cy.url().should('include', '/some-path');
+
+    // Alternative: Just verify the href
+    // cy.get('a[target="_blank"]')
+    //   .should('have.attr', 'href')
+    //   .and('include', 'expected-url');
+  });
+});`,
+    missionBrief: {
+      context: "Cypress runs inside a single browser tab. For links with `target=\"_blank\"`, remove the attribute before clicking or assert the `href` directly.",
+      objectives: [
+        { id: 1, text: "Use `invoke('removeAttr', 'target')` to prevent new tab" },
+        { id: 2, text: "Click the link and verify navigation" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasRemoveAttr = code.includes("removeAttr") || code.includes("have.attr");
+      const hasTarget = code.includes("target") || code.includes("_blank");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasTarget) {
+        logs.push("✗ ERROR: Not handling target=\"_blank\" links.");
+        return { passed: false, logs };
+      }
+
+      if (!hasRemoveAttr) {
+        logs.push("✗ ERROR: Attribute not removed or asserted.");
+        logs.push("  ↳ Use .invoke('removeAttr', 'target') or .should('have.attr', 'href')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Multi-tab workaround implemented");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "visual-regression",
+    title: "Visual Regression",
+    description: "Compare screenshots to detect unintended visual changes.",
+    difficulty: "Advanced",
+    icon: Eye,
+    initialCode: `describe('Visual Regression', () => {
+  it('should match login page snapshot', () => {
+    cy.visit('/playground/auth');
+
+    // Visual regression uses plugins like cypress-image-snapshot
+    // or Percy for cloud-based comparison.
+
+    // TODO: Take a snapshot of the full page
+    // cy.matchImageSnapshot('auth-page');
+
+    // TODO: Take a snapshot of a specific element
+    // cy.get('[data-testid="login-form"]').matchImageSnapshot('login-form');
+
+    // For this exercise, uncomment the matchImageSnapshot calls.
+    // In a real project, run: npm install --save-dev cypress-image-snapshot
+  });
+});`,
+    missionBrief: {
+      context: "Visual regression testing compares screenshots against baselines. First run creates baselines; subsequent runs detect pixel differences.",
+      objectives: [
+        { id: 1, text: "Use `matchImageSnapshot` for full page" },
+        { id: 2, text: "Use `matchImageSnapshot` for a specific element" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSnapshot = code.includes("matchImageSnapshot") || code.includes("imageSnapshot");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasSnapshot) {
+        logs.push("✗ ERROR: Image snapshot not taken.");
+        logs.push("  ↳ Use .matchImageSnapshot('name')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Visual regression configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "websocket-testing",
+    title: "WebSocket Testing",
+    description: "Intercept and test WebSocket connections in Cypress.",
+    difficulty: "Advanced",
+    icon: Network,
+    initialCode: `describe('WebSocket', () => {
+  it('should verify WebSocket messages', () => {
+    // Cypress doesn't natively support WebSocket interception.
+    // Use cy.intercept for HTTP fallbacks, or spy on the WebSocket constructor.
+
+    // TODO: Spy on the WebSocket constructor
+    // cy.visit('/playground/api', {
+    //   onBeforeLoad(win) {
+    //     cy.stub(win, 'WebSocket').as('ws');
+    //   }
+    // });
+
+    // TODO: Assert WebSocket was called with the expected URL
+    // cy.get('@ws').should('have.been.calledWith', 'ws://...');
+
+    // Alternative: intercept the HTTP upgrade
+    // cy.intercept('GET', '/ws/*', (req) => { ... });
+  });
+});`,
+    missionBrief: {
+      context: "WebSocket testing in Cypress requires stubbing the WebSocket constructor or intercepting the upgrade request. There's no built-in WebSocket API.",
+      objectives: [
+        { id: 1, text: "Stub `WebSocket` in `onBeforeLoad`" },
+        { id: 2, text: "Assert WebSocket connection URL" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWebSocket = /WebSocket/i.test(code);
+      const hasStub = code.includes("stub") || code.includes("intercept");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasWebSocket) {
+        logs.push("✗ ERROR: WebSocket not referenced.");
+        return { passed: false, logs };
+      }
+
+      if (!hasStub) {
+        logs.push("✗ ERROR: WebSocket not stubbed or intercepted.");
+        logs.push("  ↳ Use cy.stub(win, 'WebSocket') in onBeforeLoad");
+        return { passed: false, logs };
+      }
+      logs.push("✓ WebSocket testing configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "performance-testing",
+    title: "Performance Assertions",
+    description: "Measure page load time and assert performance thresholds.",
+    difficulty: "Advanced",
+    icon: Gauge,
+    initialCode: `describe('Performance', () => {
+  it('should load auth page within 3 seconds', () => {
+    // TODO: Use the Performance API to measure load time
+
+    cy.visit('/playground/auth');
+
+    // TODO: Access window.performance.timing
+    // cy.window().then((win) => {
+    //   const loadTime = win.performance.timing.loadEventEnd
+    //                   - win.performance.timing.navigationStart;
+    //   expect(loadTime).to.be.lessThan(3000);
+    // });
+
+    // Modern approach with PerformanceObserver:
+    // cy.window().its('performance').invoke('getEntriesByType', 'navigation')
+    //   .then((entries) => {
+    //     expect(entries[0].loadEventEnd).to.be.lessThan(3000);
+    //   });
+  });
+});`,
+    missionBrief: {
+      context: "Performance testing ensures pages load within acceptable thresholds. Use the browser's Performance API via `cy.window()`.",
+      objectives: [
+        { id: 1, text: "Access `window.performance` via cy.window()" },
+        { id: 2, text: "Calculate load time from timing data" },
+        { id: 3, text: "Assert load time is under threshold" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasPerformance = code.includes("performance");
+      const hasThreshold = /lessThan|below|lt\(|< \d+/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasPerformance) {
+        logs.push("✗ ERROR: Performance API not used.");
+        logs.push("  ↳ Use cy.window().its('performance')");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Performance API accessed");
+
+      if (!hasThreshold) {
+        logs.push("✗ ERROR: No performance threshold asserted.");
+        logs.push("  ↳ Use expect(loadTime).to.be.lessThan(3000)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Performance threshold asserted");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "component-testing",
+    title: "Component Testing",
+    description: "Test individual React components in isolation with Cypress CT.",
+    difficulty: "Advanced",
+    icon: Box,
+    initialCode: `// Cypress Component Testing (CT) lets you test components in isolation.
+// Run with: npx cypress open --component
+
+// TODO: Import the component to test
+// import LoginForm from '../../src/components/LoginForm';
+
+describe('LoginForm Component', () => {
+  it('should render the login form', () => {
+    // TODO: Mount the component
+    // cy.mount(<LoginForm />);
+
+    // TODO: Assert the form elements exist
+    // cy.get('[data-testid="input-username"]').should('be.visible');
+    // cy.get('[data-testid="input-password"]').should('be.visible');
+    // cy.get('[data-testid="btn-login"]').should('be.visible');
+  });
+
+  it('should call onSubmit with credentials', () => {
+    // TODO: Mount with a spy callback
+    // const onSubmit = cy.spy().as('submitSpy');
+    // cy.mount(<LoginForm onSubmit={onSubmit} />);
+
+    // TODO: Fill and submit, then assert spy was called
+  });
+});`,
+    missionBrief: {
+      context: "Component Testing (CT) renders components without a full app. Use `cy.mount()` to render and `cy.spy()` to verify callbacks.",
+      objectives: [
+        { id: 1, text: "Import and mount a React component" },
+        { id: 2, text: "Assert rendered elements" },
+        { id: 3, text: "Use `cy.spy()` to verify callback invocation" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMount = code.includes("cy.mount") || code.includes("mount(");
+      const hasSpy = code.includes("cy.spy") || code.includes("spy()");
+      const hasImport = code.includes("import") && (code.includes("Component") || code.includes("Form") || code.includes("from"));
+
+      logs.push("✓ Component test initialized");
+
+      if (!hasMount) {
+        logs.push("✗ ERROR: Component not mounted.");
+        logs.push("  ↳ Use cy.mount(<Component />)");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Component mounted");
+
+      if (!hasSpy) {
+        logs.push("⚠ WARN: No spy for callback verification.");
+      }
+      logs.push("✓ Component testing configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "cross-browser",
+    title: "Cross-Browser Testing",
+    description: "Configure Cypress to run tests across Chrome, Firefox, and Edge.",
+    difficulty: "Intermediate",
+    icon: Globe,
+    initialCode: `// Cypress supports Chrome, Firefox, Edge, and Electron.
+// Run with: npx cypress run --browser firefox
+
+// cypress.config.js
+// const { defineConfig } = require('cypress');
+
+// TODO: Configure browser-specific settings
+// module.exports = defineConfig({
+//   e2e: {
+//     baseUrl: 'http://localhost:5173',
+//   }
+// });
+
+// TODO: In your CI config, add matrix strategy for browsers:
+// strategy:
+//   matrix:
+//     browser: [chrome, firefox, edge]
+// steps:
+//   - run: npx cypress run --browser \${{ matrix.browser }}
+
+describe('Cross-Browser Smoke Test', () => {
+  it('should work across browsers', () => {
+    cy.visit('/playground/auth');
+
+    // TODO: Log the current browser name
+    // Cypress.browser.name will give 'chrome', 'firefox', etc.
+    cy.log('Browser: ' + Cypress.browser.name);
+
+    // TODO: Add browser-specific conditional logic
+    // if (Cypress.browser.name === 'firefox') {
+    //   // Firefox-specific assertion
+    // }
+
+    cy.get('[data-testid="input-username"]').should('be.visible');
+  });
+});`,
+    missionBrief: {
+      context: "Cross-browser testing ensures your app works consistently across Chrome, Firefox, and Edge. Cypress provides `Cypress.browser` for browser-specific logic.",
+      objectives: [
+        { id: 1, text: "Log `Cypress.browser.name` in the test" },
+        { id: 2, text: "Add browser-specific conditional logic" },
+        { id: 3, text: "Understand `--browser` CLI flag" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasBrowserRef = code.includes("Cypress.browser");
+      const hasBrowserName = code.includes("browser.name") || code.includes("firefox") || code.includes("chrome");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasBrowserRef) {
+        logs.push("✗ ERROR: Cypress.browser not referenced.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Browser detection used");
+
+      if (!hasBrowserName) {
+        logs.push("⚠ WARN: No browser-specific logic found.");
+      }
+      logs.push("✓ Cross-browser testing configured");
+
       return { passed: true, logs };
     }
   }

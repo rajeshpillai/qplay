@@ -3,7 +3,7 @@ import Shell from "@/components/layout/Shell";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock, MousePointerClick, Zap, Globe, Database, Terminal } from "lucide-react";
+import { Lock, MousePointerClick, Zap, Globe, Database, Terminal, Shield } from "lucide-react";
 
 const ZONES = [
   {
@@ -42,6 +42,16 @@ const ZONES = [
     color: "text-orange-500",
     bg: "bg-orange-500/10",
     href: "/playground/data",
+    disabled: false
+  },
+  {
+    id: "kyc",
+    title: "KYC Onboarding",
+    description: "Practice KYC flows: multi-step wizard, OTP, video KYC, document upload, and iframe widgets.",
+    icon: Shield,
+    color: "text-pink-500",
+    bg: "bg-pink-500/10",
+    href: "/playground/kyc",
     disabled: false
   }
 ];
