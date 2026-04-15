@@ -4041,5 +4041,139 @@ describe('Work Queue Processing', () => {
 
       return { passed: true, logs };
     }
+  },
+  {
+    id: "multi-tab-parallel",
+    title: "Multi-Tab Parallel Workers",
+    description: "Test shared queue coordination across browser tabs using localStorage and BroadcastChannel.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// Cypress runs in a single tab, but we can test multi-tab coordination
+// by verifying the localStorage-based queue and simulating the flow.
+
+describe('Multi-Tab Work Queue', () => {
+  beforeEach(() => {
+    // Clear shared queue before each test
+    cy.clearLocalStorage();
+    cy.visit('/playground/queue');
+  });
+
+  it('should assign a unique worker ID in multi-tab mode', () => {
+    // Switch to multi-tab mode
+    cy.get('[data-testid="tab-multi-mode"]').click();
+
+    // Verify this tab got a worker ID
+    cy.get('[data-testid="my-worker-id"]')
+      .should('contain', 'Worker #');
+  });
+
+  it('should process items and update shared queue in localStorage', () => {
+    cy.get('[data-testid="tab-multi-mode"]').click();
+
+    // Start processing
+    cy.get('[data-testid="btn-start-processing"]').click();
+
+    // Verify items transition to in-progress in the UI
+    cy.get('[data-testid^="queue-status-"]')
+      .contains('in-progress')
+      .should('exist');
+
+    // Wait for all items to complete
+    cy.get('[data-testid="multi-queue-complete"]', { timeout: 30000 })
+      .should('be.visible');
+
+    // Verify completed count
+    cy.get('[data-testid="my-completed"]')
+      .should('not.contain', '0 items');
+
+    // Verify localStorage has the updated queue
+    cy.window().then((win) => {
+      const raw = win.localStorage.getItem('qplay_multi_queue');
+      const queue = JSON.parse(raw || '[]');
+      const pending = queue.filter((i: any) => i.status === 'pending');
+      expect(pending.length).to.eq(0);
+    });
+  });
+
+  it('should reset the shared queue', () => {
+    cy.get('[data-testid="tab-multi-mode"]').click();
+
+    // Start, then reset
+    cy.get('[data-testid="btn-start-processing"]').click();
+    cy.wait(500);
+    cy.get('[data-testid="btn-reset-multi-queue"]').click();
+
+    // All items should be pending again
+    cy.get('[data-testid^="queue-status-"]').each(($el) => {
+      cy.wrap($el).should('contain', 'pending');
+    });
+  });
+
+  // NOTE: True multi-tab testing in Cypress requires:
+  // - cypress-multi-tab plugin, or
+  // - Testing the shared state (localStorage) that tabs coordinate through
+  // TRY: Open /playground/queue in another browser tab manually and watch.
+});`,
+    missionBrief: {
+      context: "Cypress runs in a single tab, so true multi-tab testing requires plugins or testing the coordination layer (localStorage/BroadcastChannel). This lab verifies the shared queue state that multiple tabs coordinate through — the same approach used when testing distributed systems.",
+      objectives: [
+        { id: 1, text: "Switch to multi-tab mode via `tab-multi-mode`" },
+        { id: 2, text: "Verify worker ID is assigned" },
+        { id: 3, text: "Start processing and wait for `multi-queue-complete`" },
+        { id: 4, text: "Verify localStorage contains the updated queue (no pending items)" },
+        { id: 5, text: "Test reset clears shared state back to pending" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMultiMode = /tab-multi-mode/.test(code);
+      const hasWorkerId = /my-worker-id/.test(code);
+      const hasStartProcessing = /btn-start-processing/.test(code);
+      const hasComplete = /multi-queue-complete/.test(code);
+      const hasLocalStorage = /localStorage/.test(code);
+      const hasPendingCheck = /pending/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasMultiMode) {
+        logs.push("✗ ERROR: Multi-tab mode not activated.");
+        logs.push("  ↳ Click [data-testid='tab-multi-mode']");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Multi-tab mode activated");
+
+      if (!hasWorkerId) {
+        logs.push("✗ ERROR: Worker ID not checked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker ID verified");
+
+      if (!hasStartProcessing) {
+        logs.push("✗ ERROR: Processing not started.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Processing started");
+
+      if (!hasComplete) {
+        logs.push("✗ ERROR: Queue completion not asserted.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Queue completed");
+
+      if (!hasLocalStorage) {
+        logs.push("✗ ERROR: localStorage not verified.");
+        logs.push("  ↳ Check localStorage for shared queue state");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Shared state verified via localStorage");
+
+      if (!hasPendingCheck) {
+        logs.push("✗ ERROR: Reset/pending not verified.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Reset functionality verified");
+
+      return { passed: true, logs };
+    }
   }
 ];

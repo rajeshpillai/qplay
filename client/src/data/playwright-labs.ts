@@ -3591,5 +3591,112 @@ test.describe('Work Queue Processing', () => {
 
       return { passed: true, logs };
     }
+  },
+  {
+    id: "multi-tab-parallel",
+    title: "Multi-Tab Parallel Workers",
+    description: "Open multiple browser tabs as independent workers, each picking items from a shared queue.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// Each Playwright worker (browser instance) acts as an independent tab.
+// In real Playwright: configure workers in playwright.config.ts
+// export default defineConfig({ workers: 3 });
+
+test.describe('Multi-Tab Work Queue', () => {
+  test('should open worker tab and process items', async ({ page, context }) => {
+    await page.goto('/playground/queue');
+
+    // Switch to Multi-Tab mode
+    await page.getByTestId('tab-multi-mode').click();
+
+    // Verify this tab got a worker ID
+    await expect(page.getByTestId('my-worker-id')).toContainText('Worker #');
+
+    // Open a second worker tab (simulating a second Playwright worker)
+    const page2 = await context.newPage();
+    await page2.goto('/playground/queue');
+    await page2.getByTestId('tab-multi-mode').click();
+
+    // Both tabs should have different worker IDs
+    const id1 = await page.getByTestId('my-worker-id').textContent();
+    const id2 = await page2.getByTestId('my-worker-id').textContent();
+    expect(id1).not.toBe(id2);
+
+    // Start processing in both tabs
+    await page.getByTestId('btn-start-processing').click();
+    await page2.getByTestId('btn-start-processing').click();
+
+    // Wait for completion in either tab
+    await expect(page.getByTestId('multi-queue-complete')).toBeVisible({ timeout: 30000 });
+
+    // Both tabs should show some completed items
+    await expect(page.getByTestId('my-completed')).not.toContainText('0 items');
+
+    // Clean up
+    await page.getByTestId('btn-reset-multi-queue').click();
+  });
+
+  // TRY: Open 3 or 4 tabs and race them against the queue.
+  // TRY: Start processing in one tab, then open a second tab mid-way.
+});`,
+    missionBrief: {
+      context: "In production, Playwright runs multiple browser instances (workers) in parallel. Each worker is independent — like opening separate browser tabs. This lab uses `context.newPage()` to open a second tab, both sharing a queue via localStorage. This mirrors how real parallel test runners coordinate work.",
+      objectives: [
+        { id: 1, text: "Switch to Multi-Tab mode via `tab-multi-mode`" },
+        { id: 2, text: "Verify worker ID is assigned with `my-worker-id`" },
+        { id: 3, text: "Open a second page with `context.newPage()`" },
+        { id: 4, text: "Assert both tabs have different worker IDs" },
+        { id: 5, text: "Start processing in both tabs" },
+        { id: 6, text: "Wait for `multi-queue-complete`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMultiMode = /tab-multi-mode/.test(code);
+      const hasNewPage = /context\.newPage|newPage/.test(code);
+      const hasWorkerId = /my-worker-id/.test(code);
+      const hasStartProcessing = /btn-start-processing/.test(code);
+      const hasComplete = /multi-queue-complete/.test(code);
+      const hasDifferentIds = /not\.toBe|notBe|not.*equal|different/.test(code) || /id1.*id2|id2.*id1/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasMultiMode) {
+        logs.push("✗ ERROR: Multi-tab mode not activated.");
+        logs.push("  ↳ Click tab-multi-mode");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Multi-tab mode activated");
+
+      if (!hasNewPage) {
+        logs.push("✗ ERROR: Second tab not opened.");
+        logs.push("  ↳ Use context.newPage() to open another browser tab");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Second worker tab opened");
+
+      if (!hasWorkerId) {
+        logs.push("✗ ERROR: Worker ID not verified.");
+        logs.push("  ↳ Check my-worker-id element");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker IDs verified");
+
+      if (!hasStartProcessing) {
+        logs.push("✗ ERROR: Processing not started.");
+        logs.push("  ↳ Click btn-start-processing in both tabs");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Processing started in both tabs");
+
+      if (!hasComplete) {
+        logs.push("✗ ERROR: Queue completion not asserted.");
+        logs.push("  ↳ Wait for multi-queue-complete");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Multi-tab queue completed");
+
+      return { passed: true, logs };
+    }
   }
 ];
