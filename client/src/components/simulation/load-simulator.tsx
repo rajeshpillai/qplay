@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Play, Square, AlertTriangle, Zap, Server, Activity, Terminal, BookOpen, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useSimulation } from "@/lib/SimulationContext";
+import { useSimulation } from "@/lib/simulation-context";
 
 const SCENARIOS = [
   {

@@ -1,5 +1,5 @@
 import React from "react";
-import Shell from "@/components/layout/Shell";
+import Shell from "@/components/layout/shell";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

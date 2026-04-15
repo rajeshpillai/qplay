@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import Shell from "@/components/layout/Shell";
+import Shell from "@/components/layout/shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";

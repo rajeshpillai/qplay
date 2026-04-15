@@ -1,5 +1,5 @@
 import React from "react";
-import Shell from "@/components/layout/Shell";
+import Shell from "@/components/layout/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

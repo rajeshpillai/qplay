@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Shell from "@/components/layout/Shell";
+import Shell from "@/components/layout/shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, RotateCcw, CheckCircle2, Terminal, Code2, FileCode, ArrowLeft, BookOpen, ExternalLink, Play as PlayIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocation, useRoute } from "wouter";
-import { PLAYWRIGHT_LABS } from "@/data/playwrightLabs";
-import { useProgress, getXpForDifficulty } from "@/lib/useProgress";
+import { PLAYWRIGHT_LABS } from "@/data/playwright-labs";
+import { useProgress, getXpForDifficulty } from "@/lib/use-progress";
 
 export default function PlaywrightEditor() {
   const [, params] = useRoute("/modules/playwright/:labId");

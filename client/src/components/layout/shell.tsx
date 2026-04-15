@@ -17,7 +17,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProgress } from "@/lib/useProgress";
+import { useProgress } from "@/lib/use-progress";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,

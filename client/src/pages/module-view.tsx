@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Shell from "@/components/layout/Shell";
-import LoadSimulator from "@/components/simulation/LoadSimulator";
+import Shell from "@/components/layout/shell";
+import LoadSimulator from "@/components/simulation/load-simulator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";

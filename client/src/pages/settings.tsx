@@ -1,6 +1,6 @@
 import React from "react";
-import Shell from "@/components/layout/Shell";
-import { useSimulation } from "@/lib/SimulationContext";
+import Shell from "@/components/layout/shell";
+import { useSimulation } from "@/lib/simulation-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
