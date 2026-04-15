@@ -3917,59 +3917,64 @@ describe('Work Queue Processing', () => {
     cy.visit('/playground/queue');
   });
 
-  it('should start workers and process all queue items', () => {
-    // TODO 1: Select 3 workers
-    // cy.get('[data-testid="select-worker-count"]').click();
-    // cy.get('[role="option"]').contains('3').click();
+  it('should start 3 workers and process all queue items', () => {
+    // Select 3 workers
+    cy.get('[data-testid="select-worker-count"]').click();
+    cy.get('[role="option"]').contains('3').click();
 
-    // TODO 2: Start the workers
-    // cy.get('[data-testid="btn-start-workers"]').click();
+    // Start workers
+    cy.get('[data-testid="btn-start-workers"]').click();
 
-    // TODO 3: Assert at least one item shows "in-progress"
-    // cy.get('[data-testid^="queue-status-"]')
-    //   .contains('in-progress')
-    //   .should('exist');
+    // Assert at least one item shows "in-progress"
+    cy.get('[data-testid^="queue-status-"]')
+      .contains('in-progress')
+      .should('exist');
 
-    // TODO 4: Wait for queue completion (increase timeout for async)
-    // cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
-    //   .should('be.visible');
+    // Wait for queue completion (extended timeout for async simulation)
+    cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
+      .should('be.visible');
 
-    // TODO 5: Assert no pending items remain
-    // cy.get('[data-testid^="queue-status-"]')
-    //   .contains('pending')
-    //   .should('not.exist');
+    // Verify no pending items remain
+    cy.get('[data-testid^="queue-status-"]')
+      .contains('pending')
+      .should('not.exist');
   });
 
-  it('should show worker lanes processing items', () => {
-    // TODO 6: Start with 2 workers
-    // cy.get('[data-testid="select-worker-count"]').click();
-    // cy.get('[role="option"]').contains('2').click();
-    // cy.get('[data-testid="btn-start-workers"]').click();
+  it('should distribute work across 2 workers', () => {
+    // Start with 2 workers
+    cy.get('[data-testid="select-worker-count"]').click();
+    cy.get('[role="option"]').contains('2').click();
+    cy.get('[data-testid="btn-start-workers"]').click();
 
-    // TODO 7: Verify worker lanes are visible
-    // cy.get('[data-testid="worker-lane-1"]').should('be.visible');
-    // cy.get('[data-testid="worker-lane-2"]').should('be.visible');
+    // Verify worker lanes are visible
+    cy.get('[data-testid="worker-lane-1"]').should('be.visible');
+    cy.get('[data-testid="worker-lane-2"]').should('be.visible');
 
-    // TODO 8: After completion, verify total processed = 8
-    // cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
-    //   .should('be.visible');
-    // cy.get('[data-testid="worker-completed-1"]').invoke('text').then(t1 => {
-    //   cy.get('[data-testid="worker-completed-2"]').invoke('text').then(t2 => {
-    //     expect(Number(t1) + Number(t2)).to.eq(8);
-    //   });
-    // });
+    // Wait for completion, then verify total processed = 8
+    cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
+      .should('be.visible');
+    cy.get('[data-testid="worker-completed-1"]').invoke('text').then(t1 => {
+      cy.get('[data-testid="worker-completed-2"]').invoke('text').then(t2 => {
+        expect(Number(t1) + Number(t2)).to.eq(8);
+      });
+    });
   });
 
-  it('should reset the queue', () => {
-    // TODO 9: Start and then reset
-    // cy.get('[data-testid="btn-start-workers"]').click();
-    // cy.get('[data-testid="btn-reset-queue"]').click();
+  it('should reset the queue back to pending', () => {
+    // Start workers briefly
+    cy.get('[data-testid="btn-start-workers"]').click();
 
-    // TODO 10: Assert all items are back to pending
-    // cy.get('[data-testid^="queue-status-"]').each(($el) => {
-    //   cy.wrap($el).should('contain', 'pending');
-    // });
+    // Reset
+    cy.get('[data-testid="btn-reset-queue"]').click();
+
+    // Assert all items are back to pending
+    cy.get('[data-testid^="queue-status-"]').each(($el) => {
+      cy.wrap($el).should('contain', 'pending');
+    });
   });
+
+  // TRY: Change worker count to 1 or 4 and observe the difference.
+  // TRY: Add a test that verifies each worker processes at least 1 item.
 });`,
     missionBrief: {
       context: "Cypress parallelism uses `--parallel` flag with Cypress Cloud to distribute spec files across machines. This lab simulates a work queue where multiple workers process items concurrently. You'll practice asserting non-deterministic async behavior and using increased timeouts.",

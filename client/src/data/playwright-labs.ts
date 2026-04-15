@@ -3473,54 +3473,57 @@ test('Environment Variables', async ({ page }) => {
     difficulty: "Advanced",
     icon: Workflow,
     initialCode: `// playwright.config.ts excerpt:
-// export default defineConfig({
-//   workers: 3,
-// });
+// export default defineConfig({ workers: 3 });
 
 test.describe('Work Queue Processing', () => {
-  test('should start workers and process all items', async ({ page }) => {
+  test('should start 3 workers and process all items', async ({ page }) => {
     await page.goto('/playground/queue');
 
-    // TODO 1: Select 3 workers from the worker-count dropdown
-    // await page.getByTestId('select-worker-count').click();
-    // await page.getByRole('option', { name: '3' }).click();
+    // Select 3 workers
+    await page.getByTestId('select-worker-count').click();
+    await page.getByRole('option', { name: '3' }).click();
 
-    // TODO 2: Start the workers
-    // await page.getByTestId('btn-start-workers').click();
+    // Start workers
+    await page.getByTestId('btn-start-workers').click();
 
-    // TODO 3: Wait for at least one item to be in-progress
-    // await expect(
-    //   page.locator('[data-testid^="queue-status-"]', { hasText: 'in-progress' })
-    // ).toBeVisible();
+    // Assert at least one item transitions to in-progress
+    await expect(
+      page.locator('[data-testid^="queue-status-"]', { hasText: 'in-progress' })
+    ).toBeVisible();
 
-    // TODO 4: Assert that worker lanes are active
-    // await expect(page.getByTestId('worker-lane-1')).toBeVisible();
-    // await expect(page.getByTestId('worker-lane-2')).toBeVisible();
-    // await expect(page.getByTestId('worker-lane-3')).toBeVisible();
+    // Verify all 3 worker lanes are active
+    await expect(page.getByTestId('worker-lane-1')).toBeVisible();
+    await expect(page.getByTestId('worker-lane-2')).toBeVisible();
+    await expect(page.getByTestId('worker-lane-3')).toBeVisible();
 
-    // TODO 5: Wait for all items to complete
-    // await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
+    // Wait for queue to complete (up to 30s for all 8 items)
+    await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
 
-    // TODO 6: Assert no item is still pending or in-progress
-    // await expect(
-    //   page.locator('[data-testid^="queue-status-"]', { hasText: 'pending' })
-    // ).toHaveCount(0);
+    // Verify no pending items remain
+    await expect(
+      page.locator('[data-testid^="queue-status-"]', { hasText: 'pending' })
+    ).toHaveCount(0);
   });
 
-  test('should distribute work across workers', async ({ page }) => {
+  test('should distribute work across 2 workers evenly', async ({ page }) => {
     await page.goto('/playground/queue');
 
-    // TODO 7: Start with 2 workers
-    // await page.getByTestId('select-worker-count').click();
-    // await page.getByRole('option', { name: '2' }).click();
-    // await page.getByTestId('btn-start-workers').click();
+    // Start with 2 workers
+    await page.getByTestId('select-worker-count').click();
+    await page.getByRole('option', { name: '2' }).click();
+    await page.getByTestId('btn-start-workers').click();
 
-    // TODO 8: Wait for completion, then check worker completed counts
-    // await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
-    // const w1 = await page.getByTestId('worker-completed-1').textContent();
-    // const w2 = await page.getByTestId('worker-completed-2').textContent();
-    // expect(Number(w1) + Number(w2)).toBe(8);
+    // Wait for all items to finish
+    await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
+
+    // Verify total completed across both workers = 8
+    const w1 = await page.getByTestId('worker-completed-1').textContent();
+    const w2 = await page.getByTestId('worker-completed-2').textContent();
+    expect(Number(w1) + Number(w2)).toBe(8);
   });
+
+  // TRY: Change worker count to 1 or 4 and observe the difference.
+  // TRY: Add a test that clicks Reset and verifies all items return to pending.
 });`,
     missionBrief: {
       context: "Parallel testing distributes test execution across multiple workers. In Playwright, configure `workers` in playwright.config.ts. This lab simulates a shared work queue where N workers dynamically pick items. The key challenge: asserting async, non-deterministic parallel behavior.",

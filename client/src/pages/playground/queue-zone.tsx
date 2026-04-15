@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Shell from "@/components/layout/shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,41 +40,24 @@ export default function QueueZone() {
   const [workerCount, setWorkerCount] = useState("3");
   const [running, setRunning] = useState(false);
   const timeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stoppedRef = useRef(false);
 
   const completedCount = items.filter(i => i.status === "done").length;
   const allDone = completedCount === items.length && running;
 
-  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
+      stoppedRef.current = true;
       timeoutRefs.current.forEach(clearTimeout);
     };
   }, []);
 
-  const claimNextItem = useCallback((workerId: number): string | null => {
-    let claimed: string | null = null;
-    setItems(prev => {
-      const idx = prev.findIndex(i => i.status === "pending");
-      if (idx === -1) return prev;
-      claimed = prev[idx].id;
-      const next = [...prev];
-      next[idx] = { ...next[idx], status: "in-progress", assignedTo: workerId };
-      return next;
-    });
-    return claimed;
-  }, []);
-
-  const markDone = useCallback((itemId: string) => {
-    setItems(prev =>
-      prev.map(i => i.id === itemId ? { ...i, status: "done" } : i)
-    );
-  }, []);
-
-  const runWorker = useCallback((workerId: number) => {
+  const runWorker = (workerId: number) => {
     const processNext = () => {
-      // Use a state-reading approach to claim
-      let claimedId: string | null = null;
+      if (stoppedRef.current) return;
 
+      // Atomically claim the next pending item
+      let claimedId: string | null = null;
       setItems(prev => {
         const idx = prev.findIndex(i => i.status === "pending");
         if (idx === -1) return prev;
@@ -84,51 +67,56 @@ export default function QueueZone() {
         return next;
       });
 
-      // We need to defer reading claimedId since setState is async
-      // Use a timeout to let React batch the state update
-      const checkAndProcess = setTimeout(() => {
-        setItems(currentItems => {
-          const myItem = currentItems.find(
-            i => i.status === "in-progress" && i.assignedTo === workerId
-          );
-          if (!myItem) return currentItems; // nothing to do, worker is idle
-
-          // Update worker's current item
+      // Use a microtask to check if we claimed anything
+      // (setState updater runs synchronously within the batch)
+      const checkTimeout = setTimeout(() => {
+        if (stoppedRef.current) return;
+        if (!claimedId) {
+          // No more items — worker goes idle
           setWorkers(prev =>
-            prev.map(w => w.id === workerId ? { ...w, currentItem: myItem.id } : w)
+            prev.map(w => w.id === workerId ? { ...w, currentItem: null } : w)
+          );
+          return;
+        }
+
+        // Update worker's current item display
+        setWorkers(prev =>
+          prev.map(w => w.id === workerId ? { ...w, currentItem: claimedId } : w)
+        );
+
+        // Simulate processing with random delay
+        const delay = 1500 + Math.random() * 1500;
+        const processTimeout = setTimeout(() => {
+          if (stoppedRef.current) return;
+
+          // Mark item as done
+          setItems(prev =>
+            prev.map(i => i.id === claimedId ? { ...i, status: "done" } : i)
           );
 
-          // Process the item after a random delay
-          const delay = 1500 + Math.random() * 1500;
-          const processTimeout = setTimeout(() => {
-            // Mark done
-            setItems(p =>
-              p.map(i => i.id === myItem.id ? { ...i, status: "done" } : i)
-            );
-            setWorkers(prev =>
-              prev.map(w =>
-                w.id === workerId
-                  ? { ...w, currentItem: null, itemsCompleted: w.itemsCompleted + 1 }
-                  : w
-              )
-            );
+          // Update worker stats
+          setWorkers(prev =>
+            prev.map(w =>
+              w.id === workerId
+                ? { ...w, currentItem: null, itemsCompleted: w.itemsCompleted + 1 }
+                : w
+            )
+          );
 
-            // Try to process next
-            const nextTimeout = setTimeout(processNext, 200);
-            timeoutRefs.current.push(nextTimeout);
-          }, delay);
-          timeoutRefs.current.push(processTimeout);
-
-          return currentItems;
-        });
-      }, 50);
-      timeoutRefs.current.push(checkAndProcess);
+          // Grab next item after a short pause
+          const nextTimeout = setTimeout(processNext, 200);
+          timeoutRefs.current.push(nextTimeout);
+        }, delay);
+        timeoutRefs.current.push(processTimeout);
+      }, 30);
+      timeoutRefs.current.push(checkTimeout);
     };
 
     processNext();
-  }, []);
+  };
 
   const handleStart = () => {
+    stoppedRef.current = false;
     const count = parseInt(workerCount);
     const newWorkers: WorkerState[] = Array.from({ length: count }, (_, i) => ({
       id: i + 1,
@@ -138,14 +126,15 @@ export default function QueueZone() {
     setWorkers(newWorkers);
     setRunning(true);
 
-    // Stagger worker starts slightly to avoid all claiming the same item
+    // Stagger worker starts to avoid all claiming the same item in one batch
     newWorkers.forEach((w, i) => {
-      const t = setTimeout(() => runWorker(w.id), i * 100);
+      const t = setTimeout(() => runWorker(w.id), i * 150);
       timeoutRefs.current.push(t);
     });
   };
 
   const handleReset = () => {
+    stoppedRef.current = true;
     timeoutRefs.current.forEach(clearTimeout);
     timeoutRefs.current = [];
     setItems(INITIAL_ITEMS.map(i => ({ ...i })));
@@ -175,7 +164,7 @@ export default function QueueZone() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Controls */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Workers:</span>
                 <Select
