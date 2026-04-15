@@ -1,4 +1,4 @@
-import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Download, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench } from "lucide-react";
+import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Download, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench, MapPin, Smartphone, Ban, MessageCircle } from "lucide-react";
 
 export interface CypressLab {
   id: string;
@@ -2566,7 +2566,7 @@ describe('Using Custom Commands', () => {
     }
   },
   {
-    id: "accessibility",
+    id: "accessibility-audit",
     title: "Accessibility (a11y) Audit",
     description: "Use cypress-axe to audit pages for accessibility violations.",
     difficulty: "Intermediate",
@@ -3356,6 +3356,549 @@ describe('Cross-Browser Smoke Test', () => {
         logs.push("⚠ WARN: No browser-specific logic found.");
       }
       logs.push("✓ Cross-browser testing configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "geolocation",
+    title: "Geolocation Mocking",
+    description: "Learn to stub browser geolocation APIs to test location-aware features without real GPS.",
+    difficulty: "Advanced",
+    icon: MapPin,
+    initialCode: `describe('Geolocation Mocking', () => {
+  it('should mock the browser geolocation API', () => {
+    const mockPosition = {
+      coords: {
+        latitude: 12.9716,
+        longitude: 77.5946,
+        accuracy: 100
+      }
+    };
+
+    cy.visit('/playground/auth');
+
+    // TODO: Use cy.window() to access navigator.geolocation
+    // TODO: Stub navigator.geolocation.getCurrentPosition using cy.stub()
+    // TODO: Make the stub call the success callback with mockPosition
+    // TODO: Trigger the app to request geolocation
+    // TODO: Assert the app displays the mocked coordinates (Bangalore)
+  });
+});`,
+    missionBrief: {
+      context: "Location-aware apps rely on `navigator.geolocation`. In tests, we stub this API to provide deterministic coordinates (Bangalore: 12.9716, 77.5946) without requiring real GPS.",
+      objectives: [
+        { id: 1, text: "Stub navigator.geolocation.getCurrentPosition using cy.stub()" },
+        { id: 2, text: "Provide mock coordinates (latitude: 12.9716, longitude: 77.5946)" },
+        { id: 3, text: "Assert the application displays the mocked location" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasGeolocation = code.includes("geolocation");
+      const hasStub = code.includes("stub") || code.includes("stub(");
+      const hasCoords = code.includes("latitude") || code.includes("12.9716");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasGeolocation) {
+        logs.push("✗ ERROR: No reference to geolocation found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Geolocation API referenced");
+
+      if (!hasStub) {
+        logs.push("✗ ERROR: Must use cy.stub() to mock geolocation.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Stub used for mocking");
+
+      if (!hasCoords) {
+        logs.push("✗ ERROR: Mock coordinates not found. Use latitude: 12.9716.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Mock coordinates provided");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "emulation",
+    title: "Mobile Emulation",
+    description: "Test responsive layouts by emulating different device viewports in Cypress.",
+    difficulty: "Intermediate",
+    icon: Smartphone,
+    initialCode: `describe('Mobile Emulation', () => {
+  beforeEach(() => {
+    cy.visit('/playground/auth');
+  });
+
+  it('should render correctly on mobile', () => {
+    // TODO: Use cy.viewport('iphone-x') to emulate an iPhone X
+    // TODO: Assert that mobile-specific elements are visible
+    // TODO: Check that the layout adapts (e.g., navigation collapses)
+  });
+
+  it('should render correctly on desktop', () => {
+    // TODO: Use cy.viewport('macbook-15') to emulate a MacBook
+    // TODO: Assert desktop layout elements are visible
+    // TODO: Compare behavior differences between mobile and desktop
+  });
+});`,
+    missionBrief: {
+      context: "Responsive design must be tested at multiple breakpoints. Cypress provides `cy.viewport()` with named device presets like `iphone-x` and `macbook-15` to simulate real device dimensions.",
+      objectives: [
+        { id: 1, text: "Use cy.viewport() with a mobile device preset (e.g., 'iphone-x')" },
+        { id: 2, text: "Use cy.viewport() with a desktop preset (e.g., 'macbook-15')" },
+        { id: 3, text: "Assert that element visibility changes across viewports" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasViewport = code.includes("cy.viewport(");
+      const hasDevice = /iphone|macbook|\d{3,4}\s*,\s*\d{3,4}/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasViewport) {
+        logs.push("✗ ERROR: cy.viewport() not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ cy.viewport() used");
+
+      if (!hasDevice) {
+        logs.push("✗ ERROR: No device preset or dimensions found. Use named presets like 'iphone-x'.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Device preset or dimensions specified");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "request-headers",
+    title: "Modifying Request Headers",
+    description: "Intercept outgoing requests to add or modify HTTP headers before they reach the server.",
+    difficulty: "Advanced",
+    icon: Network,
+    initialCode: `describe('Modifying Request Headers', () => {
+  it('should add custom headers to API requests', () => {
+    // TODO: Use cy.intercept() to intercept API requests
+    // TODO: Modify the request headers — add an Authorization header
+    //       or a custom X-Custom-Header
+    // TODO: Use (req) => { req.headers['Authorization'] = 'Bearer token'; }
+    // TODO: Visit a page that makes API calls
+    // TODO: Verify the modified request was sent using cy.wait()
+  });
+});`,
+    missionBrief: {
+      context: "Sometimes you need to inject authentication tokens or custom headers into requests during testing. `cy.intercept()` lets you modify outgoing request headers before they leave the browser.",
+      objectives: [
+        { id: 1, text: "Use cy.intercept() to intercept outgoing requests" },
+        { id: 2, text: "Modify request headers (e.g., add Authorization or X-Custom-Header)" },
+        { id: 3, text: "Verify the modified request was sent" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasIntercept = code.includes("cy.intercept");
+      const hasHeaders = code.includes("headers") || code.includes("Authorization") || code.includes("X-");
+      const hasReqHeaders = code.includes("req.headers") || code.includes("request.headers");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasIntercept) {
+        logs.push("✗ ERROR: cy.intercept() not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ cy.intercept() used");
+
+      if (!hasHeaders) {
+        logs.push("✗ ERROR: No header modification found. Add Authorization or X- header.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Header reference found");
+
+      if (!hasReqHeaders) {
+        logs.push("⚠ WARN: Expected req.headers access pattern.");
+      }
+      logs.push("✓ Request headers modification configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "abort-request",
+    title: "Abort Requests",
+    description: "Block or abort specific API requests to test error handling and offline scenarios.",
+    difficulty: "Intermediate",
+    icon: Ban,
+    initialCode: `describe('Abort Requests', () => {
+  it('should handle aborted API requests gracefully', () => {
+    // TODO: Use cy.intercept() to intercept a specific API endpoint
+    // TODO: Abort the request using req.destroy() or forceNetworkError
+    //       Example: cy.intercept('GET', '/api/users', { forceNetworkError: true })
+    //       Or: cy.intercept('GET', '/api/users', (req) => { req.destroy(); })
+    // TODO: Visit the page that depends on this API
+    // TODO: Assert the app shows an error state or fallback UI
+  });
+});`,
+    missionBrief: {
+      context: "Robust apps handle network failures gracefully. Use `cy.intercept()` with `req.destroy()` or `forceNetworkError` to simulate request failures and verify your error handling UI.",
+      objectives: [
+        { id: 1, text: "Intercept a specific API request" },
+        { id: 2, text: "Abort it using req.destroy() or forceNetworkError" },
+        { id: 3, text: "Assert the app displays an error state or fallback UI" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasIntercept = code.includes("cy.intercept");
+      const hasAbort = code.includes("destroy()") || code.includes("forceNetworkError");
+      const hasErrorAssert = /error|fail|fallback|alert|warning|not.*found/i.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasIntercept) {
+        logs.push("✗ ERROR: cy.intercept() not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ cy.intercept() used");
+
+      if (!hasAbort) {
+        logs.push("✗ ERROR: No abort mechanism found. Use req.destroy() or forceNetworkError.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Request abort mechanism used");
+
+      if (!hasErrorAssert) {
+        logs.push("⚠ WARN: No error-state assertion found.");
+      }
+      logs.push("✓ Abort request test configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "console-logs",
+    title: "Listen to Console",
+    description: "Capture and assert browser console messages during Cypress tests.",
+    difficulty: "Intermediate",
+    icon: MessageCircle,
+    initialCode: `describe('Listen to Console', () => {
+  it('should capture console.log messages', () => {
+    // TODO: Use cy.on or cy.window to stub console.log before page loads
+    //   cy.on('window:before:load', (win) => {
+    //     cy.stub(win.console, 'log').as('consoleLog');
+    //   });
+    // TODO: Visit a page that logs to the console
+    // TODO: Perform an action that triggers a console.log
+    // TODO: Assert the stub was called: cy.get('@consoleLog').should('be.called')
+    // TODO: Optionally check the message: .should('be.calledWith', 'expected message')
+  });
+});`,
+    missionBrief: {
+      context: "Monitoring console output helps catch warnings and verify logging. Stub `console.log` before the page loads, then assert it was called with expected messages after user actions.",
+      objectives: [
+        { id: 1, text: "Stub console.log using cy.stub(win.console, 'log')" },
+        { id: 2, text: "Trigger an action that produces console output" },
+        { id: 3, text: "Assert the stub was called with the expected message" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasConsole = code.includes("console");
+      const hasStub = code.includes("stub") || code.includes("spy");
+      const hasAlias = code.includes("consoleLog") || code.includes("console.log");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasConsole) {
+        logs.push("✗ ERROR: No reference to console found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Console referenced");
+
+      if (!hasStub) {
+        logs.push("✗ ERROR: Must use cy.stub() or cy.spy() to capture console.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Stub/spy used for console");
+
+      if (!hasAlias) {
+        logs.push("⚠ WARN: No alias for consoleLog found.");
+      }
+      logs.push("✓ Console listener configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "evaluate-js",
+    title: "Evaluate JavaScript",
+    description: "Execute arbitrary JavaScript in the browser context using cy.window() and cy.document().",
+    difficulty: "Intermediate",
+    icon: Terminal,
+    initialCode: `describe('Evaluate JavaScript', () => {
+  it('should execute JS in the browser context', () => {
+    cy.visit('/playground/auth');
+
+    // TODO: Use cy.window() to access the browser window object
+    // TODO: Use .then(win => { ... }) to run JavaScript
+    //   Example: cy.window().then(win => win.document.title)
+    // TODO: Use cy.document() to access DOM properties
+    // TODO: Get computed styles or check DOM state
+    //   Example: cy.document().then(doc => doc.querySelector('h1').textContent)
+    // TODO: Use .invoke() to call methods on elements
+    // TODO: Assert the returned values
+  });
+});`,
+    missionBrief: {
+      context: "Sometimes you need to evaluate JavaScript directly in the browser. `cy.window()` and `cy.document()` give you access to the browser context for reading properties, computing styles, or manipulating the DOM.",
+      objectives: [
+        { id: 1, text: "Use cy.window() or cy.document() to access browser context" },
+        { id: 2, text: "Execute JavaScript using .then() or .invoke()" },
+        { id: 3, text: "Assert values returned from browser evaluation" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWindowOrDoc = code.includes("cy.window()") || code.includes("cy.document()");
+      const hasThenOrInvoke = code.includes(".then(") || code.includes("invoke(");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasWindowOrDoc) {
+        logs.push("✗ ERROR: cy.window() or cy.document() not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Browser context accessed");
+
+      if (!hasThenOrInvoke) {
+        logs.push("✗ ERROR: Use .then() or .invoke() to evaluate JavaScript.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ JavaScript evaluation pattern used");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "bounding-box",
+    title: "Bounding Box & Coordinates",
+    description: "Get element positions and dimensions for layout testing using getBoundingClientRect.",
+    difficulty: "Advanced",
+    icon: Box,
+    initialCode: `describe('Bounding Box & Coordinates', () => {
+  it('should verify element position and dimensions', () => {
+    cy.visit('/playground/auth');
+
+    // TODO: Select an element (e.g., the login form)
+    // TODO: Use .then($el => $el[0].getBoundingClientRect()) to get position
+    // TODO: Assert width, height, x, y, or top/left values
+    //   Example:
+    //   cy.get('[data-testid="btn-login"]').then($el => {
+    //     const rect = $el[0].getBoundingClientRect();
+    //     expect(rect.width).to.be.greaterThan(0);
+    //     expect(rect.height).to.be.greaterThan(0);
+    //   });
+    // TODO: Verify the element is within expected bounds
+  });
+});`,
+    missionBrief: {
+      context: "Layout testing sometimes requires verifying exact positions and dimensions. `getBoundingClientRect()` returns the element's size and position relative to the viewport.",
+      objectives: [
+        { id: 1, text: "Get an element's bounding rect using getBoundingClientRect()" },
+        { id: 2, text: "Assert position properties (x, y, top, left)" },
+        { id: 3, text: "Assert dimension properties (width, height)" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasBounding = code.includes("getBoundingClientRect") || code.includes("boundingClientRect") || code.includes("position");
+      const hasDimension = /width|height|\.x|\.top/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasBounding) {
+        logs.push("✗ ERROR: getBoundingClientRect() or position check not found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Bounding rect accessed");
+
+      if (!hasDimension) {
+        logs.push("✗ ERROR: No dimension or position assertion found (width, height, x, top).");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Position/dimension assertions present");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "mouse-actions",
+    title: "Mouse Actions",
+    description: "Perform complex mouse interactions like drag, draw, and right-click in Cypress.",
+    difficulty: "Advanced",
+    icon: MousePointerClick,
+    initialCode: `describe('Mouse Actions', () => {
+  it('should perform complex mouse interactions', () => {
+    cy.visit('/playground/interactions');
+
+    // TODO: Select the drawing canvas: cy.get('[data-testid="drawing-canvas"]')
+    // TODO: Trigger mousedown to start drawing
+    //   .trigger('mousedown', { clientX: 100, clientY: 100 })
+    // TODO: Trigger mousemove to draw a line
+    //   .trigger('mousemove', { clientX: 200, clientY: 200 })
+    // TODO: Trigger mouseup to stop drawing
+    //   .trigger('mouseup')
+  });
+
+  it('should open context menu with right-click', () => {
+    cy.visit('/playground/interactions');
+
+    // TODO: Use .rightclick() on an element
+    // TODO: Assert that a context menu or action appears
+  });
+});`,
+    missionBrief: {
+      context: "Complex interactions like drawing and drag-and-drop require low-level mouse events. Use `.trigger()` for mousedown/mousemove/mouseup sequences and `.rightclick()` for context menus.",
+      objectives: [
+        { id: 1, text: "Use .trigger('mousedown'), .trigger('mousemove'), .trigger('mouseup')" },
+        { id: 2, text: "Use .rightclick() to open a context menu" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasMouse = code.includes("mousedown") || code.includes("mousemove") || code.includes("rightclick");
+      const hasTrigger = code.includes("trigger(") || code.includes(".rightclick()");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasMouse) {
+        logs.push("✗ ERROR: No mouse events found (mousedown, mousemove, rightclick).");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Mouse events referenced");
+
+      if (!hasTrigger) {
+        logs.push("✗ ERROR: Use .trigger() or .rightclick() to fire mouse events.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Mouse action triggers configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "soft-assertions",
+    title: "Soft Assertions",
+    description: "Collect multiple assertion failures and report them all at once instead of failing on the first.",
+    difficulty: "Intermediate",
+    icon: CheckSquare,
+    initialCode: `describe('Soft Assertions', () => {
+  it('should collect all assertion failures', () => {
+    cy.visit('/playground/auth');
+
+    // Cypress does not have built-in soft assertions like Playwright.
+    // TODO: Implement a soft assertion pattern:
+    //   const errors = [];
+    //   function softAssert(fn) {
+    //     try { fn(); } catch (e) { errors.push(e.message); }
+    //   }
+    // TODO: Make multiple assertions using softAssert()
+    //   softAssert(() => expect(true).to.equal(true));
+    //   softAssert(() => expect(1 + 1).to.equal(2));
+    // TODO: At the end, check if errors array has any failures
+    //   if (errors.length > 0) {
+    //     throw new Error('Soft assertion failures:\\n' + errors.join('\\n'));
+    //   }
+  });
+});`,
+    missionBrief: {
+      context: "Unlike Playwright's `expect.soft()`, Cypress lacks built-in soft assertions. Implement a pattern that collects all failures and reports them at the end, so you see every issue in one run.",
+      objectives: [
+        { id: 1, text: "Implement a soft assertion helper function" },
+        { id: 2, text: "Collect multiple assertion failures into an array" },
+        { id: 3, text: "Report all failures at the end of the test" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSoftPattern = /softAssert|soft|errors|failures/.test(code);
+      const hasCollection = code.includes("push") || code.includes("[]");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasSoftPattern) {
+        logs.push("✗ ERROR: No soft assertion pattern found. Define a softAssert helper or errors array.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Soft assertion pattern detected");
+
+      if (!hasCollection) {
+        logs.push("⚠ WARN: No error collection pattern found (push or array literal).");
+      }
+      logs.push("✓ Soft assertion collection configured");
+
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "custom-matchers",
+    title: "Custom Chai Assertions",
+    description: "Extend Chai with custom assertion methods for domain-specific testing.",
+    difficulty: "Advanced",
+    icon: Wrench,
+    initialCode: `// Custom Chai assertion plugin
+// TODO: Define a custom assertion using chai.use()
+//   chai.use((_chai) => {
+//     _chai.Assertion.addMethod('withinRange', function (min, max) {
+//       const value = this._obj;
+//       this.assert(
+//         value >= min && value <= max,
+//         'expected #{this} to be within range #{exp}',
+//         'expected #{this} to not be within range #{exp}',
+//         min + '..' + max
+//       );
+//     });
+//   });
+
+describe('Custom Chai Assertions', () => {
+  it('should use a custom assertion', () => {
+    // TODO: Register the custom assertion above
+    // TODO: Use it in a test:
+    //   expect(5).to.be.withinRange(1, 10);
+    //   expect(100).to.not.be.withinRange(1, 10);
+    // TODO: Create another custom assertion like toHaveDataTestId
+  });
+});`,
+    missionBrief: {
+      context: "Chai's plugin system lets you create custom assertions using `chai.Assertion.addMethod()`. This makes tests more readable and domain-specific.",
+      objectives: [
+        { id: 1, text: "Use chai.use() to register a plugin" },
+        { id: 2, text: "Define a custom assertion with chai.Assertion.addMethod()" },
+        { id: 3, text: "Use the custom assertion in a test" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasChai = code.includes("chai");
+      const hasAddMethod = code.includes("addMethod") || code.includes("addProperty") || code.includes("chai.use");
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasChai) {
+        logs.push("✗ ERROR: No reference to chai found.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Chai referenced");
+
+      if (!hasAddMethod) {
+        logs.push("✗ ERROR: Use chai.Assertion.addMethod(), addProperty(), or chai.use() to extend Chai.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Custom assertion method defined");
 
       return { passed: true, logs };
     }

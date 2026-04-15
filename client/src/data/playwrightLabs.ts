@@ -1,4 +1,4 @@
-import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Play, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench } from "lucide-react";
+import { Terminal, Code2, AlertTriangle, ShieldCheck, Activity, MousePointerClick, Clock, Search, List, CheckSquare, Eye, Upload, Database, Globe, Layers, Repeat, Variable, Timer, Monitor, History, HardDrive, Box, Link, Play, Clipboard, Shield, FileCheck, MessageSquare, ScrollText, Phone, Camera, Workflow, Footprints, BarChart3, Accessibility, GitBranch, Palette, Settings, Bug, FileText, Network, Gauge, Filter, Tag, Wrench, Cookie, Navigation, Maximize, Focus, MapPin } from "lucide-react";
 
 export interface PlaywrightLab {
   id: string;
@@ -2820,6 +2820,649 @@ test('Component: LoginForm', async ({ mount }) => {
       }
 
       logs.push("✓ WebSocket testing configured");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "checkboxes",
+    title: "Checkboxes & Radios",
+    description: "Test checkbox and switch toggle interactions with proper state assertions.",
+    difficulty: "Beginner",
+    icon: CheckSquare,
+    initialCode: `test('Checkboxes & Radios', async ({ page }) => {
+  await page.goto('/playground/interactions');
+
+  const airplaneSwitch = page.getByTestId('switch-airplane');
+
+  // TODO: Check the switch and assert it is checked
+  // Use await airplaneSwitch.check();
+  // Use await expect(airplaneSwitch).toBeChecked();
+
+  // TODO: Uncheck the switch and assert it is not checked
+  // Use await airplaneSwitch.uncheck();
+  // Use await expect(airplaneSwitch).not.toBeChecked();
+});`,
+    missionBrief: {
+      context: "Switches, checkboxes, and radios need state assertions after toggling. Playwright provides `.check()`, `.uncheck()`, and `.toBeChecked()`.",
+      objectives: [
+        { id: 1, text: "Check the airplane switch using `check()` or `click()`" },
+        { id: 2, text: "Assert it is checked with `toBeChecked()`" },
+        { id: 3, text: "Uncheck the switch and assert `not.toBeChecked()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSwitch = code.includes("switch-airplane");
+      const hasCheckOrClick = /\.check\(\)|\.click\(\)/.test(code);
+      const hasAssertion = /toBeChecked/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasSwitch) {
+        logs.push("✗ ERROR: Missing switch locator.");
+        logs.push("  ↳ Use getByTestId('switch-airplane')");
+        return { passed: false, logs };
+      }
+
+      if (!hasCheckOrClick) {
+        logs.push("✗ ERROR: Missing check/click action.");
+        logs.push("  ↳ Use .check() or .click() to toggle the switch");
+        return { passed: false, logs };
+      }
+
+      if (!hasAssertion) {
+        logs.push("✗ ERROR: Missing checked assertion.");
+        logs.push("  ↳ Use expect(locator).toBeChecked()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Checkbox interactions verified");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "assertions-chain",
+    title: "Chaining Assertions",
+    description: "Chain multiple expect assertions on the same locator for thorough validation.",
+    difficulty: "Beginner",
+    icon: CheckSquare,
+    initialCode: `test('Chaining Assertions', async ({ page }) => {
+  await page.goto('/playground/auth');
+
+  const usernameInput = page.getByTestId('input-username');
+
+  // TODO: Chain multiple assertions on the same locator
+  // 1. Assert the input is visible
+  // await expect(usernameInput).toBeVisible();
+
+  // 2. Assert it has the correct placeholder attribute
+  // await expect(usernameInput).toHaveAttribute('placeholder', 'Enter username');
+
+  // 3. Assert it is enabled
+  // await expect(usernameInput).toBeEnabled();
+});`,
+    missionBrief: {
+      context: "Multiple assertions on a single locator ensure the element is in the expected state. Chain `toBeVisible`, `toHaveAttribute`, and `toBeEnabled` for thorough checks.",
+      objectives: [
+        { id: 1, text: "Use `expect(locator).toBeVisible()`" },
+        { id: 2, text: "Use `expect(locator).toHaveAttribute()`" },
+        { id: 3, text: "Use `expect(locator).toBeEnabled()`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const expectCount = (code.match(/expect\(/g) || []).length;
+      const hasVisible = /toBeVisible/.test(code);
+      const hasAttrOrEnabled = /toHaveAttribute|toBeEnabled/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (expectCount < 2) {
+        logs.push("✗ ERROR: Need multiple expect() assertions.");
+        logs.push("  ↳ Chain at least 2 expect() calls on the locator");
+        return { passed: false, logs };
+      }
+
+      if (!hasVisible) {
+        logs.push("✗ ERROR: Missing visibility assertion.");
+        logs.push("  ↳ Use await expect(locator).toBeVisible()");
+        return { passed: false, logs };
+      }
+
+      if (!hasAttrOrEnabled) {
+        logs.push("✗ ERROR: Missing attribute or enabled assertion.");
+        logs.push("  ↳ Use toHaveAttribute() or toBeEnabled()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Assertions chained correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "hover-states",
+    title: "Hover States",
+    description: "Trigger hover events and assert tooltip or hover-dependent UI appears.",
+    difficulty: "Intermediate",
+    icon: MousePointerClick,
+    initialCode: `test('Hover States', async ({ page }) => {
+  await page.goto('/playground/interactions');
+
+  const hoverButton = page.getByTestId('btn-hover');
+
+  // TODO: Hover over the button
+  // await hoverButton.hover();
+
+  // TODO: Assert the tooltip content becomes visible
+  // const tooltip = page.getByTestId('tooltip-content');
+  // await expect(tooltip).toBeVisible();
+});`,
+    missionBrief: {
+      context: "Some UI elements only appear on hover. Use `locator.hover()` to simulate mouse hover and then assert the dependent element.",
+      objectives: [
+        { id: 1, text: "Use `locator.hover()` on the hover button" },
+        { id: 2, text: "Assert the tooltip content becomes visible" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasHoverBtn = code.includes("btn-hover");
+      const hasHover = /\.hover\(\)/.test(code);
+      const hasTooltip = code.includes("tooltip-content");
+
+      logs.push("✓ Test started");
+
+      if (!hasHoverBtn) {
+        logs.push("✗ ERROR: Missing hover button locator.");
+        logs.push("  ↳ Use getByTestId('btn-hover')");
+        return { passed: false, logs };
+      }
+
+      if (!hasHover) {
+        logs.push("✗ ERROR: Missing hover action.");
+        logs.push("  ↳ Use await locator.hover()");
+        return { passed: false, logs };
+      }
+
+      if (!hasTooltip) {
+        logs.push("✗ ERROR: Missing tooltip assertion.");
+        logs.push("  ↳ Assert getByTestId('tooltip-content') is visible");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Hover state tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "cookies",
+    title: "Cookies & Storage",
+    description: "Inspect and manipulate cookies and localStorage during tests.",
+    difficulty: "Intermediate",
+    icon: Database,
+    initialCode: `test('Cookies & Storage', async ({ page, context }) => {
+  await page.goto('/playground/auth');
+
+  // TODO: Login first
+  // await page.getByTestId('input-username').fill('admin');
+  // await page.getByTestId('input-password').fill('password123');
+  // await page.getByTestId('btn-login').click();
+
+  // TODO: Check localStorage for session_token
+  // const token = await page.evaluate(() => localStorage.getItem('session_token'));
+  // expect(token).toBeTruthy();
+
+  // TODO: Set a cookie via context
+  // await context.addCookies([{ name: 'theme', value: 'dark', url: 'http://localhost' }]);
+  // const cookies = await context.cookies();
+  // expect(cookies.find(c => c.name === 'theme')).toBeTruthy();
+});`,
+    missionBrief: {
+      context: "Tests often need to verify session tokens in localStorage or set cookies for pre-authenticated states. Use `page.evaluate` for storage and `context.addCookies` for cookies.",
+      objectives: [
+        { id: 1, text: "Login and check `localStorage` for `session_token` via `page.evaluate`" },
+        { id: 2, text: "Use `context.addCookies` or `document.cookie` to set a cookie" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasEvaluate = /evaluate/.test(code);
+      const hasStorage = /localStorage|sessionStorage/.test(code);
+      const hasTokenOrCookie = /session_token|cookie/i.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasEvaluate) {
+        logs.push("✗ ERROR: Missing page.evaluate().");
+        logs.push("  ↳ Use page.evaluate(() => localStorage.getItem(...))");
+        return { passed: false, logs };
+      }
+
+      if (!hasStorage) {
+        logs.push("✗ ERROR: Missing localStorage/sessionStorage access.");
+        logs.push("  ↳ Access localStorage or sessionStorage inside evaluate");
+        return { passed: false, logs };
+      }
+
+      if (!hasTokenOrCookie) {
+        logs.push("✗ ERROR: Missing session_token or cookie handling.");
+        logs.push("  ↳ Check for session_token or use addCookies");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Cookies & Storage tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "env-vars",
+    title: "Environment Variables",
+    description: "Use process.env to parameterize config and tests for different environments.",
+    difficulty: "Intermediate",
+    icon: Settings,
+    initialCode: `// playwright.config.ts snippet
+// import { defineConfig } from '@playwright/test';
+// export default defineConfig({
+//   use: {
+//     baseURL: process.env.BASE_URL || 'http://localhost:3000',
+//   },
+// });
+
+test('Environment Variables', async ({ page }) => {
+  // TODO: Use environment variables for credentials
+  // const username = process.env.TEST_USERNAME || 'admin';
+  // const password = process.env.TEST_PASSWORD || 'password123';
+
+  await page.goto('/playground/auth');
+
+  // TODO: Fill in using env var values
+  // await page.getByTestId('input-username').fill(username);
+  // await page.getByTestId('input-password').fill(password);
+  // await page.getByTestId('btn-login').click();
+});`,
+    missionBrief: {
+      context: "Hardcoding URLs and credentials is fragile. Use `process.env` in `playwright.config.ts` and tests to support multiple environments.",
+      objectives: [
+        { id: 1, text: "Use `process.env` for `BASE_URL` in config" },
+        { id: 2, text: "Reference env vars like `TEST_USERNAME` in the test" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasProcessEnv = /process\.env/.test(code);
+      const hasEnvVar = /BASE_URL|USERNAME|PASSWORD/i.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasProcessEnv) {
+        logs.push("✗ ERROR: Missing process.env usage.");
+        logs.push("  ↳ Use process.env.BASE_URL or process.env.TEST_USERNAME");
+        return { passed: false, logs };
+      }
+
+      if (!hasEnvVar) {
+        logs.push("✗ ERROR: Missing named environment variable.");
+        logs.push("  ↳ Define variables like BASE_URL or TEST_USERNAME");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Environment variables configured correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "navigation",
+    title: "Navigation & History",
+    description: "Navigate between pages and use browser history with goBack and goForward.",
+    difficulty: "Beginner",
+    icon: Navigation,
+    initialCode: `test('Navigation & History', async ({ page }) => {
+  await page.goto('/playground');
+
+  // TODO: Navigate to /playground/auth
+  // await page.goto('/playground/auth');
+  // await expect(page).toHaveURL(/auth/);
+
+  // TODO: Go back and assert URL
+  // await page.goBack();
+  // await expect(page).toHaveURL(/playground$/);
+
+  // TODO: Go forward and assert URL
+  // await page.goForward();
+  // await expect(page).toHaveURL(/auth/);
+});`,
+    missionBrief: {
+      context: "Browser navigation history is important for testing user flows. Playwright provides `page.goBack()` and `page.goForward()` to traverse history.",
+      objectives: [
+        { id: 1, text: "Use `page.goBack()` to navigate back" },
+        { id: 2, text: "Use `page.goForward()` to navigate forward" },
+        { id: 3, text: "Assert URL with `toHaveURL`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasGoBack = /goBack\(\)/.test(code);
+      const hasGoForward = /goForward\(\)/.test(code);
+      const hasURL = /toHaveURL/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasGoBack) {
+        logs.push("✗ ERROR: Missing page.goBack().");
+        logs.push("  ↳ Use await page.goBack() to navigate back");
+        return { passed: false, logs };
+      }
+
+      if (!hasGoForward) {
+        logs.push("✗ ERROR: Missing page.goForward().");
+        logs.push("  ↳ Use await page.goForward() to navigate forward");
+        return { passed: false, logs };
+      }
+
+      if (!hasURL) {
+        logs.push("✗ ERROR: Missing URL assertion.");
+        logs.push("  ↳ Use expect(page).toHaveURL(...)");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Navigation & history tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "viewport",
+    title: "Responsive Viewport",
+    description: "Test responsive layouts by changing viewport size during the test.",
+    difficulty: "Intermediate",
+    icon: Maximize,
+    initialCode: `test('Responsive Viewport', async ({ page }) => {
+  // TODO: Set mobile viewport
+  // await page.setViewportSize({ width: 375, height: 667 });
+
+  await page.goto('/playground/auth');
+
+  // TODO: Assert mobile layout (e.g. element visibility or size)
+  // await expect(page.getByTestId('btn-login')).toBeVisible();
+
+  // TODO: Switch to desktop viewport
+  // await page.setViewportSize({ width: 1920, height: 1080 });
+
+  // TODO: Assert desktop layout
+  // await expect(page.getByTestId('btn-login')).toBeVisible();
+});`,
+    missionBrief: {
+      context: "Responsive design must be tested at different viewport sizes. Use `page.setViewportSize()` to simulate mobile, tablet, and desktop screens.",
+      objectives: [
+        { id: 1, text: "Use `setViewportSize` with mobile dimensions (e.g. 375x667)" },
+        { id: 2, text: "Use `setViewportSize` with desktop dimensions (e.g. 1920x1080)" },
+        { id: 3, text: "Assert layout at each viewport size" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasSetViewport = /setViewportSize/.test(code);
+      const hasDimensions = /375|667|1920/.test(code);
+      const hasAssertion = /expect\(/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasSetViewport) {
+        logs.push("✗ ERROR: Missing setViewportSize().");
+        logs.push("  ↳ Use page.setViewportSize({ width: 375, height: 667 })");
+        return { passed: false, logs };
+      }
+
+      if (!hasDimensions) {
+        logs.push("✗ ERROR: Missing viewport dimensions.");
+        logs.push("  ↳ Use mobile (375x667) and desktop (1920x1080) sizes");
+        return { passed: false, logs };
+      }
+
+      if (!hasAssertion) {
+        logs.push("✗ ERROR: Missing layout assertion.");
+        logs.push("  ↳ Assert element visibility or layout at each viewport");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Responsive viewport tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "scrolling",
+    title: "Scrolling",
+    description: "Scroll elements into view and manipulate scroll position within containers.",
+    difficulty: "Beginner",
+    icon: ScrollText,
+    initialCode: `test('Scrolling', async ({ page }) => {
+  await page.goto('/playground/kyc');
+
+  // TODO: Scroll the terms box into view
+  // const termsBox = page.getByTestId('terms-box');
+  // await termsBox.scrollIntoViewIfNeeded();
+
+  // TODO: Scroll within the terms container using evaluate
+  // await page.evaluate(() => {
+  //   const el = document.querySelector('[data-testid="terms-box"]');
+  //   if (el) el.scrollTop = el.scrollHeight;
+  // });
+
+  // TODO: Assert the element is now scrolled
+  // const scrollTop = await page.evaluate(() => {
+  //   const el = document.querySelector('[data-testid="terms-box"]');
+  //   return el ? el.scrollTop : 0;
+  // });
+  // expect(scrollTop).toBeGreaterThan(0);
+});`,
+    missionBrief: {
+      context: "Some elements require scrolling to become visible or interactive. Use `scrollIntoViewIfNeeded()` or manipulate `scrollTop` via `page.evaluate`.",
+      objectives: [
+        { id: 1, text: "Use `scrollIntoViewIfNeeded()` to scroll an element into view" },
+        { id: 2, text: "Use `evaluate` to set or read `scrollTop`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasScroll = /scrollIntoViewIfNeeded|scrollTop|scroll/.test(code);
+      const hasElement = /terms|getByTestId|querySelector/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasScroll) {
+        logs.push("✗ ERROR: Missing scroll action.");
+        logs.push("  ↳ Use scrollIntoViewIfNeeded() or evaluate scrollTop");
+        return { passed: false, logs };
+      }
+
+      if (!hasElement) {
+        logs.push("✗ ERROR: Missing element reference.");
+        logs.push("  ↳ Target a specific element to scroll");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Scrolling tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "blur-focus",
+    title: "Blur & Focus",
+    description: "Control input focus and blur to test validation and focus-dependent behavior.",
+    difficulty: "Beginner",
+    icon: Focus,
+    initialCode: `test('Blur & Focus', async ({ page }) => {
+  await page.goto('/playground/auth');
+
+  const usernameInput = page.getByTestId('input-username');
+
+  // TODO: Focus the input
+  // await usernameInput.focus();
+
+  // TODO: Assert it is focused
+  // await expect(usernameInput).toBeFocused();
+
+  // TODO: Blur the input
+  // await usernameInput.blur();
+
+  // TODO: Assert it is no longer focused
+  // await expect(usernameInput).not.toBeFocused();
+});`,
+    missionBrief: {
+      context: "Focus and blur events trigger validation, styling changes, and accessibility behavior. Playwright provides `focus()`, `blur()`, and `toBeFocused()` for testing.",
+      objectives: [
+        { id: 1, text: "Use `locator.focus()` to focus an input" },
+        { id: 2, text: "Assert focus with `toBeFocused()`" },
+        { id: 3, text: "Use `locator.blur()` to remove focus" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasFocus = /\.focus\(\)/.test(code);
+      const hasToBeFocused = /toBeFocused/.test(code);
+      const hasBlur = /\.blur\(\)/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasFocus) {
+        logs.push("✗ ERROR: Missing focus() call.");
+        logs.push("  ↳ Use await locator.focus()");
+        return { passed: false, logs };
+      }
+
+      if (!hasToBeFocused) {
+        logs.push("✗ ERROR: Missing toBeFocused() assertion.");
+        logs.push("  ↳ Use expect(locator).toBeFocused()");
+        return { passed: false, logs };
+      }
+
+      if (!hasBlur) {
+        logs.push("✗ ERROR: Missing blur() call.");
+        logs.push("  ↳ Use await locator.blur()");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Blur & Focus tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "url-location",
+    title: "URL & Location",
+    description: "Assert page URL and title using Playwright's web-first assertions.",
+    difficulty: "Beginner",
+    icon: Link,
+    initialCode: `test('URL & Location', async ({ page }) => {
+  await page.goto('/playground/auth');
+
+  // TODO: Assert the URL contains 'auth'
+  // await expect(page).toHaveURL(/auth/);
+
+  // TODO: Store the current URL in a variable
+  // const currentUrl = page.url();
+  // console.log('Current URL:', currentUrl);
+
+  // TODO: Assert the page title
+  // await expect(page).toHaveTitle(/QPlay|Playground/i);
+});`,
+    missionBrief: {
+      context: "Verifying the URL and page title ensures correct navigation. Use `toHaveURL` for URL assertions and `toHaveTitle` for title checks.",
+      objectives: [
+        { id: 1, text: "Use `expect(page).toHaveURL()` to assert URL" },
+        { id: 2, text: "Use `page.url()` to read the current URL" },
+        { id: 3, text: "Use `expect(page).toHaveTitle()` to assert title" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasToHaveURL = /toHaveURL/.test(code);
+      const hasPageUrl = /page\.url\(\)|\.url\(\)/.test(code);
+      const hasAssertion = /expect\(/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasToHaveURL) {
+        logs.push("✗ ERROR: Missing toHaveURL assertion.");
+        logs.push("  ↳ Use expect(page).toHaveURL(/auth/)");
+        return { passed: false, logs };
+      }
+
+      if (!hasPageUrl) {
+        logs.push("✗ ERROR: Missing page.url() usage.");
+        logs.push("  ↳ Use page.url() to read the current URL");
+        return { passed: false, logs };
+      }
+
+      if (!hasAssertion) {
+        logs.push("✗ ERROR: Missing expect() assertion.");
+        logs.push("  ↳ Add at least one expect() assertion");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ URL & Location tested correctly");
+      return { passed: true, logs };
+    }
+  },
+  {
+    id: "local-storage-seed",
+    title: "Seeding Local Storage",
+    description: "Seed localStorage before navigation to skip login or set initial state.",
+    difficulty: "Intermediate",
+    icon: HardDrive,
+    initialCode: `test('Seeding Local Storage', async ({ page }) => {
+  // TODO: Seed localStorage BEFORE navigating
+  // Option 1: Use addInitScript (runs before any page script)
+  // await page.addInitScript(() => {
+  //   localStorage.setItem('session_token', 'seeded-token-123');
+  // });
+
+  // Option 2: Navigate then evaluate
+  // await page.goto('/playground/auth');
+  // await page.evaluate(() => {
+  //   localStorage.setItem('session_token', 'seeded-token-123');
+  // });
+  // await page.reload();
+
+  await page.goto('/playground/auth');
+
+  // TODO: Assert the user appears logged in due to seeded token
+  // const token = await page.evaluate(() => localStorage.getItem('session_token'));
+  // expect(token).toBe('seeded-token-123');
+});`,
+    missionBrief: {
+      context: "Seeding localStorage lets you bypass login flows and set up test preconditions. Use `addInitScript` to set values before page scripts run, or `evaluate` after navigation.",
+      objectives: [
+        { id: 1, text: "Use `addInitScript` or `evaluate` to set localStorage" },
+        { id: 2, text: "Set `session_token` or similar key with `setItem`" },
+        { id: 3, text: "Verify the seeded state after navigation" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasInitOrEval = /addInitScript|evaluate/.test(code);
+      const hasLocalStorage = /localStorage/.test(code);
+      const hasSetItemOrToken = /setItem|session_token/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasInitOrEval) {
+        logs.push("✗ ERROR: Missing addInitScript or evaluate.");
+        logs.push("  ↳ Use page.addInitScript() or page.evaluate() to seed storage");
+        return { passed: false, logs };
+      }
+
+      if (!hasLocalStorage) {
+        logs.push("✗ ERROR: Missing localStorage reference.");
+        logs.push("  ↳ Access localStorage inside the script");
+        return { passed: false, logs };
+      }
+
+      if (!hasSetItemOrToken) {
+        logs.push("✗ ERROR: Missing setItem or session_token.");
+        logs.push("  ↳ Use localStorage.setItem('session_token', ...)");
+        return { passed: false, logs };
+      }
+
+      logs.push("✓ Local storage seeding configured correctly");
       return { passed: true, logs };
     }
   }
