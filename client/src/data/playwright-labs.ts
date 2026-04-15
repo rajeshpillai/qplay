@@ -3465,5 +3465,128 @@ test('Environment Variables', async ({ page }) => {
       logs.push("✓ Local storage seeding configured correctly");
       return { passed: true, logs };
     }
+  },
+  {
+    id: "parallel-work-queue",
+    title: "Parallel Workers & Work Queue",
+    description: "Configure parallel workers and test dynamic work item assignment from a shared queue.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// playwright.config.ts excerpt:
+// export default defineConfig({
+//   workers: 3,
+// });
+
+test.describe('Work Queue Processing', () => {
+  test('should start workers and process all items', async ({ page }) => {
+    await page.goto('/playground/queue');
+
+    // TODO 1: Select 3 workers from the worker-count dropdown
+    // await page.getByTestId('select-worker-count').click();
+    // await page.getByRole('option', { name: '3' }).click();
+
+    // TODO 2: Start the workers
+    // await page.getByTestId('btn-start-workers').click();
+
+    // TODO 3: Wait for at least one item to be in-progress
+    // await expect(
+    //   page.locator('[data-testid^="queue-status-"]', { hasText: 'in-progress' })
+    // ).toBeVisible();
+
+    // TODO 4: Assert that worker lanes are active
+    // await expect(page.getByTestId('worker-lane-1')).toBeVisible();
+    // await expect(page.getByTestId('worker-lane-2')).toBeVisible();
+    // await expect(page.getByTestId('worker-lane-3')).toBeVisible();
+
+    // TODO 5: Wait for all items to complete
+    // await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
+
+    // TODO 6: Assert no item is still pending or in-progress
+    // await expect(
+    //   page.locator('[data-testid^="queue-status-"]', { hasText: 'pending' })
+    // ).toHaveCount(0);
+  });
+
+  test('should distribute work across workers', async ({ page }) => {
+    await page.goto('/playground/queue');
+
+    // TODO 7: Start with 2 workers
+    // await page.getByTestId('select-worker-count').click();
+    // await page.getByRole('option', { name: '2' }).click();
+    // await page.getByTestId('btn-start-workers').click();
+
+    // TODO 8: Wait for completion, then check worker completed counts
+    // await expect(page.getByTestId('queue-complete')).toBeVisible({ timeout: 30000 });
+    // const w1 = await page.getByTestId('worker-completed-1').textContent();
+    // const w2 = await page.getByTestId('worker-completed-2').textContent();
+    // expect(Number(w1) + Number(w2)).toBe(8);
+  });
+});`,
+    missionBrief: {
+      context: "Parallel testing distributes test execution across multiple workers. In Playwright, configure `workers` in playwright.config.ts. This lab simulates a shared work queue where N workers dynamically pick items. The key challenge: asserting async, non-deterministic parallel behavior.",
+      objectives: [
+        { id: 1, text: "Configure worker count using `select-worker-count`" },
+        { id: 2, text: "Start workers with `btn-start-workers`" },
+        { id: 3, text: "Assert items transition through `in-progress` state" },
+        { id: 4, text: "Verify worker lanes are visible" },
+        { id: 5, text: "Wait for `queue-complete` to confirm all items processed" },
+        { id: 6, text: "Assert total completed items across workers equals 8" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWorkerConfig = /workers\s*:\s*\d/.test(code) || /select-worker-count/.test(code);
+      const hasStartBtn = /btn-start-workers/.test(code);
+      const hasInProgress = /in-progress/.test(code);
+      const hasQueueComplete = /queue-complete/.test(code);
+      const hasWorkerLane = /worker-lane/.test(code);
+      const hasCountAssertion = /toHaveCount\(0\)|pending.*0|worker-completed/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasWorkerConfig) {
+        logs.push("✗ ERROR: Worker count not configured.");
+        logs.push("  ↳ Use select-worker-count or set workers in config");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker count configured");
+
+      if (!hasStartBtn) {
+        logs.push("✗ ERROR: Workers not started.");
+        logs.push("  ↳ Click btn-start-workers");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Workers started");
+
+      if (!hasInProgress) {
+        logs.push("✗ ERROR: No assertion for in-progress state.");
+        logs.push("  ↳ Check that items transition to in-progress");
+        return { passed: false, logs };
+      }
+      logs.push("✓ In-progress state checked");
+
+      if (!hasQueueComplete) {
+        logs.push("✗ ERROR: Missing queue completion assertion.");
+        logs.push("  ↳ Wait for queue-complete element");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Queue completion verified");
+
+      if (!hasWorkerLane) {
+        logs.push("✗ ERROR: Worker lanes not verified.");
+        logs.push("  ↳ Assert worker-lane-N visibility");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker lanes checked");
+
+      if (!hasCountAssertion) {
+        logs.push("✗ ERROR: No assertion that all items completed.");
+        logs.push("  ↳ Assert pending count is 0 or total completed = 8");
+        return { passed: false, logs };
+      }
+      logs.push("✓ All items confirmed complete");
+
+      return { passed: true, logs };
+    }
   }
 ];

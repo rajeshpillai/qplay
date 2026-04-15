@@ -3,7 +3,7 @@ import Shell from "@/components/layout/shell";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Lock, MousePointerClick, Zap, Globe, Database, Terminal, Shield } from "lucide-react";
+import { Lock, MousePointerClick, Zap, Globe, Database, Terminal, Shield, Workflow } from "lucide-react";
 
 const ZONES = [
   {
@@ -52,6 +52,16 @@ const ZONES = [
     color: "text-pink-500",
     bg: "bg-pink-500/10",
     href: "/playground/kyc",
+    disabled: false
+  },
+  {
+    id: "queue",
+    title: "Work Queue",
+    description: "Test parallel work distribution: multiple workers pick items from a shared queue.",
+    icon: Workflow,
+    color: "text-violet-500",
+    bg: "bg-violet-500/10",
+    href: "/playground/queue",
     disabled: false
   }
 ];

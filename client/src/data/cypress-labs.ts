@@ -3902,5 +3902,139 @@ describe('Custom Chai Assertions', () => {
 
       return { passed: true, logs };
     }
+  },
+  {
+    id: "parallel-work-queue",
+    title: "Parallel Workers & Work Queue",
+    description: "Test parallel work distribution using dynamic queue assignment and Cypress parallel concepts.",
+    difficulty: "Advanced",
+    icon: Workflow,
+    initialCode: `// Cypress parallelism: cypress run --parallel --record --group "queue-tests"
+// Specs are distributed across CI machines by Cypress Cloud.
+
+describe('Work Queue Processing', () => {
+  beforeEach(() => {
+    cy.visit('/playground/queue');
+  });
+
+  it('should start workers and process all queue items', () => {
+    // TODO 1: Select 3 workers
+    // cy.get('[data-testid="select-worker-count"]').click();
+    // cy.get('[role="option"]').contains('3').click();
+
+    // TODO 2: Start the workers
+    // cy.get('[data-testid="btn-start-workers"]').click();
+
+    // TODO 3: Assert at least one item shows "in-progress"
+    // cy.get('[data-testid^="queue-status-"]')
+    //   .contains('in-progress')
+    //   .should('exist');
+
+    // TODO 4: Wait for queue completion (increase timeout for async)
+    // cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
+    //   .should('be.visible');
+
+    // TODO 5: Assert no pending items remain
+    // cy.get('[data-testid^="queue-status-"]')
+    //   .contains('pending')
+    //   .should('not.exist');
+  });
+
+  it('should show worker lanes processing items', () => {
+    // TODO 6: Start with 2 workers
+    // cy.get('[data-testid="select-worker-count"]').click();
+    // cy.get('[role="option"]').contains('2').click();
+    // cy.get('[data-testid="btn-start-workers"]').click();
+
+    // TODO 7: Verify worker lanes are visible
+    // cy.get('[data-testid="worker-lane-1"]').should('be.visible');
+    // cy.get('[data-testid="worker-lane-2"]').should('be.visible');
+
+    // TODO 8: After completion, verify total processed = 8
+    // cy.get('[data-testid="queue-complete"]', { timeout: 30000 })
+    //   .should('be.visible');
+    // cy.get('[data-testid="worker-completed-1"]').invoke('text').then(t1 => {
+    //   cy.get('[data-testid="worker-completed-2"]').invoke('text').then(t2 => {
+    //     expect(Number(t1) + Number(t2)).to.eq(8);
+    //   });
+    // });
+  });
+
+  it('should reset the queue', () => {
+    // TODO 9: Start and then reset
+    // cy.get('[data-testid="btn-start-workers"]').click();
+    // cy.get('[data-testid="btn-reset-queue"]').click();
+
+    // TODO 10: Assert all items are back to pending
+    // cy.get('[data-testid^="queue-status-"]').each(($el) => {
+    //   cy.wrap($el).should('contain', 'pending');
+    // });
+  });
+});`,
+    missionBrief: {
+      context: "Cypress parallelism uses `--parallel` flag with Cypress Cloud to distribute spec files across machines. This lab simulates a work queue where multiple workers process items concurrently. You'll practice asserting non-deterministic async behavior and using increased timeouts.",
+      objectives: [
+        { id: 1, text: "Configure worker count via `select-worker-count`" },
+        { id: 2, text: "Start workers with `btn-start-workers`" },
+        { id: 3, text: "Assert items transition through `in-progress` state" },
+        { id: 4, text: "Wait for `queue-complete` with extended timeout" },
+        { id: 5, text: "Verify no `pending` items remain after completion" },
+        { id: 6, text: "Check worker lanes are visible during processing" },
+        { id: 7, text: "Assert total completed items across workers equals 8" },
+        { id: 8, text: "Test reset returns all items to `pending`" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasWorkerSelect = /select-worker-count/.test(code);
+      const hasStartBtn = /btn-start-workers/.test(code);
+      const hasInProgress = /in-progress/.test(code);
+      const hasQueueComplete = /queue-complete/.test(code);
+      const hasWorkerLane = /worker-lane/.test(code);
+      const hasPendingCheck = /pending/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasWorkerSelect) {
+        logs.push("✗ ERROR: Worker count not configured.");
+        logs.push("  ↳ Use [data-testid='select-worker-count']");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker count selector used");
+
+      if (!hasStartBtn) {
+        logs.push("✗ ERROR: Workers not started.");
+        logs.push("  ↳ Click [data-testid='btn-start-workers']");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Workers started");
+
+      if (!hasInProgress) {
+        logs.push("✗ ERROR: No check for in-progress state.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ In-progress transition checked");
+
+      if (!hasQueueComplete) {
+        logs.push("✗ ERROR: Queue completion not asserted.");
+        logs.push("  ↳ Wait for [data-testid='queue-complete']");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Queue completion verified");
+
+      if (!hasWorkerLane) {
+        logs.push("✗ ERROR: Worker lanes not checked.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Worker lanes verified");
+
+      if (!hasPendingCheck) {
+        logs.push("✗ ERROR: No assertion that pending items are cleared.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ All items processed");
+
+      return { passed: true, logs };
+    }
   }
 ];

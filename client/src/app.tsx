@@ -25,6 +25,7 @@ import InteractionsZone from "@/pages/playground/interactions-zone";
 import ApiZone from "@/pages/playground/api-zone";
 import DataZone from "@/pages/playground/data-zone";
 import KycZone from "@/pages/playground/kyc-zone";
+import QueueZone from "@/pages/playground/queue-zone";
 
 // Vite sets BASE_URL from the `base` config (e.g. "/qplay/" for GitHub Pages, "/" for dev)
 const base = import.meta.env.BASE_URL === "/" ? undefined : import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -48,6 +49,7 @@ function AppRouter() {
       <Route path="/playground/api" component={ApiZone} />
       <Route path="/playground/data" component={DataZone} />
       <Route path="/playground/kyc" component={KycZone} />
+      <Route path="/playground/queue" component={QueueZone} />
       <Route path="/simulator" component={() => (
         <ModuleView /> 
       )} />
