@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Workflow, Play, RotateCcw, User, CheckCircle2, Clock, Loader2, ExternalLink, Radio } from "lucide-react";
+import { Workflow, Play, RotateCcw, User, CheckCircle2, Clock, Loader2, ExternalLink, Radio, Repeat } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // ═══════════════════════════════════════════════════════════════
 // Shared types & constants
@@ -488,7 +490,276 @@ function MultiTabMode() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Main Component: Tabbed layout with both modes
+// Mode 3: Loop Runner (N iterations, M concurrency, unique tasks)
+// Simulates: for (user of users) { pick task, process it }
+// ═══════════════════════════════════════════════════════════════
+
+interface LoopTask {
+  id: number;
+  userId: string;
+  task: string;
+  status: "queued" | "running" | "done";
+  worker: number | null;
+  duration: number | null;
+}
+
+const TASK_TYPES = [
+  "KYC Verification",
+  "Address Proof Upload",
+  "Bank Statement Review",
+  "Selfie Capture",
+  "PAN Card Validation",
+  "Aadhaar eKYC",
+  "Video KYC Call",
+  "Document OCR Check",
+  "Risk Assessment",
+  "Compliance Audit",
+  "Liveness Detection",
+  "Signature Verification",
+];
+
+function LoopRunnerMode() {
+  const [totalIterations, setTotalIterations] = useState("8");
+  const [concurrency, setConcurrency] = useState("3");
+  const [tasks, setTasks] = useState<LoopTask[]>([]);
+  const [running, setRunning] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [endTime, setEndTime] = useState<number | null>(null);
+  const timeoutRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stoppedRef = useRef(false);
+
+  const completedCount = tasks.filter(t => t.status === "done").length;
+  const runningCount = tasks.filter(t => t.status === "running").length;
+  const allDone = tasks.length > 0 && completedCount === tasks.length;
+
+  useEffect(() => {
+    return () => {
+      stoppedRef.current = true;
+      timeoutRefs.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const handleStart = () => {
+    stoppedRef.current = false;
+    const total = Math.max(1, Math.min(20, parseInt(totalIterations) || 8));
+    const maxConcurrent = Math.max(1, Math.min(6, parseInt(concurrency) || 3));
+
+    // Generate unique tasks for each iteration
+    const newTasks: LoopTask[] = Array.from({ length: total }, (_, i) => ({
+      id: i + 1,
+      userId: `User-${String(i + 1).padStart(2, "0")}`,
+      task: TASK_TYPES[i % TASK_TYPES.length],
+      status: "queued" as const,
+      worker: null,
+      duration: null,
+    }));
+
+    setTasks(newTasks);
+    setRunning(true);
+    setStartTime(Date.now());
+    setEndTime(null);
+
+    // Semaphore-based concurrency: start up to maxConcurrent, then fill slots
+    let nextIndex = 0;
+    let activeCount = 0;
+
+    const tryStartNext = () => {
+      if (stoppedRef.current) return;
+
+      while (activeCount < maxConcurrent && nextIndex < total) {
+        const taskIdx = nextIndex;
+        nextIndex++;
+        activeCount++;
+
+        const workerSlot = (taskIdx % maxConcurrent) + 1;
+
+        // Mark as running
+        setTasks(prev =>
+          prev.map((t, i) => i === taskIdx ? { ...t, status: "running", worker: workerSlot } : t)
+        );
+
+        // Simulate processing (1-3s)
+        const delay = 1000 + Math.random() * 2000;
+        const t = setTimeout(() => {
+          if (stoppedRef.current) return;
+
+          // Mark as done
+          setTasks(prev =>
+            prev.map((t, i) =>
+              i === taskIdx ? { ...t, status: "done", duration: Math.round(delay) } : t
+            )
+          );
+          activeCount--;
+
+          // Check if all done
+          if (nextIndex >= total && activeCount === 0) {
+            setEndTime(Date.now());
+          }
+
+          // Start next queued task
+          tryStartNext();
+        }, delay);
+        timeoutRefs.current.push(t);
+      }
+    };
+
+    tryStartNext();
+  };
+
+  const handleReset = () => {
+    stoppedRef.current = true;
+    timeoutRefs.current.forEach(clearTimeout);
+    timeoutRefs.current = [];
+    setTasks([]);
+    setRunning(false);
+    setStartTime(null);
+    setEndTime(null);
+  };
+
+  const elapsed = endTime && startTime ? ((endTime - startTime) / 1000).toFixed(1) : null;
+
+  return (
+    <div className="space-y-6">
+      {/* Controls */}
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Total Iterations</Label>
+          <Input
+            type="number"
+            min={1}
+            max={20}
+            value={totalIterations}
+            onChange={e => setTotalIterations(e.target.value)}
+            className="w-24"
+            disabled={running}
+            data-testid="input-total-iterations"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Concurrency (max parallel)</Label>
+          <Input
+            type="number"
+            min={1}
+            max={6}
+            value={concurrency}
+            onChange={e => setConcurrency(e.target.value)}
+            className="w-24"
+            disabled={running}
+            data-testid="input-concurrency"
+          />
+        </div>
+        <div className="space-y-1 pt-4">
+          <Button onClick={handleStart} disabled={running && !allDone} data-testid="btn-start-loop">
+            <Play className="h-4 w-4 mr-2 fill-current" /> Run Loop
+          </Button>
+        </div>
+        <div className="space-y-1 pt-4">
+          <Button variant="outline" onClick={handleReset} data-testid="btn-reset-loop">
+            <RotateCcw className="h-4 w-4 mr-2" /> Reset
+          </Button>
+        </div>
+      </div>
+
+      {/* Live Stats */}
+      {tasks.length > 0 && (
+        <div className="flex items-center gap-6 text-sm font-mono">
+          <span data-testid="loop-progress">
+            <span className="text-muted-foreground">Progress:</span>{" "}
+            <span className="text-primary font-bold">{completedCount}/{tasks.length}</span>
+          </span>
+          <span data-testid="loop-running-count">
+            <span className="text-muted-foreground">Running:</span>{" "}
+            <span className="text-yellow-400 font-bold">{runningCount}</span>
+          </span>
+          <span>
+            <span className="text-muted-foreground">Concurrency:</span>{" "}
+            <span className="font-bold">{concurrency}</span>
+          </span>
+          {elapsed && (
+            <span data-testid="loop-elapsed">
+              <span className="text-muted-foreground">Total time:</span>{" "}
+              <span className="text-green-400 font-bold">{elapsed}s</span>
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Task Table */}
+      {tasks.length > 0 && (
+        <div className="border border-white/10 rounded-lg overflow-hidden">
+          <div className="grid grid-cols-[60px_100px_1fr_100px_80px_80px] gap-2 p-3 bg-black/20 text-xs font-mono text-muted-foreground uppercase">
+            <span>#</span>
+            <span>User</span>
+            <span>Task</span>
+            <span>Status</span>
+            <span>Worker</span>
+            <span>Time</span>
+          </div>
+          <div className="max-h-[400px] overflow-auto">
+            {tasks.map(task => (
+              <div
+                key={task.id}
+                className={`grid grid-cols-[60px_100px_1fr_100px_80px_80px] gap-2 p-3 border-t border-white/5 text-sm transition-colors ${
+                  task.status === "running" ? "bg-yellow-500/5" : task.status === "done" ? "bg-green-500/5" : ""
+                }`}
+                data-testid={`loop-task-${task.id}`}
+              >
+                <span className="font-mono text-xs text-muted-foreground">{task.id}</span>
+                <span className="font-mono text-xs" data-testid={`loop-user-${task.id}`}>{task.userId}</span>
+                <span className="text-xs truncate">{task.task}</span>
+                <Badge
+                  variant={task.status === "done" ? "secondary" : task.status === "running" ? "default" : "outline"}
+                  className={`text-[10px] w-fit ${
+                    task.status === "done"
+                      ? "bg-green-500/20 text-green-400"
+                      : task.status === "running"
+                      ? "bg-yellow-500/20 text-yellow-400"
+                      : ""
+                  }`}
+                  data-testid={`loop-status-${task.id}`}
+                >
+                  {task.status === "running" && <Loader2 className="h-3 w-3 animate-spin mr-1" />}
+                  {task.status}
+                </Badge>
+                <span className={`text-xs font-mono ${task.worker ? WORKER_COLORS[(task.worker - 1) % WORKER_COLORS.length] : "text-muted-foreground"}`}>
+                  {task.worker ? `W#${task.worker}` : "—"}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  {task.duration ? `${(task.duration / 1000).toFixed(1)}s` : task.status === "running" ? "..." : "—"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Completion */}
+      {allDone && (
+        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-md flex items-center gap-3" data-testid="loop-complete">
+          <CheckCircle2 className="h-5 w-5 text-green-400 flex-shrink-0" />
+          <div>
+            <p className="text-green-400 font-bold">All Iterations Complete</p>
+            <p className="text-xs text-green-400/80">
+              {tasks.length} tasks processed with concurrency {concurrency} in {elapsed}s.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {tasks.length === 0 && (
+        <div className="p-3 bg-muted/30 border border-white/5 rounded-md text-sm text-muted-foreground space-y-1">
+          <p><strong>How it works:</strong> A loop spawns N user tasks. Up to M run concurrently (like a semaphore).</p>
+          <p>Each iteration gets a <strong>unique task</strong> — no two users do the same work.</p>
+          <p>In Playwright: this maps to <code>test.describe.configure(&#123; mode: 'parallel' &#125;)</code> with <code>workers: M</code>.</p>
+          <p>In Cypress: this maps to dynamic <code>it()</code> generation with <code>--parallel</code>.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Main Component: Tabbed layout with all three modes
 // ═══════════════════════════════════════════════════════════════
 
 export default function QueueZone() {
@@ -509,20 +780,24 @@ export default function QueueZone() {
               Parallel Work Queue Processor
             </CardTitle>
             <CardDescription>
-              Two modes: simulate workers in a single tab, or open multiple browser tabs where each tab is a real independent worker.
+              Three modes: simulated workers, real multi-tab workers, or a loop runner with controlled concurrency.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="single" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="single" data-testid="tab-single-mode">Single-Tab Simulation</TabsTrigger>
-                <TabsTrigger value="multi" data-testid="tab-multi-mode">Multi-Tab Workers</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="single" data-testid="tab-single-mode">Single-Tab</TabsTrigger>
+                <TabsTrigger value="multi" data-testid="tab-multi-mode">Multi-Tab</TabsTrigger>
+                <TabsTrigger value="loop" data-testid="tab-loop-mode">Loop Runner</TabsTrigger>
               </TabsList>
               <TabsContent value="single">
                 <SingleTabMode />
               </TabsContent>
               <TabsContent value="multi">
                 <MultiTabMode />
+              </TabsContent>
+              <TabsContent value="loop">
+                <LoopRunnerMode />
               </TabsContent>
             </Tabs>
           </CardContent>

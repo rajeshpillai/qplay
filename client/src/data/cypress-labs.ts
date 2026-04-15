@@ -4175,5 +4175,123 @@ describe('Multi-Tab Work Queue', () => {
 
       return { passed: true, logs };
     }
+  },
+  {
+    id: "loop-parallel-tasks",
+    title: "Loop Parallel — Each User Does Its Task",
+    description: "Generate N test cases dynamically, each user processing a unique task from a queue.",
+    difficulty: "Advanced",
+    icon: Repeat,
+    initialCode: `// In Cypress, dynamic test generation + --parallel flag distributes work.
+// cypress run --parallel --record (requires Cypress Cloud or Sorry Cypress)
+
+const users = [
+  { id: 'User-01', task: 'KYC Verification' },
+  { id: 'User-02', task: 'Address Proof Upload' },
+  { id: 'User-03', task: 'Bank Statement Review' },
+  { id: 'User-04', task: 'Selfie Capture' },
+  { id: 'User-05', task: 'PAN Card Validation' },
+  { id: 'User-06', task: 'Aadhaar eKYC' },
+  { id: 'User-07', task: 'Video KYC Call' },
+  { id: 'User-08', task: 'Document OCR Check' },
+];
+
+describe('Loop Parallel - Unique Tasks', () => {
+  // Generate one test per user — when run with --parallel, Cypress
+  // distributes these across CI machines automatically
+  users.forEach((user, index) => {
+    it(\`\${user.id} processes \${user.task}\`, () => {
+      cy.visit('/playground/queue');
+
+      // Switch to Loop Runner mode
+      cy.get('[data-testid="tab-loop-mode"]').click();
+
+      // Set iterations and concurrency
+      cy.get('[data-testid="input-total-iterations"]').clear().type(String(users.length));
+      cy.get('[data-testid="input-concurrency"]').clear().type('3');
+
+      // Start the loop
+      cy.get('[data-testid="btn-start-loop"]').click();
+
+      // Verify this user's task appears
+      cy.get('[data-testid="loop-user-' + (index + 1) + '"]')
+        .should('contain', user.id);
+
+      // Wait for all iterations to complete
+      cy.get('[data-testid="loop-complete"]', { timeout: 30000 })
+        .should('be.visible');
+
+      // Verify elapsed time is displayed
+      cy.get('[data-testid="loop-elapsed"]').should('be.visible');
+    });
+  });
+
+  // TRY: Change concurrency to 1 vs 6 and compare total time.
+  // TRY: Add more users and see how --parallel would distribute specs.
+});`,
+    missionBrief: {
+      context: "In Cypress, you generate dynamic tests using `forEach` or `for` loops over a data array. Each iteration becomes a separate `it()` block. When run with `--parallel`, Cypress Cloud distributes these specs across CI machines. This is the production pattern for testing N users doing N different tasks concurrently.",
+      objectives: [
+        { id: 1, text: "Create a `users` data array with unique tasks" },
+        { id: 2, text: "Use `forEach` to generate dynamic `it()` blocks" },
+        { id: 3, text: "Switch to Loop Runner mode with `tab-loop-mode`" },
+        { id: 4, text: "Set iterations and concurrency" },
+        { id: 5, text: "Start the loop and wait for `loop-complete`" },
+        { id: 6, text: "Verify elapsed time for performance comparison" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasParallel = /--parallel|parallel/.test(code);
+      const hasLoop = /forEach|for\s*\(/.test(code);
+      const hasUsersArray = /users/.test(code) && /\[\s*\{/.test(code);
+      const hasLoopMode = /tab-loop-mode/.test(code);
+      const hasIterations = /input-total-iterations/.test(code);
+      const hasConcurrency = /input-concurrency/.test(code);
+      const hasStartLoop = /btn-start-loop/.test(code);
+      const hasComplete = /loop-complete/.test(code);
+
+      logs.push("✓ Test suite initialized");
+
+      if (!hasUsersArray) {
+        logs.push("✗ ERROR: Users data array not found.");
+        logs.push("  ↳ Create: const users = [{ id: ..., task: ... }, ...]");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Users data array defined");
+
+      if (!hasLoop) {
+        logs.push("✗ ERROR: No loop generating tests.");
+        logs.push("  ↳ Use users.forEach((user) => { it(...) })");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Tests generated dynamically");
+
+      if (!hasLoopMode) {
+        logs.push("✗ ERROR: Loop Runner mode not activated.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Loop Runner mode activated");
+
+      if (!hasIterations || !hasConcurrency) {
+        logs.push("✗ ERROR: Iterations or concurrency not set.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Iterations and concurrency configured");
+
+      if (!hasStartLoop) {
+        logs.push("✗ ERROR: Loop not started.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Loop started");
+
+      if (!hasComplete) {
+        logs.push("✗ ERROR: Loop completion not asserted.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ All iterations completed");
+
+      return { passed: true, logs };
+    }
   }
 ];

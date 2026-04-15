@@ -3698,5 +3698,131 @@ test.describe('Multi-Tab Work Queue', () => {
 
       return { passed: true, logs };
     }
+  },
+  {
+    id: "loop-parallel-tasks",
+    title: "Loop Parallel — Each User Does Its Task",
+    description: "Run N test iterations in parallel with controlled concurrency, each picking a unique task from a queue.",
+    difficulty: "Advanced",
+    icon: Repeat,
+    initialCode: `// playwright.config.ts:
+// export default defineConfig({ workers: 3 });
+
+// This makes all tests in the describe run in parallel across workers
+test.describe.configure({ mode: 'parallel' });
+
+// Each user gets a unique task — generated from data
+const users = [
+  { id: 'User-01', task: 'KYC Verification' },
+  { id: 'User-02', task: 'Address Proof Upload' },
+  { id: 'User-03', task: 'Bank Statement Review' },
+  { id: 'User-04', task: 'Selfie Capture' },
+  { id: 'User-05', task: 'PAN Card Validation' },
+  { id: 'User-06', task: 'Aadhaar eKYC' },
+  { id: 'User-07', task: 'Video KYC Call' },
+  { id: 'User-08', task: 'Document OCR Check' },
+];
+
+test.describe('Loop Parallel - Unique Tasks', () => {
+  // Generate one test per user — Playwright runs them in parallel
+  for (const user of users) {
+    test(\`\${user.id} processes \${user.task}\`, async ({ page }) => {
+      await page.goto('/playground/queue');
+
+      // Switch to Loop Runner mode
+      await page.getByTestId('tab-loop-mode').click();
+
+      // Set iterations to match our data
+      await page.getByTestId('input-total-iterations').fill(String(users.length));
+      await page.getByTestId('input-concurrency').fill('3');
+
+      // Start the loop
+      await page.getByTestId('btn-start-loop').click();
+
+      // Verify our user's task appears in the task table
+      await expect(
+        page.getByTestId('loop-user-' + (users.indexOf(user) + 1))
+      ).toContainText(user.id);
+
+      // Wait for all to complete
+      await expect(page.getByTestId('loop-complete')).toBeVisible({ timeout: 30000 });
+
+      // Verify the elapsed time is shown
+      await expect(page.getByTestId('loop-elapsed')).toBeVisible();
+    });
+  }
+
+  // TRY: Change concurrency to 1 and observe the time difference.
+  // TRY: Increase to 6 concurrent and watch items fly through.
+});`,
+    missionBrief: {
+      context: "In production, you often need to run the same test flow for N different users/data sets in parallel. Playwright's `test.describe.configure({ mode: 'parallel' })` combined with a `for` loop generates N independent tests that run concurrently across workers. Each test picks its unique task from the data array — no duplication.",
+      objectives: [
+        { id: 1, text: "Use `test.describe.configure({ mode: 'parallel' })`" },
+        { id: 2, text: "Generate tests dynamically with `for (const user of users)`" },
+        { id: 3, text: "Switch to Loop Runner mode with `tab-loop-mode`" },
+        { id: 4, text: "Set iterations and concurrency via input fields" },
+        { id: 5, text: "Start the loop and wait for `loop-complete`" },
+        { id: 6, text: "Verify elapsed time for performance comparison" }
+      ]
+    },
+    validation: (code: string) => {
+      const logs: string[] = [];
+      const hasParallelConfig = /mode.*parallel|parallel.*mode/.test(code);
+      const hasLoop = /for\s*\(.*of\s+users|users\.forEach|\.map\(/.test(code);
+      const hasLoopMode = /tab-loop-mode/.test(code);
+      const hasIterations = /input-total-iterations/.test(code);
+      const hasConcurrency = /input-concurrency/.test(code);
+      const hasStartLoop = /btn-start-loop/.test(code);
+      const hasComplete = /loop-complete/.test(code);
+      const hasElapsed = /loop-elapsed/.test(code);
+
+      logs.push("✓ Test started");
+
+      if (!hasParallelConfig) {
+        logs.push("✗ ERROR: Parallel mode not configured.");
+        logs.push("  ↳ Use test.describe.configure({ mode: 'parallel' })");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Parallel mode configured");
+
+      if (!hasLoop) {
+        logs.push("✗ ERROR: No loop generating tests from data.");
+        logs.push("  ↳ Use for (const user of users) { test(...) }");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Tests generated dynamically from data");
+
+      if (!hasLoopMode) {
+        logs.push("✗ ERROR: Loop Runner mode not activated.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Loop Runner mode activated");
+
+      if (!hasIterations || !hasConcurrency) {
+        logs.push("✗ ERROR: Iterations or concurrency not configured.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Iterations and concurrency set");
+
+      if (!hasStartLoop) {
+        logs.push("✗ ERROR: Loop not started.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ Loop started");
+
+      if (!hasComplete) {
+        logs.push("✗ ERROR: Loop completion not asserted.");
+        return { passed: false, logs };
+      }
+      logs.push("✓ All iterations completed");
+
+      if (!hasElapsed) {
+        logs.push("⚠ WARN: Elapsed time not verified.");
+      }
+      logs.push("✓ Loop parallel execution verified");
+
+      return { passed: true, logs };
+    }
   }
 ];
