@@ -11,6 +11,7 @@
     "check": "tsc",
     "build:static": "vite build --config vite.gh-pages.config.ts && cp dist/public/index.html dist/public/404.html",
     "preview:static": "vite preview --config vite.gh-pages.config.ts",
+    "deploy": "bash scripts/deploy-gh-pages.sh",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
