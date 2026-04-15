@@ -8,6 +8,7 @@ import path from "path";
 // Usage: npx vite build --config vite.gh-pages.config.ts
 
 export default defineConfig({
+  base: "/qplay/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
